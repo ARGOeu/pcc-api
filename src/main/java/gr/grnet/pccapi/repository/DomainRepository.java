@@ -8,7 +8,6 @@ import javax.enterprise.context.ApplicationScoped;
 import java.util.Optional;
 
 @ApplicationScoped
-
 public class DomainRepository implements PanacheRepositoryBase<Domain, Integer> {
 
     /**
