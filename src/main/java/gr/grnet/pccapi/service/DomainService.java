@@ -55,24 +55,28 @@ public class DomainService {
     }
 
     /**
-     * Returns the available API Scientific Domains
-     * @return The stored Domains has been turned into a response body.
-     */
-    public List<DomainDto> getAll(){
-
-        var domains = domainRepository.findAll().list();
-
-        return DomainMapper.INSTANCE.domainsToDto(domains);
-    }
-
-    /**
      * Returns a Domain by the given ID
      * @return The stored Domain has been turned into a response body.
      */
     public DomainDto getById(Integer id){
 
+        LOG.infof("Fetching the Domain with ID : %s", id);
+
         var domain = domainRepository.findById(id);
 
         return DomainMapper.INSTANCE.domainToDto(domain);
+    }
+
+    /**
+     * Returns the available API Scientific Domains
+     * @return The stored Domains has been turned into a response body.
+     */
+    public List<DomainDto> getAll(){
+
+        LOG.infof("Fetching all Domains.");
+
+        var domains = domainRepository.findAll().list();
+
+        return DomainMapper.INSTANCE.domainsToDto(domains);
     }
 }
