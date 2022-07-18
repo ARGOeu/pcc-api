@@ -10,4 +10,4 @@ import javax.enterprise.context.ApplicationScoped;
  */
 
 @ApplicationScoped
-public class ServiceRepository implements PanacheRepositoryBase<Service, Long> {}
+public class ServiceRepository implements PanacheRepositoryBase<Service, Integer> {}

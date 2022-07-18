@@ -27,4 +27,15 @@ public class ServiceEndpoint {
     public Response listAllServices(){
         return Response.ok().entity(service.findAllServices()).build();
     }
+
+    /**
+     *
+     * List one specific service based on the provided id.
+     */
+    @GET
+    @Path("/{id}")
+    public Response listOneService(int id) {
+        return Response.ok().entity(service.findOneService(id)).build();
+    }
+
 }

@@ -3,8 +3,6 @@ package gr.grnet.pccapi.entity;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
@@ -38,7 +36,7 @@ public class Service extends PanacheEntityBase {
             }
     )
     @EqualsAndHashCode.Include
-    public Long id;
+    public Integer id;
     @EqualsAndHashCode.Include
     public String name;
 }

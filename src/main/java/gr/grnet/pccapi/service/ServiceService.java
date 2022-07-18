@@ -19,7 +19,6 @@ public class ServiceService {
     ServiceRepository serviceRepository;
 
     /**
-     *
      * Queries the respective {@link ServiceRepository} to retrieve all the available services.
      * It returns a list of {@link ServiceDto} after converting them using the {@link ServiceMapper}
      */
@@ -29,5 +28,14 @@ public class ServiceService {
                 .stream()
                 .map(ServiceMapper.INSTANCE::serviceToDto)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     *
+     * Queries the respective {@link ServiceRepository} to retrieve the specified service based on the provided id.
+     * It returns a {@link ServiceDto} after converting it using the {@link ServiceMapper}
+     */
+    public ServiceDto findOneService(Integer id) {
+        return ServiceMapper.INSTANCE.serviceToDto(serviceRepository.findById(id));
     }
 }
