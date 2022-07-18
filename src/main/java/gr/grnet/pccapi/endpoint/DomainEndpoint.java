@@ -17,14 +17,6 @@ public class DomainEndpoint {
         this.domainService = domainService;
     }
 
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getAll(){
-
-        var domains = domainService.getAll();
-
-        return Response.ok().entity(domains).build();
-    }
 
     @GET
     @Path("/{id}")
@@ -34,5 +26,14 @@ public class DomainEndpoint {
         var domain = domainService.getById(id);
 
         return Response.ok().entity(domain).build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAll(){
+
+        var domains = domainService.getAll();
+
+        return Response.ok().entity(domains).build();
     }
 }

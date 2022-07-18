@@ -64,4 +64,19 @@ public class DomainEndpointTest {
        assertEquals(domainDto.domainId, domain.domainId);
        assertEquals(domainDto.description, domain.description);
     }
+
+    @Test
+    public void fetchAllDomains(){
+
+
+        var domainDtos = given()
+                .get()
+                .then()
+                .assertThat()
+                .statusCode(200)
+                .extract()
+                .as(DomainDto[].class);
+
+        assertEquals(8, domainDtos.length);
+    }
 }
