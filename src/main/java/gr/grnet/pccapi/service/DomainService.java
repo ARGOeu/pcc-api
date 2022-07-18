@@ -54,10 +54,25 @@ public class DomainService {
         LOG.info("EOSC-Portal domains have been successfully stored into the database.");
     }
 
+    /**
+     * Returns the available API Scientific Domains
+     * @return The stored Domains has been turned into a response body.
+     */
     public List<DomainDto> getAll(){
 
         var domains = domainRepository.findAll().list();
 
         return DomainMapper.INSTANCE.domainsToDto(domains);
+    }
+
+    /**
+     * Returns a Domain by the given ID
+     * @return The stored Domain has been turned into a response body.
+     */
+    public DomainDto getById(Integer id){
+
+        var domain = domainRepository.findById(id);
+
+        return DomainMapper.INSTANCE.domainToDto(domain);
     }
 }
