@@ -10,12 +10,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.SequenceGenerator;
 
-@Entity
+@Entity(name = "domain")
 @NamedQueries({
-        @NamedQuery(name = "Domain.updateByDomainId", query = "update Domain d set d.name = :name, d.description = :description where d.domainId = :domainId"),
-        @NamedQuery(name = "Domain.findByDomainId", query = "from Domain where domainId = ?1")
+        @NamedQuery(name = "Domain.updateByDomainId", query = "update domain d set d.name = :name, d.description = :description where d.domainId = :domainId"),
+        @NamedQuery(name = "Domain.findByDomainId", query = "from domain where domainId = ?1")
 })
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 /**
@@ -25,12 +24,7 @@ import javax.persistence.SequenceGenerator;
 public class Domain extends PanacheEntityBase {
 
     @Id
-    @SequenceGenerator(
-            name = "domainSequence",
-            sequenceName = "domain_id_seq",
-            allocationSize = 1,
-            initialValue = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "personSequence")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Integer id;
     @EqualsAndHashCode.Include
     @Column(name = "domain_id")
