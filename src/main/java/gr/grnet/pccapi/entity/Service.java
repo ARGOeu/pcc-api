@@ -38,7 +38,7 @@ public class Service extends PanacheEntityBase {
             }
     )
     @EqualsAndHashCode.Include
-    public Long id;
+    public Integer id;
     @EqualsAndHashCode.Include
     public String name;
 }

@@ -29,4 +29,15 @@ public class ServiceEndpoint {
     public Response listAllServices(){
         return Response.ok().entity(service.findAllServices()).build();
     }
+
+    /**
+     *
+     * List one specific service based on the provided id.
+     */
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/{id}")
+    public Response listOneService(int id) {
+        return Response.ok().entity(service.findOneService(id)).build();
+    }
 }
