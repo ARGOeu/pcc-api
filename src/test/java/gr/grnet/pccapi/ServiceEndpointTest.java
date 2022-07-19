@@ -38,4 +38,20 @@ public class ServiceEndpointTest {
         assertEquals("B2ACCESS", response[2].name);
     }
 
+    @Test
+    public void listOneService() {
+
+        var response = given()
+                .contentType(ContentType.JSON)
+                .get("/{id}", 1)
+                .then()
+                .assertThat()
+                .statusCode(200)
+                .extract()
+                .as(ServiceDto.class);
+
+        assertEquals(1L, response.id);
+        assertEquals("B2HANDLE", response.name);
+    }
+
 }

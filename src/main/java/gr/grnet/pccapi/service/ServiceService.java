@@ -33,4 +33,13 @@ public class ServiceService {
                 .map(ServiceMapper.INSTANCE::serviceToDto)
                 .collect(Collectors.toList());
     }
+
+    /**
+     *
+     * Queries the respective {@link ServiceRepository} to retrieve the specified service based on the provided id.
+     * It returns a {@link ServiceDto} after converting it using the {@link ServiceMapper}
+     */
+    public ServiceDto findOneService(Integer id) {
+        return ServiceMapper.INSTANCE.serviceToDto(serviceRepository.findById(id));
+    }
 }
