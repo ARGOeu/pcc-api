@@ -27,6 +27,12 @@ public class ProviderEndpoint {
         this.providerService = providerService;
     }
 
+    @Tag(name="Provider")
+    @APIResponse(
+            responseCode = "200",
+            description = "Get the list of all the available providers in PCC-api.",
+            content = @Content(schema = @Schema( type = SchemaType.ARRAY, implementation = ProviderResponseDTO.class)))
+    @Operation(summary = "Get a list of all available providers")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response list() {
