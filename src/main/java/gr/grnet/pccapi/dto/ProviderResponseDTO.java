@@ -6,7 +6,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 /**
  * A class that represents a Provider served as response by the Provider endpoint
  */
-@Schema(name="ProviderResponse", description="Provider is an organisation that hosts the handle service")
+@Schema(name="ProviderResponse", description="Provider is an organization that hosts the handle service")
 public class ProviderResponseDTO {
     @Schema(
             type = SchemaType.INTEGER,
