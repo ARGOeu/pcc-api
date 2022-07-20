@@ -28,13 +28,13 @@ public class ServiceEndpointTest {
                 .as(ServiceDto[].class);
 
         assertEquals(3, response.length);
-        assertEquals(1L, response[0].id);
+        assertEquals(1, response[0].id);
         assertEquals("B2HANDLE", response[0].name);
 
-        assertEquals(2L, response[1].id);
+        assertEquals(2, response[1].id);
         assertEquals("B2SAFE", response[1].name);
 
-        assertEquals(3L, response[2].id);
+        assertEquals(3, response[2].id);
         assertEquals("B2ACCESS", response[2].name);
     }
 
@@ -50,7 +50,7 @@ public class ServiceEndpointTest {
                 .extract()
                 .as(ServiceDto.class);
 
-        assertEquals(1L, response.id);
+        assertEquals(1, response.id);
         assertEquals("B2HANDLE", response.name);
     }
 
