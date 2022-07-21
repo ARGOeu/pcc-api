@@ -3,17 +3,13 @@ package gr.grnet.pccapi.entity;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.DynamicUpdate;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 @Entity(name = "prefix")
 @Setter
+@DynamicUpdate
 @Accessors(chain = true)
 public class Prefix extends PanacheEntityBase {
 
@@ -30,11 +26,11 @@ public class Prefix extends PanacheEntityBase {
     @JoinColumn(name = "domain_id")
     public Domain domain;
 
-    @ManyToOne
+    @ManyToOne()
     @JoinColumn(name = "service_id")
     public Service service;
 
-    @ManyToOne
+    @ManyToOne()
     @JoinColumn(name = "provider_id")
     public Provider provider;
 

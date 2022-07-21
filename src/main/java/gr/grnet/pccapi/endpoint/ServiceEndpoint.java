@@ -1,8 +1,7 @@
 package gr.grnet.pccapi.endpoint;
 
-import gr.grnet.pccapi.dto.DomainDto;
 import gr.grnet.pccapi.dto.ServiceDto;
-import gr.grnet.pccapi.exception.APIError;
+import gr.grnet.pccapi.dto.APIResponseMsg;
 import gr.grnet.pccapi.service.ServiceService;
 import lombok.AllArgsConstructor;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -46,7 +45,7 @@ public class ServiceEndpoint {
     @APIResponse(responseCode = "404", description = "The service cannot find the requested service.",
             content = @Content(schema = @Schema(
                     type = SchemaType.OBJECT,
-                    implementation = APIError.class)))
+                    implementation = APIResponseMsg.class)))
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response listAllServices(){

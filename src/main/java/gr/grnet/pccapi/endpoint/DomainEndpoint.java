@@ -1,7 +1,7 @@
 package gr.grnet.pccapi.endpoint;
 
 import gr.grnet.pccapi.dto.DomainDto;
-import gr.grnet.pccapi.exception.APIError;
+import gr.grnet.pccapi.dto.APIResponseMsg;
 import gr.grnet.pccapi.service.DomainService;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
@@ -42,7 +42,7 @@ public class DomainEndpoint {
     @APIResponse(responseCode = "404", description = "The service cannot find the requested domain.",
             content = @Content(schema = @Schema(
                     type = SchemaType.OBJECT,
-                    implementation = APIError.class)))
+                    implementation = APIResponseMsg.class)))
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)

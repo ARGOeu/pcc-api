@@ -1,5 +1,7 @@
 package gr.grnet.pccapi.exception;
 
+import gr.grnet.pccapi.dto.APIResponseMsg;
+
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
@@ -14,7 +16,7 @@ public class ThrowableMapper implements ExceptionMapper<Throwable> {
     public Response toResponse(Throwable e) {
         e.printStackTrace();
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(new APIError("INTERNAL_SERVER_ERROR")).build();
+                .entity(new APIResponseMsg("INTERNAL_SERVER_ERROR")).build();
     }
 
 }
