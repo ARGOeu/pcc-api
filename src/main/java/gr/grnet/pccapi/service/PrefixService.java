@@ -17,6 +17,7 @@ import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.transaction.Transactional;
+import java.util.List;
 import javax.ws.rs.NotFoundException;
 
 @ApplicationScoped
@@ -68,6 +69,14 @@ public class PrefixService {
         prefixRepository.persist(prefix);
 
        return PrefixMapper.INSTANCE.prefixToResponseDto(prefix);
+    }
+
+    public List<PrefixResponseDto> getAll() {
+
+
+        var prefixes = prefixRepository.findAll().list();
+        // Map the prefixes retrieved from the database to the equivalent prefixDTO list and return
+        return PrefixMapper.INSTANCE.prefixesToResponseDto(prefixes);
     }
 
     /**

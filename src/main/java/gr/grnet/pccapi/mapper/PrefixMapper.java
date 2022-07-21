@@ -1,13 +1,12 @@
 package gr.grnet.pccapi.mapper;
 
-import gr.grnet.pccapi.dto.PrefixDto;
 import gr.grnet.pccapi.dto.PrefixResponseDto;
-import gr.grnet.pccapi.dto.ServiceDto;
 import gr.grnet.pccapi.entity.Prefix;
-import gr.grnet.pccapi.entity.Service;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
+
+import java.util.List;
 
 
 /**
@@ -30,4 +29,13 @@ public interface PrefixMapper {
     @Mapping(target="providerId", source="provider.id")
     @Mapping(target="providerName", source="provider.name")
     PrefixResponseDto prefixToResponseDto(Prefix prefix);
+
+
+    @Mapping(target="serviceId", source="prefix.service.id")
+    @Mapping(target="serviceName", source="prefix.service.name")
+    @Mapping(target="domainId", source="prefix.domain.id")
+    @Mapping(target="domainName", source="prefix.domain.name")
+    @Mapping(target="providerId", source="prefix.provider.id")
+    @Mapping(target="providerName", source="prefix.provider.name")
+    List<PrefixResponseDto> prefixesToResponseDto(List<Prefix> prefixes);
 }

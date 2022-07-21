@@ -1,6 +1,5 @@
 package gr.grnet.pccapi;
 
-import gr.grnet.pccapi.dto.DomainDto;
 import gr.grnet.pccapi.dto.PrefixDto;
 import gr.grnet.pccapi.dto.PrefixResponseDto;
 import gr.grnet.pccapi.endpoint.PrefixEndpoint;
@@ -242,7 +241,7 @@ public class PrefixEndpointTest {
 
        assertEquals("Prefix not found", resp.getMessage());
     }
-    
+
     @Test
     public void fetchPrefixById(){
 
@@ -289,5 +288,21 @@ public class PrefixEndpointTest {
                 .as(APIError.class);
 
         assertEquals("Prefix not found", resp.getMessage());
+    }
+
+    @Test
+    public void testFetchAllPrefixes(){
+
+        var prefixes = prefixRepository.findAll().list();
+
+        var prefixResponseDto  = given()
+                .get()
+                .then()
+                .assertThat()
+                .statusCode(200)
+                .extract()
+                .as(PrefixResponseDto[].class);
+
+        assertEquals(prefixes.size(), prefixResponseDto.length);
     }
 }
