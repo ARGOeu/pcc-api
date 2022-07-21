@@ -1,6 +1,7 @@
 package gr.grnet.pccapi.service;
 
 import gr.grnet.pccapi.dto.PrefixDto;
+import gr.grnet.pccapi.dto.PrefixResponseDto;
 import gr.grnet.pccapi.entity.Domain;
 import gr.grnet.pccapi.entity.Prefix;
 import gr.grnet.pccapi.entity.Provider;
@@ -10,7 +11,6 @@ import gr.grnet.pccapi.repository.DomainRepository;
 import gr.grnet.pccapi.repository.PrefixRepository;
 import gr.grnet.pccapi.repository.ProviderRepository;
 import gr.grnet.pccapi.repository.ServiceRepository;
-import io.quarkus.logging.Log;
 import lombok.AllArgsConstructor;
 import org.jboss.logging.Logger;
 
@@ -27,10 +27,20 @@ public class PrefixService {
      PrefixRepository prefixRepository;
      Logger log;
 
+     /**
+      * Creates a new prefix based on the provided arguments,
+      * runs validation checks and returns the appropriate response dto
+      */
      @Transactional
-    public PrefixDto create(PrefixDto prefixDto) {
+    public PrefixResponseDto create(PrefixDto prefixDto) {
 
          log.info("Inserting new prefix . . .");
+
+
+         // check the uniqueness of the provided name
+         if (prefixRepository.existsByName(prefixDto.getName())) {
+             throw new RuntimeException(("Prefix name already exists"));
+         }
 
         // check the existence of the provided service
         Service service = serviceRepository.findByIdOptional(prefixDto.getServiceId())
@@ -55,6 +65,6 @@ public class PrefixService {
 
         prefixRepository.persist(prefix);
 
-       return PrefixMapper.INSTANCE.prefixToDto(prefix);
+       return PrefixMapper.INSTANCE.prefixToResponseDto(prefix);
     }
 }

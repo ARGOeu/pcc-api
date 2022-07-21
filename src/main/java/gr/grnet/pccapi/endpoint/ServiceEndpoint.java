@@ -3,6 +3,7 @@ package gr.grnet.pccapi.endpoint;
 import gr.grnet.pccapi.dto.DomainDto;
 import gr.grnet.pccapi.dto.ServiceDto;
 import gr.grnet.pccapi.service.ServiceService;
+import lombok.AllArgsConstructor;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -21,15 +22,12 @@ import javax.ws.rs.core.Response;
 /**
  * Controller that provides all necessary service related functionality
  */
-@Path("/services")
+@AllArgsConstructor
 @Tag(name="Service")
+@Path("/services")
 public class ServiceEndpoint {
 
     ServiceService service;
-
-    public ServiceEndpoint(ServiceService service) {
-        this.service = service;
-    }
 
     /**
      *

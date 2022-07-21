@@ -61,7 +61,6 @@ public class ProviderEndpoint {
             description = "The id of the provider to be retrieved.",
                         required = true,
                         example = "1",
-
                         schema = @Schema(type = SchemaType.INTEGER))  @PathParam("id") int id ) {
         var provider = providerService.get(id);
         return Response.ok().entity(provider).build();
