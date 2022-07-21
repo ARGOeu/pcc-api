@@ -1,11 +1,13 @@
 package gr.grnet.pccapi.service;
 
+import gr.grnet.pccapi.dto.DomainDto;
 import gr.grnet.pccapi.dto.PrefixDto;
 import gr.grnet.pccapi.dto.PrefixResponseDto;
 import gr.grnet.pccapi.entity.Domain;
 import gr.grnet.pccapi.entity.Prefix;
 import gr.grnet.pccapi.entity.Provider;
 import gr.grnet.pccapi.entity.Service;
+import gr.grnet.pccapi.mapper.DomainMapper;
 import gr.grnet.pccapi.mapper.PrefixMapper;
 import gr.grnet.pccapi.repository.DomainRepository;
 import gr.grnet.pccapi.repository.PrefixRepository;
@@ -66,6 +68,19 @@ public class PrefixService {
         prefixRepository.persist(prefix);
 
        return PrefixMapper.INSTANCE.prefixToResponseDto(prefix);
+    }
+
+    /**
+     * Returns a Prefix by the given ID
+     * @return The stored Prefix has been turned into a response body.
+     */
+    public PrefixResponseDto getById(Integer id){
+
+        log.infof("Fetching the Prefix with ID : %s", id);
+
+        var prefix = prefixRepository.findById(id);
+
+        return PrefixMapper.INSTANCE.prefixToResponseDto(prefix);
     }
 
     /**

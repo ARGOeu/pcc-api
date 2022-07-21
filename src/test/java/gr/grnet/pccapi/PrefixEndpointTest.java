@@ -1,5 +1,6 @@
 package gr.grnet.pccapi;
 
+import gr.grnet.pccapi.dto.DomainDto;
 import gr.grnet.pccapi.dto.PrefixDto;
 import gr.grnet.pccapi.dto.PrefixResponseDto;
 import gr.grnet.pccapi.endpoint.PrefixEndpoint;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.TestInstance;
 import javax.inject.Inject;
 
 import static io.restassured.RestAssured.given;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @QuarkusTest
 @TestHTTPEndpoint(PrefixEndpoint.class)
@@ -165,5 +167,40 @@ public class PrefixEndpointTest {
                 .then()
                 .assertThat()
                 .statusCode(200);
+    }
+
+    @Test
+    public void fetchPrefixById(){
+
+        var requestBody = new PrefixDto()
+                .setName("12345")
+                .setOwner("someone")
+                .setStatus(2)
+                .setUsedBy("someone else")
+                .setDomainId(1)
+                .setServiceId(1)
+                .setProviderId(1);
+
+        var created = given()
+                .contentType(ContentType.JSON)
+                .body(requestBody)
+                .post()
+                .then()
+                .assertThat()
+                .statusCode(201)
+                .extract()
+                .as(PrefixResponseDto.class);
+
+        var prefixResponseDto = given()
+                .get("/{id}", created.id)
+                .then()
+                .assertThat()
+                .statusCode(200)
+                .extract()
+                .as(PrefixResponseDto.class);
+
+        assertEquals(created.name, prefixResponseDto.name);
+        assertEquals(created.domainId, prefixResponseDto.domainId);
+        assertEquals(created.id, prefixResponseDto.id);
     }
 }
