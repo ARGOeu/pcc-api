@@ -67,4 +67,15 @@ public class PrefixService {
 
        return PrefixMapper.INSTANCE.prefixToResponseDto(prefix);
     }
+
+    /**
+     * This method delegates a prefix deletion query to {@link PrefixRepository prefixRepository}.
+     *
+     * @param id The prefix ID to be deleted
+     */
+    @Transactional
+    public boolean delete(Integer id){
+
+         return prefixRepository.deleteById(id);
+    }
 }
