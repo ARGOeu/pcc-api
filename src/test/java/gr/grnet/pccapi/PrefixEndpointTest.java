@@ -134,4 +134,36 @@ public class PrefixEndpointTest {
                 .assertThat()
                 .statusCode(500);
     }
+
+    @Test
+    public void deletePrefix(){
+
+        // creating a new Prefix
+        var requestBody = new PrefixDto()
+                .setName("11545")
+                .setOwner("someone")
+                .setStatus(2)
+                .setUsedBy("someone else")
+                .setDomainId(1)
+                .setServiceId(1)
+                .setProviderId(1);
+
+        var response = given()
+                .contentType(ContentType.JSON)
+                .body(requestBody)
+                .post()
+                .then()
+                .assertThat()
+                .statusCode(201)
+                .extract()
+                .as(PrefixResponseDto.class);
+
+        // deleting an existing Prefix
+
+        given()
+                .delete("/{id}", response.id)
+                .then()
+                .assertThat()
+                .statusCode(200);
+    }
 }
