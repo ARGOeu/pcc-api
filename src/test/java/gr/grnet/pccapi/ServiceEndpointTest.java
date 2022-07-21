@@ -2,6 +2,7 @@ package gr.grnet.pccapi;
 
 import gr.grnet.pccapi.dto.ServiceDto;
 import gr.grnet.pccapi.endpoint.ServiceEndpoint;
+import gr.grnet.pccapi.exception.APIError;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
@@ -52,6 +53,21 @@ public class ServiceEndpointTest {
 
         assertEquals(1, response.id);
         assertEquals("B2HANDLE", response.name);
+    }
+
+    @Test
+    public void listOneServiceNotfound() {
+
+        var response = given()
+                .contentType(ContentType.JSON)
+                .get("/{id}", 999)
+                .then()
+                .assertThat()
+                .statusCode(404)
+                .extract()
+                .as(APIError.class);
+
+        assertEquals("Service not found", response.getMessage());
     }
 
 }

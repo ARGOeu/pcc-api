@@ -3,6 +3,7 @@ package gr.grnet.pccapi;
 import gr.grnet.pccapi.client.EOSCPortalClient;
 import gr.grnet.pccapi.dto.DomainDto;
 import gr.grnet.pccapi.endpoint.DomainEndpoint;
+import gr.grnet.pccapi.exception.APIError;
 import gr.grnet.pccapi.repository.DomainRepository;
 import gr.grnet.pccapi.service.DomainService;
 import gr.grnet.pccapi.wiremock.EOSCPortalDomainWiremockServer;
@@ -66,8 +67,21 @@ public class DomainEndpointTest {
     }
 
     @Test
-    public void fetchAllDomains(){
+    public void fetchDomainByIdNotFound(){
 
+        var response = given()
+                .get("/{id}", 999)
+                .then()
+                .assertThat()
+                .statusCode(404)
+                .extract()
+                .as(APIError.class);
+
+        assertEquals("Domain not found", response.getMessage());
+    }
+
+    @Test
+    public void fetchAllDomains(){
 
         var domainDtos = given()
                 .get()

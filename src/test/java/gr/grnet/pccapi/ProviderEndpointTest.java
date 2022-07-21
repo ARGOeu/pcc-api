@@ -2,6 +2,7 @@ package gr.grnet.pccapi;
 
 import gr.grnet.pccapi.dto.ProviderResponseDTO;
 import gr.grnet.pccapi.endpoint.ProviderEndpoint;
+import gr.grnet.pccapi.exception.APIError;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
@@ -9,8 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import javax.inject.Inject;
-import java.util.List;
 
 
 @QuarkusTest
@@ -22,7 +21,7 @@ public class ProviderEndpointTest {
      * Test the /providers/{id} endpoint
      */
     @Test
-    public void testGetById() {
+    public void getById() {
         var response = given()
                 .contentType(ContentType.JSON)
                 .get("1")
@@ -40,7 +39,7 @@ public class ProviderEndpointTest {
      * Test the /providers endpoint
      */
     @Test
-    public void testGetList() {
+    public void getList() {
         var response = given()
                 .contentType(ContentType.JSON)
                 .get()
@@ -61,5 +60,19 @@ public class ProviderEndpointTest {
         assertEquals(3, response[2].id);
         assertEquals("SURF", response[2].name);
 
+    }
+
+    @Test
+    public void getByIdNotfound() {
+        var response = given()
+                .contentType(ContentType.JSON)
+                .get("/{id}", 999)
+                .then()
+                .assertThat()
+                .statusCode(404)
+                .extract()
+                .as(APIError.class);
+
+        assertEquals("Provider not found", response.getMessage());
     }
 }
