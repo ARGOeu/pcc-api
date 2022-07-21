@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.transaction.Transactional;
 import java.util.List;
 import javax.ws.rs.NotFoundException;
@@ -24,20 +25,24 @@ import javax.ws.rs.NotFoundException;
 @AllArgsConstructor
 public class PrefixService {
 
-     DomainRepository domainRepository;
-     ProviderRepository providerRepository;
-     ServiceRepository serviceRepository;
-     PrefixRepository prefixRepository;
-     Logger log;
-
-     /**
+    @Inject
+    DomainRepository domainRepository;
+    @Inject
+    ProviderRepository providerRepository;
+    @Inject
+    ServiceRepository serviceRepository;
+    @Inject
+    PrefixRepository prefixRepository;
+    @Inject
+    Logger log;
+ /**
       * Creates a new prefix based on the provided arguments,
       * runs validation checks and returns the appropriate response dto
       */
      @Transactional
     public PrefixResponseDto create(PrefixDto prefixDto) {
 
-         log.info("Inserting new prefix . . .");
+        log.info("Inserting new prefix . . .");
 
 
          // check the uniqueness of the provided name
@@ -57,6 +62,7 @@ public class PrefixService {
         Provider provider = providerRepository.findByIdOptional(prefixDto.getProviderId())
                 .orElseThrow(() -> new NotFoundException("Provider not found"));
 
+
         Prefix prefix = new Prefix()
                 .setService(service)
                 .setDomain(domain)
@@ -67,7 +73,6 @@ public class PrefixService {
                 .setStatus(prefixDto.getStatus());
 
         prefixRepository.persist(prefix);
-
        return PrefixMapper.INSTANCE.prefixToResponseDto(prefix);
     }
 
@@ -104,5 +109,48 @@ public class PrefixService {
          if (!deleted) {
              throw new NotFoundException("Prefix not found");
          }
+    }
+    /** Full update of a prefix on all attributes
+     *
+     * @param prefixDto,
+     * @param id, the id of prefix to be updated
+     * @return
+     */
+    @Transactional
+    public PrefixResponseDto update(PrefixDto prefixDto, int id) {
+
+        log.info("Full updating a  prefix . . .");
+        // check the existence of the provided service
+        Prefix prefix = prefixRepository.findByIdOptional(id).orElseThrow(() -> new NotFoundException("Prefix not found"));
+
+        Service service = serviceRepository.findByIdOptional(prefixDto.getServiceId())
+                .orElseThrow(() -> new NotFoundException("Service not found"));
+
+        // check the existence of the provided domain
+        Domain domain = domainRepository.findByIdOptional(prefixDto.getDomainId())
+                .orElseThrow(() -> new NotFoundException("Domain not found"));
+
+        // check the existence of the provided provider
+        Provider provider = providerRepository.findByIdOptional(prefixDto.getProviderId())
+                .orElseThrow(() -> new NotFoundException("Provider not found"));
+       //retrieve the prefix
+
+        //update the prefix
+        prefix.setService(service);
+        prefix.setProvider(provider);
+        prefix.setDomain(domain);
+        prefix.setStatus(prefixDto.status);
+        prefix.setOwner(prefixDto.owner);
+        prefix.setUsedBy(prefixDto.usedBy);
+        prefix.setName(prefixDto.name);
+
+
+        return PrefixMapper.INSTANCE.prefixToResponseDto(prefix);
+      }
+
+    public PrefixDto get(int id) {
+        var prefix = prefixRepository.findById(id);
+        // Map the provider retrieved from the database to the equivalent ProviderResponseDTO and return
+        return PrefixMapper.INSTANCE.prefixToDto(prefix);
     }
 }

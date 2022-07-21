@@ -1,5 +1,6 @@
 package gr.grnet.pccapi.mapper;
 
+import gr.grnet.pccapi.dto.PrefixDto;
 import gr.grnet.pccapi.dto.PrefixResponseDto;
 import gr.grnet.pccapi.entity.Prefix;
 import org.mapstruct.Mapper;
@@ -38,4 +39,8 @@ public interface PrefixMapper {
     @Mapping(target="providerId", source="prefix.provider.id")
     @Mapping(target="providerName", source="prefix.provider.name")
     List<PrefixResponseDto> prefixesToResponseDto(List<Prefix> prefixes);
+
+    PrefixDto prefixToDto(Prefix prefix);
+
+
 }

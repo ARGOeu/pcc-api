@@ -4,7 +4,10 @@ import gr.grnet.pccapi.dto.PrefixDto;
 import gr.grnet.pccapi.dto.PrefixResponseDto;
 import gr.grnet.pccapi.endpoint.PrefixEndpoint;
 import gr.grnet.pccapi.exception.APIError;
+import gr.grnet.pccapi.repository.DomainRepository;
 import gr.grnet.pccapi.repository.PrefixRepository;
+import gr.grnet.pccapi.repository.ProviderRepository;
+import gr.grnet.pccapi.repository.ServiceRepository;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
@@ -25,6 +28,15 @@ public class PrefixEndpointTest {
 
     @Inject
     PrefixRepository prefixRepository;
+    @Inject
+    DomainRepository domainRepository;
+
+    @Inject
+    ProviderRepository providerRepository;
+
+    @Inject
+    ServiceRepository serviceRepository;
+
 
     @BeforeEach
     @Transactional
@@ -172,7 +184,102 @@ public class PrefixEndpointTest {
 
         assertEquals("Provider not found", response.getMessage());
 
+
     }
+
+
+    @Test
+    public void testUpdate() {
+        var requestBody = new PrefixDto()
+                .setName("666666")
+                .setOwner("someone")
+                .setStatus(2)
+                .setUsedBy("someone else")
+                .setDomainId(1)
+                .setServiceId(1)
+                .setProviderId(1);
+
+        var resp = given()
+                .contentType(ContentType.JSON)
+                .body(requestBody)
+                .post()
+                .then()
+                .assertThat()
+                .statusCode(201)
+                .extract()
+                .as(PrefixResponseDto.class);
+
+
+
+        var updateRequestDto = new PrefixDto()
+                .setName("77777")
+                .setOwner("someone1")
+                .setStatus(3)
+                .setUsedBy("someone else1")
+                .setDomainId(2)
+                .setServiceId(2)
+                .setProviderId(2);
+
+
+
+
+        var response = given()
+                .contentType(ContentType.JSON)
+                .body(updateRequestDto)
+                .put(String.valueOf(resp.id))
+                .then()
+                .assertThat()
+                .statusCode(200)
+                .extract()
+                .as(PrefixResponseDto.class);
+
+
+        assertEquals(2, response.getDomainId());
+        assertEquals(2, response.getProviderId());
+        assertEquals(2, response.getServiceId());
+
+        assertEquals("someone1", response.getOwner());
+        assertEquals("someone else1", response.getUsedBy());
+
+        assertEquals(3, response.getStatus());
+        assertEquals("77777", response.getName());
+    }
+
+    @Test
+    public void updatePrefixNotfound(){
+
+        // creating a new Prefix
+        var requestBody = new PrefixDto()
+                .setName("11545")
+                .setOwner("someone")
+                .setStatus(2)
+                .setUsedBy("someone else")
+                .setDomainId(1)
+                .setServiceId(1)
+                .setProviderId(1);
+
+        var response = given()
+                .contentType(ContentType.JSON)
+                .body(requestBody)
+                .post()
+                .then()
+                .assertThat()
+                .statusCode(201)
+                .extract()
+                .as(PrefixResponseDto.class);
+
+
+        var resp =  given()
+                .put("/{id}", response.id + 10)
+                .then()
+                .assertThat()
+                .statusCode(404)
+                .extract()
+                .as(APIError.class);
+
+        assertEquals("Prefix not found", resp.getMessage());
+    }
+
 
     @Test
     public void deletePrefix(){
