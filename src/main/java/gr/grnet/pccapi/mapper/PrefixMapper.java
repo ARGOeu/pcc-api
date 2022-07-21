@@ -1,6 +1,7 @@
 package gr.grnet.pccapi.mapper;
 
 import gr.grnet.pccapi.dto.PrefixDto;
+import gr.grnet.pccapi.dto.PrefixResponseDto;
 import gr.grnet.pccapi.dto.ServiceDto;
 import gr.grnet.pccapi.entity.Prefix;
 import gr.grnet.pccapi.entity.Service;
@@ -10,7 +11,7 @@ import org.mapstruct.factory.Mappers;
 
 
 /**
- * Mapper class for converting between {@link Prefix} and {@link PrefixDto}
+ * Mapper class for converting between {@link Prefix} and {@link PrefixResponseDto}
  */
 @Mapper
 public interface PrefixMapper {
@@ -20,7 +21,7 @@ public interface PrefixMapper {
     /**
      * Maps a prefix to its respective dto
      * @param prefix entity
-     * @return prefix dto
+     * @return prefix response dto
      */
     @Mapping(target="serviceId", source="service.id")
     @Mapping(target="serviceName", source="service.name")
@@ -28,5 +29,5 @@ public interface PrefixMapper {
     @Mapping(target="domainName", source="domain.name")
     @Mapping(target="providerId", source="provider.id")
     @Mapping(target="providerName", source="provider.name")
-    PrefixDto prefixToDto(Prefix prefix);
+    PrefixResponseDto prefixToResponseDto(Prefix prefix);
 }
