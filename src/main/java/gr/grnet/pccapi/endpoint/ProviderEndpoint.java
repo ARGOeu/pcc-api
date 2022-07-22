@@ -1,6 +1,7 @@
 package gr.grnet.pccapi.endpoint;
 
 import gr.grnet.pccapi.dto.ProviderResponseDTO;
+import gr.grnet.pccapi.exception.APIError;
 import gr.grnet.pccapi.service.ProviderService;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
@@ -52,8 +53,8 @@ public class ProviderEndpoint {
                     implementation = ProviderResponseDTO.class)))
     @APIResponse(responseCode = "404", description = "The service cannot find the requested provider.",
             content = @Content(schema = @Schema(
-                    type = SchemaType.STRING,
-                    implementation = String.class)))
+                    type = SchemaType.OBJECT,
+                    implementation = APIError.class)))
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)

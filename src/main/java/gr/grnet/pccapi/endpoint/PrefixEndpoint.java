@@ -2,6 +2,7 @@ package gr.grnet.pccapi.endpoint;
 
 import gr.grnet.pccapi.dto.PrefixDto;
 import gr.grnet.pccapi.dto.PrefixResponseDto;
+import gr.grnet.pccapi.exception.APIError;
 import gr.grnet.pccapi.service.PrefixService;
 import lombok.AllArgsConstructor;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -41,6 +42,14 @@ public class PrefixEndpoint {
             content = @Content(schema = @Schema(
                     type = SchemaType.OBJECT,
                     implementation = PrefixResponseDto.class)))
+    @APIResponse(responseCode = "404", description = "The service cannot find the requested link resources.",
+            content = @Content(schema = @Schema(
+                    type = SchemaType.OBJECT,
+                    implementation = APIError.class)))
+    @APIResponse(responseCode = "409", description = "The service already has a prefix with same values.",
+            content = @Content(schema = @Schema(
+                    type = SchemaType.OBJECT,
+                    implementation = APIError.class)))
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)

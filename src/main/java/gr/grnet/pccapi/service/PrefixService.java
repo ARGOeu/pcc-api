@@ -1,13 +1,12 @@
 package gr.grnet.pccapi.service;
 
-import gr.grnet.pccapi.dto.DomainDto;
 import gr.grnet.pccapi.dto.PrefixDto;
 import gr.grnet.pccapi.dto.PrefixResponseDto;
 import gr.grnet.pccapi.entity.Domain;
 import gr.grnet.pccapi.entity.Prefix;
 import gr.grnet.pccapi.entity.Provider;
 import gr.grnet.pccapi.entity.Service;
-import gr.grnet.pccapi.mapper.DomainMapper;
+import gr.grnet.pccapi.exception.ConflictException;
 import gr.grnet.pccapi.mapper.PrefixMapper;
 import gr.grnet.pccapi.repository.DomainRepository;
 import gr.grnet.pccapi.repository.PrefixRepository;
@@ -18,6 +17,7 @@ import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.transaction.Transactional;
+import javax.ws.rs.NotFoundException;
 
 @ApplicationScoped
 @AllArgsConstructor
@@ -41,20 +41,20 @@ public class PrefixService {
 
          // check the uniqueness of the provided name
          if (prefixRepository.existsByName(prefixDto.getName())) {
-             throw new RuntimeException(("Prefix name already exists"));
+             throw new ConflictException("Prefix name already exists");
          }
 
         // check the existence of the provided service
         Service service = serviceRepository.findByIdOptional(prefixDto.getServiceId())
-                .orElseThrow(() -> new RuntimeException("Service not found"));
+                .orElseThrow(() -> new NotFoundException("Service not found"));
 
         // check the existence of the provided domain
         Domain domain = domainRepository.findByIdOptional(prefixDto.getDomainId())
-                .orElseThrow(() -> new RuntimeException("Domain not found"));
+                .orElseThrow(() -> new NotFoundException("Domain not found"));
 
         // check the existence of the provided provider
         Provider provider = providerRepository.findByIdOptional(prefixDto.getProviderId())
-                .orElseThrow(() -> new RuntimeException("Provider not found"));
+                .orElseThrow(() -> new NotFoundException("Provider not found"));
 
         Prefix prefix = new Prefix()
                 .setService(service)
@@ -78,7 +78,8 @@ public class PrefixService {
 
         log.infof("Fetching the Prefix with ID : %s", id);
 
-        var prefix = prefixRepository.findById(id);
+        var prefix = prefixRepository.findByIdOptional(id)
+                .orElseThrow(() -> new NotFoundException("Prefix not found"));
 
         return PrefixMapper.INSTANCE.prefixToResponseDto(prefix);
     }
@@ -89,8 +90,10 @@ public class PrefixService {
      * @param id The prefix ID to be deleted
      */
     @Transactional
-    public boolean delete(Integer id){
-
-         return prefixRepository.deleteById(id);
+    public void delete(Integer id){
+         boolean deleted = prefixRepository.deleteById(id);
+         if (!deleted) {
+             throw new NotFoundException("Prefix not found");
+         }
     }
 }

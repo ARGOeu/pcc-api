@@ -8,6 +8,7 @@ import gr.grnet.pccapi.entity.Domain;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.transaction.Transactional;
+import javax.ws.rs.NotFoundException;
 import java.util.List;
 import java.util.Set;
 
@@ -62,7 +63,8 @@ public class DomainService {
 
         LOG.infof("Fetching the Domain with ID : %s", id);
 
-        var domain = domainRepository.findById(id);
+        var domain = domainRepository.findByIdOptional(id)
+                .orElseThrow(() -> new NotFoundException("Domain not found"));
 
         return DomainMapper.INSTANCE.domainToDto(domain);
     }

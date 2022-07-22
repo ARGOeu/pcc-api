@@ -5,7 +5,7 @@ import gr.grnet.pccapi.mapper.ServiceMapper;
 import gr.grnet.pccapi.repository.ServiceRepository;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import javax.ws.rs.NotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,6 +40,8 @@ public class ServiceService {
      * It returns a {@link ServiceDto} after converting it using the {@link ServiceMapper}
      */
     public ServiceDto findOneService(Integer id) {
-        return ServiceMapper.INSTANCE.serviceToDto(serviceRepository.findById(id));
+        return ServiceMapper.INSTANCE.serviceToDto(
+                serviceRepository.findByIdOptional(id)
+                        .orElseThrow(() -> new NotFoundException("Service not found")));
     }
 }

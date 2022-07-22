@@ -6,8 +6,8 @@ import gr.grnet.pccapi.repository.ProviderRepository;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.NotFoundException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class ProviderService {
@@ -22,7 +22,8 @@ public class ProviderService {
      * @return The ProviderResponseDTO representation of the requested provider
      */
     public ProviderResponseDTO get(int id) {
-        var provider = providerRepository.findById(id);
+        var provider = providerRepository.findByIdOptional(id)
+                .orElseThrow(() -> new NotFoundException("Provider not found"));
         // Map the provider retrieved from the database to the equivalent ProviderResponseDTO and return
         return ProviderMapper.INSTANCE.providerToResponse(provider);
     }
