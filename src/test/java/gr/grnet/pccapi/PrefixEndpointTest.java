@@ -1,9 +1,10 @@
 package gr.grnet.pccapi;
 
+import gr.grnet.pccapi.dto.PartialPrefixDto;
 import gr.grnet.pccapi.dto.PrefixDto;
 import gr.grnet.pccapi.dto.PrefixResponseDto;
 import gr.grnet.pccapi.endpoint.PrefixEndpoint;
-import gr.grnet.pccapi.exception.APIError;
+import gr.grnet.pccapi.dto.APIResponseMsg;
 import gr.grnet.pccapi.repository.DomainRepository;
 import gr.grnet.pccapi.repository.PrefixRepository;
 import gr.grnet.pccapi.repository.ProviderRepository;
@@ -104,7 +105,7 @@ public class PrefixEndpointTest {
                 .assertThat()
                 .statusCode(409)
                 .extract()
-                .as(APIError.class);
+                .as(APIResponseMsg.class);
 
         assertEquals("Prefix name already exists", response.getMessage());
     }
@@ -129,7 +130,7 @@ public class PrefixEndpointTest {
                 .assertThat()
                 .statusCode(404)
                 .extract()
-                .as(APIError.class);
+                .as(APIResponseMsg.class);
 
         assertEquals("Service not found", response.getMessage());
 
@@ -155,7 +156,7 @@ public class PrefixEndpointTest {
                 .assertThat()
                 .statusCode(404)
                 .extract()
-                .as(APIError.class);
+                .as(APIResponseMsg.class);
 
         assertEquals("Domain not found", response.getMessage());
     }
@@ -180,7 +181,7 @@ public class PrefixEndpointTest {
                 .assertThat()
                 .statusCode(404)
                 .extract()
-                .as(APIError.class);
+                .as(APIResponseMsg.class);
 
         assertEquals("Provider not found", response.getMessage());
 
@@ -275,7 +276,7 @@ public class PrefixEndpointTest {
                 .assertThat()
                 .statusCode(404)
                 .extract()
-                .as(APIError.class);
+                .as(APIResponseMsg.class);
 
         assertEquals("Prefix not found", resp.getMessage());
     }
@@ -344,7 +345,7 @@ public class PrefixEndpointTest {
                 .assertThat()
                 .statusCode(404)
                 .extract()
-                .as(APIError.class);
+                .as(APIResponseMsg.class);
 
        assertEquals("Prefix not found", resp.getMessage());
     }
@@ -392,7 +393,7 @@ public class PrefixEndpointTest {
                 .assertThat()
                 .statusCode(404)
                 .extract()
-                .as(APIError.class);
+                .as(APIResponseMsg.class);
 
         assertEquals("Prefix not found", resp.getMessage());
     }
@@ -411,5 +412,120 @@ public class PrefixEndpointTest {
                 .as(PrefixResponseDto[].class);
 
         assertEquals(prefixes.size(), prefixResponseDto.length);
+    }
+
+    @Test
+    public void testPartiallyUpdatePrefix() {
+
+        var postRequestBody = new PrefixDto()
+                .setName("212121")
+                .setOwner("someone")
+                .setStatus(2)
+                .setUsedBy("someone else")
+                .setDomainId(1)
+                .setServiceId(1)
+                .setProviderId(1);
+
+        var response = given()
+                .contentType(ContentType.JSON)
+                .body(postRequestBody)
+                .post()
+                .then()
+                .assertThat()
+                .statusCode(201)
+                .extract()
+                .as(PrefixResponseDto.class);
+
+        var patchRequestBody = new PartialPrefixDto()
+                .setName("222222")
+                .setDomainId(2);
+
+        var patchResponse = given()
+                .contentType(ContentType.JSON)
+                .body(patchRequestBody)
+                .patch("/{id}", response.id)
+                .then()
+                .assertThat()
+                .statusCode(200)
+                .extract()
+                .as(PrefixResponseDto.class);
+
+        assertEquals(patchRequestBody.name, patchResponse.name);
+        assertEquals(patchRequestBody.domainId, patchResponse.domainId);
+    }
+
+    @Test
+    public void testPartiallyUpdatePrefixEmptyField() {
+
+        var postRequestBody = new PrefixDto()
+                .setName("212121")
+                .setOwner("someone")
+                .setStatus(2)
+                .setUsedBy("someone else")
+                .setDomainId(1)
+                .setServiceId(1)
+                .setProviderId(1);
+
+        var response = given()
+                .contentType(ContentType.JSON)
+                .body(postRequestBody)
+                .post()
+                .then()
+                .assertThat()
+                .statusCode(201)
+                .extract()
+                .as(PrefixResponseDto.class);
+
+        var patchRequestBody = new PartialPrefixDto()
+                .setName("")
+                .setDomainId(2);
+
+        var patchResponse = given()
+                .contentType(ContentType.JSON)
+                .body(patchRequestBody)
+                .patch("/{id}", response.id)
+                .then()
+                .assertThat()
+                .statusCode(200)
+                .extract()
+                .as(PrefixResponseDto.class);
+
+        assertEquals(postRequestBody.name, patchResponse.name);
+        assertEquals(patchRequestBody.domainId, patchResponse.domainId);
+    }
+
+    @Test
+    public void testPartiallyUpdatePrefixIncorrectDomain() {
+
+        var postRequestBody = new PrefixDto()
+                .setName("232323")
+                .setOwner("someone")
+                .setStatus(2)
+                .setUsedBy("someone else")
+                .setDomainId(1)
+                .setServiceId(1)
+                .setProviderId(1);
+
+        var response = given()
+                .contentType(ContentType.JSON)
+                .body(postRequestBody)
+                .post()
+                .then()
+                .assertThat()
+                .statusCode(201)
+                .extract()
+                .as(PrefixResponseDto.class);
+
+        var patchRequestBody = new PartialPrefixDto()
+                .setName("222222")
+                .setDomainId(999);
+
+        var patchResponse = given()
+                .contentType(ContentType.JSON)
+                .body(patchRequestBody)
+                .patch("/{id}", response.id)
+                .then()
+                .assertThat()
+                .statusCode(404);
     }
 }

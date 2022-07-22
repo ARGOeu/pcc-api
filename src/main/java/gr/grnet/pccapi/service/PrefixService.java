@@ -1,5 +1,6 @@
 package gr.grnet.pccapi.service;
 
+import gr.grnet.pccapi.dto.PartialPrefixDto;
 import gr.grnet.pccapi.dto.PrefixDto;
 import gr.grnet.pccapi.dto.PrefixResponseDto;
 import gr.grnet.pccapi.entity.Domain;
@@ -8,11 +9,15 @@ import gr.grnet.pccapi.entity.Provider;
 import gr.grnet.pccapi.entity.Service;
 import gr.grnet.pccapi.exception.ConflictException;
 import gr.grnet.pccapi.mapper.PrefixMapper;
+import gr.grnet.pccapi.mapper.ProviderMapper;
 import gr.grnet.pccapi.repository.DomainRepository;
 import gr.grnet.pccapi.repository.PrefixRepository;
 import gr.grnet.pccapi.repository.ProviderRepository;
 import gr.grnet.pccapi.repository.ServiceRepository;
+import io.quarkus.hibernate.orm.panache.Panache;
+import io.quarkus.runtime.util.StringUtil;
 import lombok.AllArgsConstructor;
+import org.apache.commons.codec.binary.StringUtils;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -97,6 +102,39 @@ public class PrefixService {
 
         return PrefixMapper.INSTANCE.prefixToResponseDto(prefix);
     }
+
+    @Transactional
+    public PrefixResponseDto partialUpdate(int id, PartialPrefixDto prefixDto) {
+
+        log.info("Partially updating existing prefix . . .");
+        Prefix prefix = prefixRepository.findByIdOptional(id)
+                .orElseThrow(() -> new NotFoundException("Prefix not found"));
+
+        PrefixMapper.INSTANCE.updatePrefixFromDto(prefixDto, prefix);
+
+        // check the existence of the provided provider and update entity on success
+        if (prefixDto.getProviderId() != null) {
+            Provider provider = providerRepository.findByIdOptional(prefixDto.getProviderId())
+                    .orElseThrow(() -> new NotFoundException("Provider not found"));
+            prefix.setProvider(provider);
+        }
+
+        // check the existence of the provided service and update entity on success
+        if (prefixDto.getServiceId() != null) {
+            Service service = serviceRepository.findByIdOptional(prefixDto.getServiceId())
+                    .orElseThrow(() -> new NotFoundException("Service not found"));
+            prefix.setService(service);
+        }
+
+        // check the existence of the provided domain and update entity on success
+        if (prefixDto.getDomainId() != null) {
+            Domain domain = domainRepository.findByIdOptional(prefixDto.getDomainId())
+                    .orElseThrow(() -> new NotFoundException("Domain not found"));
+            prefix.setDomain(domain);
+        }
+        return PrefixMapper.INSTANCE.prefixToResponseDto(prefix);
+    }
+        
 
     /**
      * This method delegates a prefix deletion query to {@link PrefixRepository prefixRepository}.

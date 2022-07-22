@@ -1,19 +1,20 @@
 package gr.grnet.pccapi.mapper;
 
+import gr.grnet.pccapi.dto.PartialPrefixDto;
 import gr.grnet.pccapi.dto.PrefixDto;
 import gr.grnet.pccapi.dto.PrefixResponseDto;
 import gr.grnet.pccapi.entity.Prefix;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 
 
 /**
  * Mapper class for converting between {@link Prefix} and {@link PrefixResponseDto}
  */
-@Mapper
+@Mapper(imports = StringUtils.class)
 public interface PrefixMapper {
 
     PrefixMapper INSTANCE = Mappers.getMapper(PrefixMapper.class);
@@ -43,4 +44,8 @@ public interface PrefixMapper {
     PrefixDto prefixToDto(Prefix prefix);
 
 
+    @Mapping(target = "name", expression = "java(StringUtils.isNotEmpty(prefixDto.name) ? prefixDto.name : prefix.name)")
+    @Mapping(target = "owner", expression = "java(StringUtils.isNotEmpty(prefixDto.owner) ? prefixDto.owner : prefix.owner)")
+    @Mapping(target = "usedBy", expression = "java(StringUtils.isNotEmpty(prefixDto.usedBy) ? prefixDto.usedBy : prefix.usedBy)")
+    void updatePrefixFromDto(PartialPrefixDto prefixDto, @MappingTarget Prefix prefix);
 }

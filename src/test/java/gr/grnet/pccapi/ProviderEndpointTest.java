@@ -2,7 +2,7 @@ package gr.grnet.pccapi;
 
 import gr.grnet.pccapi.dto.ProviderResponseDTO;
 import gr.grnet.pccapi.endpoint.ProviderEndpoint;
-import gr.grnet.pccapi.exception.APIError;
+import gr.grnet.pccapi.dto.APIResponseMsg;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
@@ -71,7 +71,7 @@ public class ProviderEndpointTest {
                 .assertThat()
                 .statusCode(404)
                 .extract()
-                .as(APIError.class);
+                .as(APIResponseMsg.class);
 
         assertEquals("Provider not found", response.getMessage());
     }
