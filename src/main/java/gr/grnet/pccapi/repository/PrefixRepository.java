@@ -16,5 +16,4 @@ public class PrefixRepository implements PanacheRepositoryBase<Prefix, Integer> 
     public boolean existsByName(String name) {
         return find("name", name).count() >= 1L ;
     }
-
 }

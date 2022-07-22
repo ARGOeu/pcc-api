@@ -3,6 +3,7 @@ package gr.grnet.pccapi.endpoint;
 import gr.grnet.pccapi.dto.PrefixDto;
 import gr.grnet.pccapi.dto.PrefixResponseDto;
 import gr.grnet.pccapi.exception.APIError;
+import gr.grnet.pccapi.dto.ProviderResponseDTO;
 import gr.grnet.pccapi.service.PrefixService;
 import lombok.AllArgsConstructor;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -21,6 +22,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -63,6 +65,33 @@ public class PrefixEndpoint {
                 .status(Response.Status.CREATED)
                 .entity(prefixService.create(prefixDto))
                 .build();
+    }
+    @Tag(name="Prefix")
+    @Operation(
+            summary = "Update prefix",
+            description = " From here you may update the prefix fields ."
+    )
+    @APIResponse(responseCode = "200",description = "A successful request" +
+            "update a prefix with a given  id",
+            content = @Content(schema = @Schema(
+                    type = SchemaType.OBJECT,
+                    implementation = ProviderResponseDTO.class)))
+    @APIResponse(responseCode = "404", description = "The service cannot find the requested link resources.",
+            content = @Content(schema = @Schema(
+                    type = SchemaType.OBJECT,
+                    implementation = APIError.class)))
+    @PUT
+    @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public PrefixDto update(@Parameter(
+            description = "The id of the prefix to be updated.",
+            required = true,
+            example = "1",
+
+            schema = @Schema(type = SchemaType.INTEGER))  @PathParam("id") int id , @RequestBody PrefixDto prefixDto) {
+    //fully update a prefix of a specific id
+        return prefixService.update(prefixDto,id);
     }
 
 
