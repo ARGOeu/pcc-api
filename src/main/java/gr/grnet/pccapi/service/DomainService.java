@@ -4,81 +4,82 @@ import gr.grnet.pccapi.dto.DomainDto;
 import gr.grnet.pccapi.external.response.EOSCPortalDomain;
 import gr.grnet.pccapi.mapper.DomainMapper;
 import gr.grnet.pccapi.repository.DomainRepository;
-import gr.grnet.pccapi.entity.Domain;
-
+import java.util.List;
+import java.util.Set;
 import javax.enterprise.context.ApplicationScoped;
 import javax.transaction.Transactional;
 import javax.ws.rs.NotFoundException;
-import java.util.List;
-import java.util.Set;
-
+import lombok.AllArgsConstructor;
 import org.jboss.logging.Logger;
 
 @ApplicationScoped
+@AllArgsConstructor
 public class DomainService {
 
-    DomainRepository domainRepository;
+  DomainRepository domainRepository;
 
-    Logger LOG;
+  Logger logger;
 
-    public DomainService(DomainRepository domainRepository, Logger LOG) {
-        this.domainRepository = domainRepository;
-        this.LOG = LOG;
-    }
+  /**
+   * It accepts the EOSC-Portal domains, turns them into {@link gr.grnet.pccapi.entity.Domain
+   * domains} and then stores the transformed Domains into the database. If the EOSC-Portal domain
+   * exists in the database, then updates its attributes.
+   *
+   * @param eoscPortalDomains The {@link EOSCPortalDomain eoscPortalDomains} collected by
+   *     EOSC-Portal
+   */
+  @Transactional
+  public void saveEoscPortalDomains(Set<EOSCPortalDomain> eoscPortalDomains) {
 
+    for (EOSCPortalDomain eoscPortalDomain : eoscPortalDomains) {
 
-    @Transactional
-    /**
-     * It accepts the EOSC-Portal domains, turns them into {@link Domain domains} and then stores the transformed Domains into the database.
-     * If the EOSC-Portal domain exists in the database, then updates its attributes.
-     * @param eoscPortalDomains The {@link EOSCPortalDomain eoscPortalDomains} collected by EOSC-Portal
-     */
-    public void saveEoscPortalDomains(Set<EOSCPortalDomain> eoscPortalDomains){
+      var domain = domainRepository.findByDomainId(eoscPortalDomain.domainId);
 
-        for(EOSCPortalDomain eoscPortalDomain : eoscPortalDomains){
+      var eoscToDomain = DomainMapper.INSTANCE.eoscPortalDomainToDomain(eoscPortalDomain);
 
-            var domain = domainRepository.findByDomainId(eoscPortalDomain.domainId);
+      if (domain.isPresent()) {
 
-            var eoscToDomain = DomainMapper.INSTANCE.eoscPortalDomainToDomain(eoscPortalDomain);
+        if (!domain.get().equals(eoscToDomain)) {
 
-            if(domain.isPresent()){
-
-                if(!domain.get().equals(eoscToDomain)){
-
-                    domainRepository.updateByDomainId(eoscToDomain.name, eoscToDomain.description, eoscToDomain.domainId);
-                }
-            } else {
-                domainRepository.persistAndFlush(eoscToDomain);
-            }
+          domainRepository.updateByDomainId(
+              eoscToDomain.name, eoscToDomain.description, eoscToDomain.domainId);
         }
-
-        LOG.info("EOSC-Portal domains have been successfully stored into the database.");
+      } else {
+        domainRepository.persistAndFlush(eoscToDomain);
+      }
     }
 
-    /**
-     * Returns a Domain by the given ID
-     * @return The stored Domain has been turned into a response body.
-     */
-    public DomainDto getById(Integer id){
+    logger.info("EOSC-Portal domains have been successfully stored into the database.");
+  }
 
-        LOG.infof("Fetching the Domain with ID : %s", id);
+  /**
+   * Returns a Domain by the given ID
+   *
+   * @return The stored Domain has been turned into a response body.
+   */
+  public DomainDto fetchById(Integer id) {
 
-        var domain = domainRepository.findByIdOptional(id)
-                .orElseThrow(() -> new NotFoundException("Domain not found"));
+    logger.infof("Fetching the Domain with ID : %s", id);
 
-        return DomainMapper.INSTANCE.domainToDto(domain);
-    }
+    var domain =
+        domainRepository
+            .findByIdOptional(id)
+            .orElseThrow(() -> new NotFoundException("Domain not found"));
 
-    /**
-     * Returns the available API Scientific Domains
-     * @return The stored Domains has been turned into a response body.
-     */
-    public List<DomainDto> getAll(){
+    return DomainMapper.INSTANCE.domainToDto(domain);
+  }
 
-        LOG.infof("Fetching all Domains.");
+  /**
+   * Returns the available API Scientific Domains
+   *
+   * @return The stored Domains has been turned into a response body.
+   */
+  public List<DomainDto> fetchAll() {
 
-        var domains = domainRepository.findAll().list();
+    logger.infof("Fetching all Domains.");
 
-        return DomainMapper.INSTANCE.domainsToDto(domains);
-    }
+    var domains = domainRepository.findAll().list();
+
+    return DomainMapper.INSTANCE.domainsToDto(domains);
+  }
 }

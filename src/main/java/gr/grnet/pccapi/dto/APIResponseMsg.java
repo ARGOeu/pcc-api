@@ -8,7 +8,6 @@ import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 /**
-
  * APIError encapsulates all needed information that should return as a response to the API client
  * when an error has occurred.
  */
@@ -16,13 +15,12 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @NoArgsConstructor
 @Setter
 @Getter
-@Schema(name="APIResponseMsg", description="The generic API response message")
+@Schema(name = "APIResponseMsg", description = "The generic API response message")
 public class APIResponseMsg {
-    @Schema(
-            type = SchemaType.STRING,
-            implementation = String.class,
-            description = "A message that informs whether a specific request has been completed.",
-            example = "An informative message relative to the process"
-    )
-    private String message;
+  @Schema(
+      type = SchemaType.STRING,
+      implementation = String.class,
+      description = "A message that informs whether a specific request has been completed.",
+      example = "An informative message relative to the process")
+  private String message;
 }

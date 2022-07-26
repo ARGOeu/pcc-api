@@ -51,5 +51,8 @@ You can then execute your native executable with: `./target/pcc-api-1.0.0-SNAPSH
 
 If you want to learn more about building native executables, please consult https://quarkus.io/guides/maven-tooling.
 
-## Related Guides
+## Codebase Format
+```shell
+mvn spotless:apply
+```
 
