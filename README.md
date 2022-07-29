@@ -56,3 +56,36 @@ If you want to learn more about building native executables, please consult http
 mvn spotless:apply
 ```
 
+## Local DB Setup
+
+The `local-db` profile gives the ability to run a mysql instance
+in a docker container independently of the quarkus application.
+This gives the ability to have a stable DB, hold state 
+and not re-create it
+every time the application restarts.
+
+This requires:
+- docker
+- docker-compose
+
+Execute the script:
+```shell
+run-local-db-env.sh
+```
+
+After the initial set up, you can run the quarkus application
+on its own without the script.
+
+In order to reset the local-db, you can issue the command:
+
+```shell
+docker-compose down --volumes
+```
+
+**NOTE**
+
+The ability to run the application with a local-db other than
+the one provided with the docker-compose file is possible by executing quarkus with the local-db profile.
+```shell
+mvn clean quarkus:dev -Dquarkus.profile=local-db
+```
