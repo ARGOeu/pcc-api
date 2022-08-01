@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      - MYSQL_DATABASE=pccdb
+      - MYSQL_USER=pcc
+      - MYSQL_PASSWORD=pcc
+      - MYSQL_ROOT_PASSWORD=pcc-root
+    ports:
+      - "3306:3306"
+    volumes:
+      - pcc-mysql-data:/var/lib/mysql
+
+volumes:
+  pcc-mysql-data:
