@@ -51,5 +51,9 @@ public interface PrefixMapper {
       target = "usedBy",
       expression =
           "java(StringUtils.isNotEmpty(prefixDto.usedBy) ? prefixDto.usedBy : prefix.usedBy)")
+  @Mapping(
+      target = "status",
+      expression =
+          "java(prefixDto.status != null ? Integer.parseInt(prefixDto.status) : prefix.status)")
   void updatePrefixFromDto(PartialPrefixDto prefixDto, @MappingTarget Prefix prefix);
 }

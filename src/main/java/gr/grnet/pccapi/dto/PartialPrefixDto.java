@@ -20,6 +20,8 @@ public class PartialPrefixDto {
   @JsonProperty("used_by")
   public String usedBy;
 
+  public String status;
+
   @Schema(
       type = SchemaType.INTEGER,
       implementation = Integer.class,
