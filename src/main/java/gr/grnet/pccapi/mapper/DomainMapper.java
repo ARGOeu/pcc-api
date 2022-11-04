@@ -1,8 +1,8 @@
 package gr.grnet.pccapi.mapper;
 
+import gr.grnet.pccapi.client.eoscportal.EOSCPortalDomain;
 import gr.grnet.pccapi.dto.DomainDto;
 import gr.grnet.pccapi.entity.Domain;
-import gr.grnet.pccapi.external.response.EOSCPortalDomain;
 import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;

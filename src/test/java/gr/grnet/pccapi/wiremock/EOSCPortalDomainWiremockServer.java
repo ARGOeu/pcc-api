@@ -28,7 +28,7 @@ public class EOSCPortalDomainWiremockServer implements QuarkusTestResourceLifecy
                     .withBodyFile("json/DomainResponse_EOSC.json")));
 
     return Collections.singletonMap(
-        "quarkus.rest-client.\"gr.grnet.pccapi.client.EOSCPortalClient\".url",
+        "quarkus.rest-client.\"gr.grnet.pccapi.client.eoscportal.EOSCPortalClient\".url",
         wireMockServer.baseUrl());
   }
 

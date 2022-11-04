@@ -2,8 +2,8 @@ package gr.grnet.pccapi;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import gr.grnet.pccapi.client.EOSCPortalClient;
-import gr.grnet.pccapi.external.response.EOSCPortalDomain;
+import gr.grnet.pccapi.client.eoscportal.EOSCPortalClient;
+import gr.grnet.pccapi.client.eoscportal.EOSCPortalDomain;
 import gr.grnet.pccapi.mapper.DomainMapper;
 import gr.grnet.pccapi.repository.DomainRepository;
 import gr.grnet.pccapi.service.DomainService;

@@ -1,0 +1,22 @@
+{
+  "11098/EUDAT-JMD_001B3286-527B-5225-B68D-FBF2C775D49D": [
+    {
+      "type": "URL",
+      "value": "http://b2find.eudat.eu/dataset/001b3286-527b-5225-b68d-fbf2c775d49d"
+    },
+    {
+      "type": "EUDAT/ROR",
+      "value": "http://eudatmd1.dkrz.de:8080/dataset/001b3286-527b-5225-b68d-fbf2c775d49d"
+    }
+  ],
+  "11098/EUDAT-JMD_00504D2A-EF64-51EB-AC5D-8A91485E35B4": [
+    {
+      "type": "URL",
+      "value": "http://b2find.eudat.eu/dataset/00504d2a-ef64-51eb-ac5d-8a91485e35b4"
+    },
+    {
+      "type": "EUDAT/METADATATYPE",
+      "value": "http://www.openarchives.org/OAI/2.0/oai_dc.xsd"
+    }
+  ]
+}
