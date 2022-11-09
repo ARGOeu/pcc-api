@@ -1,8 +1,11 @@
 package gr.grnet.pccapi.entity;
 
+import gr.grnet.pccapi.enums.LookUpServiceType;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -27,6 +30,10 @@ public class Prefix extends PanacheEntityBase {
 
   @Column(name = "used_by")
   public String usedBy;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "lookup_service_type", nullable = false)
+  public LookUpServiceType lookUpServiceType;
 
   public Integer status;
 

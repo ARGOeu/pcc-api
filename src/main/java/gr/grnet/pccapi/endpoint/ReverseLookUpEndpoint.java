@@ -4,6 +4,7 @@ import gr.grnet.pccapi.dto.APIResponseMsg;
 import gr.grnet.pccapi.dto.FiltersDto;
 import gr.grnet.pccapi.dto.HandleDto;
 import gr.grnet.pccapi.enums.Filter;
+import gr.grnet.pccapi.enums.LookUpServiceType;
 import gr.grnet.pccapi.service.ReverseLookUpService;
 import java.util.EnumSet;
 import javax.ws.rs.Consumes;
@@ -77,5 +78,20 @@ public class ReverseLookUpEndpoint {
   @Produces(MediaType.APPLICATION_JSON)
   public Response filters() {
     return Response.ok().entity(EnumSet.allOf(Filter.class)).build();
+  }
+
+  @Tag(name = "Reverse LookUp")
+  @APIResponse(
+      responseCode = "200",
+      description = "Return all the supported types.",
+      content =
+          @Content(
+              schema = @Schema(type = SchemaType.ARRAY, implementation = LookUpServiceType.class)))
+  @Operation(summary = "Get a list of all available lookup service types")
+  @GET
+  @Path("/types")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response types() {
+    return Response.ok().entity(EnumSet.allOf(LookUpServiceType.class)).build();
   }
 }

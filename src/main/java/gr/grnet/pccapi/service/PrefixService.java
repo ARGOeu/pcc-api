@@ -67,6 +67,7 @@ public class PrefixService {
             .setService(service)
             .setDomain(domain)
             .setProvider(provider)
+            .setLookUpServiceType(prefixDto.getLookUpServiceType())
             .setOwner(prefixDto.getOwner())
             .setName(prefixDto.getName())
             .setUsedBy(prefixDto.getUsedBy())
@@ -186,13 +187,18 @@ public class PrefixService {
         providerRepository
             .findByIdOptional(prefixDto.getProviderId())
             .orElseThrow(() -> new NotFoundException("Provider not found"));
-    // retrieve the prefix
+
+    // check the uniqueness of the provided name
+    if (prefixRepository.existsByName(prefixDto.getName())) {
+      throw new ConflictException("Prefix name already exists");
+    }
 
     // update the prefix
     prefix.setService(service);
     prefix.setProvider(provider);
     prefix.setDomain(domain);
     prefix.setStatus(prefixDto.status);
+    prefix.setLookUpServiceType(prefixDto.lookUpServiceType);
     prefix.setOwner(prefixDto.owner);
     prefix.setUsedBy(prefixDto.usedBy);
     prefix.setName(prefixDto.name);
