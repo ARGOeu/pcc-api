@@ -89,3 +89,15 @@ the one provided with the docker-compose file is possible by executing quarkus w
 ```shell
 mvn clean quarkus:dev -Dquarkus.profile=local-db
 ```
+
+## HRLS Service Communication
+In order to communicate with the HRLS service, pcc-api
+needs two environmental variables that dictate the username
+and password for basic auth.
+
+```shell
+$ export HRLS_USERNAME = user
+``` 
+```shell
+$ export HRLS_PASSWORD = pass
+``` 

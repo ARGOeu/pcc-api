@@ -1,7 +1,7 @@
 package gr.grnet.pccapi.service;
 
+import gr.grnet.pccapi.client.eoscportal.EOSCPortalDomain;
 import gr.grnet.pccapi.dto.DomainDto;
-import gr.grnet.pccapi.external.response.EOSCPortalDomain;
 import gr.grnet.pccapi.mapper.DomainMapper;
 import gr.grnet.pccapi.repository.DomainRepository;
 import java.util.List;

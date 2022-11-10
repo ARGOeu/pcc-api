@@ -1,6 +1,6 @@
 package gr.grnet.pccapi.schedule;
 
-import gr.grnet.pccapi.client.EOSCPortalClient;
+import gr.grnet.pccapi.client.eoscportal.EOSCPortalClient;
 import gr.grnet.pccapi.service.DomainService;
 import io.quarkus.runtime.StartupEvent;
 import io.quarkus.scheduler.Scheduled;

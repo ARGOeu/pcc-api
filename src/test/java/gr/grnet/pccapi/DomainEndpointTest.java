@@ -3,7 +3,7 @@ package gr.grnet.pccapi;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import gr.grnet.pccapi.client.EOSCPortalClient;
+import gr.grnet.pccapi.client.eoscportal.EOSCPortalClient;
 import gr.grnet.pccapi.dto.APIResponseMsg;
 import gr.grnet.pccapi.dto.DomainDto;
 import gr.grnet.pccapi.endpoint.DomainEndpoint;

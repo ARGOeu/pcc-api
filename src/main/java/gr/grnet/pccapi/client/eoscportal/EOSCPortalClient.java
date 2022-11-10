@@ -1,6 +1,5 @@
-package gr.grnet.pccapi.client;
+package gr.grnet.pccapi.client.eoscportal;
 
-import gr.grnet.pccapi.external.response.EOSCPortalDomain;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import javax.ws.rs.GET;

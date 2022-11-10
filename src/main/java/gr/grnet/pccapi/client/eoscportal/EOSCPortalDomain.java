@@ -1,4 +1,4 @@
-package gr.grnet.pccapi.external.response;
+package gr.grnet.pccapi.client.eoscportal;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
