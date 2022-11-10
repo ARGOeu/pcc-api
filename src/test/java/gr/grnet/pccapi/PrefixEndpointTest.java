@@ -8,6 +8,7 @@ import gr.grnet.pccapi.dto.PartialPrefixDto;
 import gr.grnet.pccapi.dto.PrefixDto;
 import gr.grnet.pccapi.dto.PrefixResponseDto;
 import gr.grnet.pccapi.endpoint.PrefixEndpoint;
+import gr.grnet.pccapi.enums.LookUpServiceType;
 import gr.grnet.pccapi.repository.DomainRepository;
 import gr.grnet.pccapi.repository.PrefixRepository;
 import gr.grnet.pccapi.repository.ProviderRepository;
@@ -48,6 +49,7 @@ public class PrefixEndpointTest {
             .setOwner("someone")
             .setStatus(2)
             .setUsedBy("someone else")
+            .setLookUpServiceType(LookUpServiceType.PRIVATE)
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1);
@@ -67,6 +69,7 @@ public class PrefixEndpointTest {
     assertEquals("11523", response.getName());
     assertEquals("someone", response.getOwner());
     assertEquals("someone else", response.getUsedBy());
+    assertEquals(LookUpServiceType.PRIVATE, response.getLookUpServiceType());
     assertEquals(2, response.getStatus());
     assertEquals("Medical & Health Sciences", response.getDomainName());
     assertEquals(1, response.getDomainId());
@@ -85,6 +88,7 @@ public class PrefixEndpointTest {
             .setOwner("someone")
             .setStatus(2)
             .setUsedBy("someone else")
+            .setLookUpServiceType(LookUpServiceType.PRIVATE)
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1);
@@ -195,6 +199,7 @@ public class PrefixEndpointTest {
             .setOwner("someone")
             .setStatus(2)
             .setUsedBy("someone else")
+            .setLookUpServiceType(LookUpServiceType.NONE)
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1);
@@ -216,6 +221,7 @@ public class PrefixEndpointTest {
             .setOwner("someone1")
             .setStatus(3)
             .setUsedBy("someone else1")
+            .setLookUpServiceType(LookUpServiceType.PRIVATE)
             .setDomainId(2)
             .setServiceId(2)
             .setProviderId(2);
@@ -237,6 +243,7 @@ public class PrefixEndpointTest {
 
     assertEquals("someone1", response.getOwner());
     assertEquals("someone else1", response.getUsedBy());
+    assertEquals(LookUpServiceType.PRIVATE, response.getLookUpServiceType());
 
     assertEquals(3, response.getStatus());
     assertEquals("77777", response.getName());
@@ -252,6 +259,7 @@ public class PrefixEndpointTest {
             .setOwner("someone")
             .setStatus(2)
             .setUsedBy("someone else")
+            .setLookUpServiceType(LookUpServiceType.PRIVATE)
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1);
@@ -289,6 +297,7 @@ public class PrefixEndpointTest {
             .setOwner("someone")
             .setStatus(2)
             .setUsedBy("someone else")
+            .setLookUpServiceType(LookUpServiceType.PRIVATE)
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1);
@@ -319,6 +328,7 @@ public class PrefixEndpointTest {
             .setOwner("someone")
             .setStatus(2)
             .setUsedBy("someone else")
+            .setLookUpServiceType(LookUpServiceType.PRIVATE)
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1);
@@ -357,6 +367,7 @@ public class PrefixEndpointTest {
             .setOwner("someone")
             .setStatus(2)
             .setUsedBy("someone else")
+            .setLookUpServiceType(LookUpServiceType.BOTH)
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1);
@@ -384,6 +395,7 @@ public class PrefixEndpointTest {
     assertEquals(created.name, prefixResponseDto.name);
     assertEquals(created.domainId, prefixResponseDto.domainId);
     assertEquals(created.id, prefixResponseDto.id);
+    assertEquals(created.lookUpServiceType, prefixResponseDto.lookUpServiceType);
   }
 
   @Test
@@ -420,6 +432,7 @@ public class PrefixEndpointTest {
             .setOwner("someone")
             .setStatus(2)
             .setUsedBy("someone else")
+            .setLookUpServiceType(LookUpServiceType.CENTRAL)
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1);
@@ -435,7 +448,11 @@ public class PrefixEndpointTest {
             .extract()
             .as(PrefixResponseDto.class);
 
-    var patchRequestBody = new PartialPrefixDto().setName("222222").setDomainId(2);
+    var patchRequestBody =
+        new PartialPrefixDto()
+            .setName("222222")
+            .setLookUpServiceType(LookUpServiceType.PRIVATE)
+            .setDomainId(2);
 
     var patchResponse =
         given()
@@ -450,6 +467,7 @@ public class PrefixEndpointTest {
 
     assertEquals(patchRequestBody.name, patchResponse.name);
     assertEquals(patchRequestBody.domainId, patchResponse.domainId);
+    assertEquals(patchRequestBody.lookUpServiceType, patchResponse.lookUpServiceType);
   }
 
   @Test
@@ -461,6 +479,7 @@ public class PrefixEndpointTest {
             .setOwner("someone")
             .setStatus(2)
             .setUsedBy("someone else")
+            .setLookUpServiceType(LookUpServiceType.PRIVATE)
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1);
@@ -502,6 +521,7 @@ public class PrefixEndpointTest {
             .setOwner("someone")
             .setStatus(2)
             .setUsedBy("someone else")
+            .setLookUpServiceType(LookUpServiceType.PRIVATE)
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1);

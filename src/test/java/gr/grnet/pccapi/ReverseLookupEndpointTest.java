@@ -151,4 +151,23 @@ public class ReverseLookupEndpointTest {
     assertEquals("EMAIL", response[1]);
     assertEquals("RETRIEVE_RECORDS", response[2]);
   }
+
+  @Test
+  public void testTypesSuccess() {
+    var response =
+        given()
+            .contentType(ContentType.JSON)
+            .get("/types")
+            .then()
+            .assertThat()
+            .statusCode(200)
+            .extract()
+            .as(String[].class);
+
+    assertEquals(4, response.length);
+    assertEquals("CENTRAL", response[0]);
+    assertEquals("PRIVATE", response[1]);
+    assertEquals("BOTH", response[2]);
+    assertEquals("NONE", response[3]);
+  }
 }

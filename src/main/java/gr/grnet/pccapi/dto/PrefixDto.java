@@ -1,6 +1,7 @@
 package gr.grnet.pccapi.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import gr.grnet.pccapi.enums.LookUpServiceType;
 import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,6 +22,15 @@ public class PrefixDto {
   public String usedBy;
 
   @NotNull public Integer status;
+
+  @Schema(
+      type = SchemaType.STRING,
+      implementation = LookUpServiceType.class,
+      description = "The type of lookup service the prefix supports",
+      example = "PRIVATE")
+  @NotNull
+  @JsonProperty("lookup_service_type")
+  public LookUpServiceType lookUpServiceType;
 
   @Schema(
       type = SchemaType.INTEGER,

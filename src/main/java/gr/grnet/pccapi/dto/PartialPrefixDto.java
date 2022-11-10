@@ -1,6 +1,7 @@
 package gr.grnet.pccapi.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import gr.grnet.pccapi.enums.LookUpServiceType;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -29,6 +30,14 @@ public class PartialPrefixDto {
       example = "1")
   @JsonProperty("service_id")
   public Integer serviceId;
+
+  @Schema(
+      type = SchemaType.STRING,
+      implementation = LookUpServiceType.class,
+      description = "The type of lookup service the prefix supports",
+      example = "PRIVATE")
+  @JsonProperty("lookup_service_type")
+  public LookUpServiceType lookUpServiceType;
 
   @Schema(
       type = SchemaType.INTEGER,

@@ -55,5 +55,9 @@ public interface PrefixMapper {
       target = "status",
       expression =
           "java(prefixDto.status != null ? Integer.parseInt(prefixDto.status) : prefix.status)")
+  @Mapping(
+      target = "lookUpServiceType",
+      expression =
+          "java(prefixDto.lookUpServiceType != null ? prefixDto.lookUpServiceType : prefix.lookUpServiceType)")
   void updatePrefixFromDto(PartialPrefixDto prefixDto, @MappingTarget Prefix prefix);
 }
