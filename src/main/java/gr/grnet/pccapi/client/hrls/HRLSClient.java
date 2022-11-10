@@ -24,7 +24,7 @@ public interface HRLSClient {
         + Base64.getEncoder()
             .encodeToString(
                 String.format(
-                        "%s:%s", System.getenv("HRLS_USERNAME"), System.getenv("HRLS_PASSWORD"))
+                        "%s:%s", "pcc", "142505d97c61c7013a82ef6b70788e306695b59b1bce386285111df0b068edfd")
                     .getBytes());
   }
 
