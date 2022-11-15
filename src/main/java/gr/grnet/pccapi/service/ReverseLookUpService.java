@@ -30,13 +30,19 @@ public class ReverseLookUpService {
    * approach of the HRLS service derived from retrieverecords query parameter.
    *
    * @param filtersDto The filters that will be provided to the HRLS service
+   * @param page the page number, defaults to 0
+   * @param limit the limit size, defaults to 10
    * @return list of {@link HandleDto}
    */
-  public List<HandleDto> search(FiltersDto filtersDto) {
+  public List<HandleDto> search(FiltersDto filtersDto, Long page, Long limit) {
 
     boolean fullrecords = false;
-    Map<String, String> params = new HashMap<>();
     List<HandleDto> responseDto = new ArrayList<>();
+    Map<String, String> params =
+        new HashMap<String, String>(
+            Map.of(
+                "page", page != null ? page.toString() : "0",
+                "limit", limit != null ? limit.toString() : "10"));
 
     for (Map.Entry<String, String> filterDto : filtersDto.getFilters().entrySet()) {
       Filter filter;

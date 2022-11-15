@@ -3,7 +3,7 @@ package gr.grnet.pccapi.wiremock;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.http.Fault;
@@ -22,9 +22,11 @@ public class HRLSWiremockServer implements QuarkusTestResourceLifecycleManager {
     wireMockServer.start();
 
     wireMockServer.stubFor(
-        get(urlEqualTo("/hrls/handles?retrieverecords=true&EMAIL=me%40mail.com&URL=domain.com"))
+        get(urlPathEqualTo("/hrls/handles"))
             .withQueryParams(
                 Map.of(
+                    "limit", equalTo("20"),
+                    "page", equalTo("1"),
                     "URL", equalTo("domain.com"),
                     "EMAIL", equalTo("me@mail.com"),
                     "retrieverecords", equalTo("true")))
@@ -35,9 +37,11 @@ public class HRLSWiremockServer implements QuarkusTestResourceLifecycleManager {
                     .withBodyFile("json/ServiceLookupResponse_HRLS.json")));
 
     wireMockServer.stubFor(
-        get(urlEqualTo("/hrls/handles?retrieverecords=false&EMAIL=me%40mail.com&URL=domain.com"))
+        get(urlPathEqualTo("/hrls/handles"))
             .withQueryParams(
                 Map.of(
+                    "limit", equalTo("10"),
+                    "page", equalTo("0"),
                     "URL", equalTo("domain.com"),
                     "EMAIL", equalTo("me@mail.com"),
                     "retrieverecords", equalTo("false")))
@@ -48,7 +52,7 @@ public class HRLSWiremockServer implements QuarkusTestResourceLifecycleManager {
                     .withBodyFile("json/ServiceLookupResponseFlat_HRLS.json")));
 
     wireMockServer.stubFor(
-        get(urlEqualTo("/hrls/handles?retrieverecords=false&URL=invalid"))
+        get(urlPathEqualTo("/hrls/handles"))
             .withQueryParams(
                 Map.of(
                     "URL", equalTo("invalid"),

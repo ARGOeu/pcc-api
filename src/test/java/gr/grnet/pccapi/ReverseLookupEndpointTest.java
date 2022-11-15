@@ -36,6 +36,10 @@ public class ReverseLookupEndpointTest {
 
     var response =
         given()
+            .queryParams(
+                Map.of(
+                    "page", "1",
+                    "limit", "20"))
             .contentType(ContentType.JSON)
             .body(filters)
             .post()
