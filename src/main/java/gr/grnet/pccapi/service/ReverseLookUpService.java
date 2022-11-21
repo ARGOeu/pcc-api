@@ -72,7 +72,9 @@ public class ReverseLookUpService {
         for (Map.Entry<String, List<HRLSHandle>> handle : result.entrySet()) {
           HandleDto handleDto = new HandleDto();
           handleDto.setHandle(handle.getKey());
-          handle.getValue().forEach(v -> handleDto.addType(v.getType(), v.getValue()));
+          handle.getValue().stream()
+              .filter(v -> !v.getType().equals("HS_ADMIN"))
+              .forEach(v -> handleDto.addType(v.getType(), v.getValue()));
           responseDto.add(handleDto);
         }
       } else {
