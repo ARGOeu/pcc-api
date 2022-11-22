@@ -47,7 +47,7 @@ public class ProviderEndpointTest {
             .extract()
             .as(ProviderResponseDTO[].class);
 
-    assertEquals(3, response.length);
+    assertEquals(4, response.length);
 
     assertEquals(1, response[0].id);
     assertEquals("GRNET", response[0].name);
@@ -57,6 +57,9 @@ public class ProviderEndpointTest {
 
     assertEquals(3, response[2].id);
     assertEquals("SURF", response[2].name);
+
+    assertEquals(4, response[3].id);
+    assertEquals("GWDG", response[3].name);
   }
 
   @Test

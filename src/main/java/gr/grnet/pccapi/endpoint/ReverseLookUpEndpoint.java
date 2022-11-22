@@ -8,10 +8,12 @@ import gr.grnet.pccapi.enums.LookUpServiceType;
 import gr.grnet.pccapi.service.ReverseLookUpService;
 import java.util.EnumSet;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import lombok.AllArgsConstructor;
@@ -63,8 +65,22 @@ public class ReverseLookUpEndpoint {
               required = true,
               schema = @Schema(type = SchemaType.OBJECT, implementation = FiltersDto.class))
           @RequestBody
-          FiltersDto filtersDto) {
-    return Response.ok().entity(reverseLookUpService.search(filtersDto)).build();
+          FiltersDto filtersDto,
+      @Parameter(
+              description = "Page number.",
+              required = true,
+              schema = @Schema(type = SchemaType.INTEGER))
+          @QueryParam(value = "page")
+          @DefaultValue(value = "0")
+          Long page,
+      @Parameter(
+              description = "Limit size.",
+              required = true,
+              schema = @Schema(type = SchemaType.INTEGER))
+          @QueryParam(value = "limit")
+          @DefaultValue(value = "10")
+          Long limit) {
+    return Response.ok().entity(reverseLookUpService.search(filtersDto, page, limit)).build();
   }
 
   @Tag(name = "Reverse LookUp")
