@@ -3,6 +3,7 @@ package gr.grnet.pccapi.enums;
 public enum Filter {
   URL("URL"),
   EMAIL("EMAIL"),
+  CHECKSUM("CHECKSUM"),
   RETRIEVE_RECORDS("retrieverecords");
 
   private final String text;
