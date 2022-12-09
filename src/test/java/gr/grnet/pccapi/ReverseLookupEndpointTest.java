@@ -47,11 +47,13 @@ public class ReverseLookupEndpointTest {
 
     var h1 = new HandleDto().setHandle("11098/EUDAT-JMD_001B3286-527B-5225-B68D-FBF2C775D49D");
     h1.addType("URL", "http://b2find.eudat.eu/dataset/001b3286-527b-5225-b68d-fbf2c775d49d");
+    h1.addType("CHECKSUM", "f7b24993990ba4fc2104b09b63e7f975");
     h1.addType(
         "EUDAT/ROR", "http://eudatmd1.dkrz.de:8080/dataset/001b3286-527b-5225-b68d-fbf2c775d49d");
 
     var h2 = new HandleDto().setHandle("11098/EUDAT-JMD_00504D2A-EF64-51EB-AC5D-8A91485E35B4");
     h2.addType("URL", "http://b2find.eudat.eu/dataset/00504d2a-ef64-51eb-ac5d-8a91485e35b4");
+    h2.addType("CHECKSUM", "ba23d43ae049c86db3e8cc284683e08c");
     h2.addType("EUDAT/METADATATYPE", "http://www.openarchives.org/OAI/2.0/oai_dc.xsd");
 
     assertEquals(h1, response[0]);
@@ -146,10 +148,11 @@ public class ReverseLookupEndpointTest {
             .extract()
             .as(String[].class);
 
-    assertEquals(3, response.length);
+    assertEquals(4, response.length);
     assertEquals("URL", response[0]);
     assertEquals("EMAIL", response[1]);
-    assertEquals("RETRIEVE_RECORDS", response[2]);
+    assertEquals("CHECKSUM", response[2]);
+    assertEquals("RETRIEVE_RECORDS", response[3]);
   }
 
   @Test
