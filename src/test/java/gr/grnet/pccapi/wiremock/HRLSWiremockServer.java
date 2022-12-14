@@ -40,6 +40,20 @@ public class HRLSWiremockServer implements QuarkusTestResourceLifecycleManager {
         get(urlPathEqualTo("/hrls/handles"))
             .withQueryParams(
                 Map.of(
+                    "URL", equalTo("domain.com"),
+                    "EMAIL", equalTo("me@mail.com"),
+                    "CHECKSUM", equalTo("f7b24993990ba4fc2104b09b63e7f975"),
+                    "retrieverecords", equalTo("true")))
+            .willReturn(
+                aResponse()
+                    .withHeader("Content-Type", "application/json")
+                    .withStatus(200)
+                    .withBodyFile("json/ServiceLookupResponse_HRLS_checksum.json")));
+
+    wireMockServer.stubFor(
+        get(urlPathEqualTo("/hrls/handles"))
+            .withQueryParams(
+                Map.of(
                     "limit", equalTo("10"),
                     "page", equalTo("0"),
                     "URL", equalTo("domain.com"),
