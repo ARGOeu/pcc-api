@@ -1,0 +1,16 @@
+{
+  "11098/EUDAT-JMD_001B3286-527B-5225-B68D-FBF2C775D49D": [
+    {
+      "type": "URL",
+      "value": "http://b2find.eudat.eu/dataset/001b3286-527b-5225-b68d-fbf2c775d49d"
+    },
+    {
+      "type": "10320/LOC",
+      "value": "<locations><location href=\\\"http://repo.data.ingv.it/INGV/home/rods/san/archive/2016/IV/MABI/HHE.D\\\" id=\\\"0\\\"/></locations>\""
+    },
+    {
+      "type": "EUDAT/ROR",
+      "value": "http://eudatmd1.dkrz.de:8080/dataset/001b3286-527b-5225-b68d-fbf2c775d49d"
+    }
+  ]
+}

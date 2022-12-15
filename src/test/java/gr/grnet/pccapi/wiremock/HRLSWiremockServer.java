@@ -54,6 +54,22 @@ public class HRLSWiremockServer implements QuarkusTestResourceLifecycleManager {
         get(urlPathEqualTo("/hrls/handles"))
             .withQueryParams(
                 Map.of(
+                    "URL", equalTo("domain.com"),
+                    "EMAIL", equalTo("me@mail.com"),
+                    "10320/LOC",
+                        equalTo(
+                            "<locations><location href=\"http://repo.data.ingv.it/INGV/home/rods/san/archive/2016/IV/MABI/HHE.D\" id=\"0\"/></locations>"),
+                    "retrieverecords", equalTo("true")))
+            .willReturn(
+                aResponse()
+                    .withHeader("Content-Type", "application/json")
+                    .withStatus(200)
+                    .withBodyFile("json/ServiceLookupResponse_HRLS_LOC.json")));
+
+    wireMockServer.stubFor(
+        get(urlPathEqualTo("/hrls/handles"))
+            .withQueryParams(
+                Map.of(
                     "limit", equalTo("10"),
                     "page", equalTo("0"),
                     "URL", equalTo("domain.com"),

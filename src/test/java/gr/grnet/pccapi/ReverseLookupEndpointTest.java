@@ -96,6 +96,40 @@ public class ReverseLookupEndpointTest {
   }
 
   @Test
+  public void reverseLookUpSuccessFullLoc() {
+
+    var filters = new FiltersDto();
+    filters.setFilters(
+        Map.of(
+            "LOC",
+                "<locations><location href=\"http://repo.data.ingv.it/INGV/home/rods/san/archive/2016/IV/MABI/HHE.D\" id=\"0\"/></locations>",
+            "URL", "domain.com",
+            "EMAIL", "me@mail.com",
+            "RETRIEVE_RECORDS", "true"));
+
+    var response =
+        given()
+            .contentType(ContentType.JSON)
+            .body(filters)
+            .post()
+            .then()
+            .assertThat()
+            .statusCode(200)
+            .extract()
+            .as(HandleDto[].class);
+
+    var h1 = new HandleDto().setHandle("11098/EUDAT-JMD_001B3286-527B-5225-B68D-FBF2C775D49D");
+    h1.addType("URL", "http://b2find.eudat.eu/dataset/001b3286-527b-5225-b68d-fbf2c775d49d");
+    h1.addType(
+        "10320/LOC",
+        "<locations><location href=\\\"http://repo.data.ingv.it/INGV/home/rods/san/archive/2016/IV/MABI/HHE.D\\\" id=\\\"0\\\"/></locations>\"");
+    h1.addType(
+        "EUDAT/ROR", "http://eudatmd1.dkrz.de:8080/dataset/001b3286-527b-5225-b68d-fbf2c775d49d");
+
+    assertEquals(h1, response[0]);
+  }
+
+  @Test
   public void reverseLookUpSuccessFlat() {
 
     var filters = new FiltersDto();
@@ -183,11 +217,12 @@ public class ReverseLookupEndpointTest {
             .extract()
             .as(String[].class);
 
-    assertEquals(4, response.length);
+    assertEquals(5, response.length);
     assertEquals("URL", response[0]);
     assertEquals("EMAIL", response[1]);
     assertEquals("CHECKSUM", response[2]);
-    assertEquals("RETRIEVE_RECORDS", response[3]);
+    assertEquals("LOC", response[3]);
+    assertEquals("RETRIEVE_RECORDS", response[4]);
   }
 
   @Test
