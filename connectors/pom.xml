@@ -39,6 +39,12 @@
                 <version>3.4.1</version>
                 <configuration>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <relocations>
+                        <relocation>
+                            <pattern>com.mysql</pattern>
+                            <shadedPattern>com.shaded.mysql</shadedPattern>
+                        </relocation>
+                    </relocations>
                 </configuration>
                 <executions>
                     <execution>
@@ -49,7 +55,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
 

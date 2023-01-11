@@ -12,6 +12,10 @@ If you want to learn more about Quarkus, please visit its website: https://quark
 
 You can run your application in dev mode that enables live coding using:
 ```shell script
+export PCC_API_PROFILE=dev
+export HRLS_DATABASE_NAME=database-name
+export HRLS_DATABASE_USERNAME=usename
+export HRLS_DATABASE_PASSWORD=password
 ./mvnw compile quarkus:dev
 ```
 

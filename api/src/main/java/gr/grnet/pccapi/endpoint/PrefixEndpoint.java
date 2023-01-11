@@ -6,6 +6,7 @@ import gr.grnet.pccapi.dto.PrefixDto;
 import gr.grnet.pccapi.dto.PrefixResponseDto;
 import gr.grnet.pccapi.dto.ProviderResponseDTO;
 import gr.grnet.pccapi.service.PrefixService;
+import gr.grnet.pccapi.service.StatisticsService;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -34,6 +35,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 public class PrefixEndpoint {
 
   PrefixService prefixService;
+  StatisticsService statisticsService;
 
   @Operation(summary = "Create a new Prefix.")
   @APIResponse(
@@ -210,5 +212,36 @@ public class PrefixEndpoint {
     var prefix = prefixService.fetchById(id);
 
     return Response.ok().entity(prefix).build();
+  }
+
+  @Operation(
+      summary = "Fetch the count of PIDs for a particular Prefix.",
+      description =
+          "Passing the unique Prefix ID, you can fetch the count of PIDs for the particular Prefix.")
+  @APIResponse(
+      responseCode = "200",
+      description = "The count of PIDs for the particular Prefix.",
+      content =
+          @Content(
+              schema = @Schema(type = SchemaType.OBJECT, implementation = PrefixResponseDto.class)))
+  @APIResponse(
+      responseCode = "404",
+      description = "Prefix not Found.",
+      content =
+          @Content(
+              schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class)))
+  @GET
+  @Path("/{id}/count")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response getPIDCountByPrefix(
+      @Parameter(
+              description = "The Prefix ID for which the PIDs count will be retrieved.",
+              required = true,
+              example = "1",
+              schema = @Schema(type = SchemaType.STRING))
+          @PathParam("id")
+          String id) {
+    var count = statisticsService.getPIDCountByPrefixID(id);
+    return Response.ok().entity(count).build();
   }
 }
