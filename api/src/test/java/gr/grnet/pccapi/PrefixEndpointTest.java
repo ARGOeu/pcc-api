@@ -2,6 +2,7 @@ package gr.grnet.pccapi;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 
 import gr.grnet.pccapi.dto.APIResponseMsg;
 import gr.grnet.pccapi.dto.PartialPrefixDto;
@@ -13,14 +14,19 @@ import gr.grnet.pccapi.repository.DomainRepository;
 import gr.grnet.pccapi.repository.PrefixRepository;
 import gr.grnet.pccapi.repository.ProviderRepository;
 import gr.grnet.pccapi.repository.ServiceRepository;
+import gr.grnet.pccapi.service.StatisticsService;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.mockito.InjectMock;
 import io.restassured.http.ContentType;
+import java.sql.SQLException;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import javax.ws.rs.NotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.mockito.Mockito;
 
 @QuarkusTest
 @TestHTTPEndpoint(PrefixEndpoint.class)
@@ -29,10 +35,9 @@ public class PrefixEndpointTest {
 
   @Inject PrefixRepository prefixRepository;
   @Inject DomainRepository domainRepository;
-
   @Inject ProviderRepository providerRepository;
-
   @Inject ServiceRepository serviceRepository;
+  @InjectMock StatisticsService statisticsService;
 
   @BeforeEach
   @Transactional
@@ -421,6 +426,39 @@ public class PrefixEndpointTest {
         given().get().then().assertThat().statusCode(200).extract().as(PrefixResponseDto[].class);
 
     assertEquals(prefixes.size(), prefixResponseDto.length);
+  }
+
+  @Test
+  public void fetchHandlesCountByPrefixId() throws SQLException {
+
+    Mockito.when(statisticsService.getPIDCountByPrefixID(any())).thenReturn(21);
+    var resp =
+        given()
+            .get("/{id}/count", 21.12132)
+            .then()
+            .assertThat()
+            .statusCode(200)
+            .extract()
+            .as(Integer.class);
+
+    assertEquals(21, resp);
+  }
+
+  @Test
+  public void fetchHandlesCountByPrefixIdNotFound() {
+
+    Mockito.when(statisticsService.getPIDCountByPrefixID("invalid"))
+        .thenThrow(new NotFoundException("Prefix invalid not found"));
+    var resp =
+        given()
+            .get("/{id}/count", "invalid")
+            .then()
+            .assertThat()
+            .statusCode(404)
+            .extract()
+            .as(APIResponseMsg.class);
+
+    assertEquals("Prefix invalid not found", resp.getMessage());
   }
 
   @Test

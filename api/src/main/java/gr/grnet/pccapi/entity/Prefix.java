@@ -32,7 +32,7 @@ public class Prefix extends PanacheEntityBase {
   public String usedBy;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "lookup_service_type", nullable = false)
+  @Column(name = "lookup_service_type", columnDefinition = "enum", nullable = false)
   public LookUpServiceType lookUpServiceType;
 
   public Integer status;

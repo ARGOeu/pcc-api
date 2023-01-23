@@ -26,4 +26,5 @@ docker-compose up -d
 echo "Waiting 5 seconds for DB to initialise . . ."
 sleep 5
 echo "Starting quarkus pcc-api . .. "
-mvn clean quarkus:dev -Dquarkus.profile=local-db
+mvn clean
+mvn quarkus:dev -Dquarkus.profile=local-db -DskipTests=true
