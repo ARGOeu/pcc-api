@@ -8,18 +8,6 @@ If you want to learn more about Quarkus, please visit its website: https://quark
 -   Java 11+
 -   Apache Maven 3.8.1+
 -   Docker (for dev mode)
-## Running the application in dev mode
-
-You can run your application in dev mode that enables live coding using:
-```shell script
-export PCC_API_PROFILE=dev
-export HRLS_DATABASE_NAME=database-name
-export HRLS_DATABASE_USERNAME=usename
-export HRLS_DATABASE_PASSWORD=password
-./mvnw compile quarkus:dev
-```
-
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at http://localhost:8080/q/dev/.
 
 ## Packaging and running the application
 
@@ -60,22 +48,15 @@ If you want to learn more about building native executables, please consult http
 mvn spotless:apply
 ```
 
-## Local DB Setup
-
-The `local-db` profile gives the ability to run a mysql instance
-in a docker container independently of the quarkus application.
-This gives the ability to have a stable DB, hold state 
-and not re-create it
-every time the application restarts.
-
-This requires:
-- docker
-- docker-compose
+## Running the application in dev mode
 
 Execute the script:
 ```shell
 run-local-db-env.sh
 ```
+
+> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at http://localhost:8080/q/dev/.
+
 
 After the initial set up, you can run the quarkus application
 on its own without the script.
@@ -84,14 +65,6 @@ In order to reset the local-db, you can issue the command:
 
 ```shell
 docker-compose down --volumes
-```
-
-**NOTE**
-
-The ability to run the application with a local-db other than
-the one provided with the docker-compose file is possible by executing quarkus with the local-db profile.
-```shell
-mvn clean quarkus:dev -Dquarkus.profile=local-db
 ```
 
 ## HRLS Service Communication
