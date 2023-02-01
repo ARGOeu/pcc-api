@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+  pcc-db:
+    image: mysql:8.0
+    environment:
+      - MYSQL_DATABASE=pccdb
+      - MYSQL_USER=pcc
+      - MYSQL_PASSWORD=pcc
+      - MYSQL_ROOT_PASSWORD=pcc-root
+    ports:
+      - "3306:3306"
+    volumes:
+      - pcc-mysql-data:/var/lib/mysql
+  hrls-db:
+    image: mysql:8.0
+    environment:
+      - MYSQL_DATABASE=hrlsdb
+      - MYSQL_USER=hrls
+      - MYSQL_PASSWORD=hrls
+      - MYSQL_ROOT_PASSWORD=hrls-root
+    ports:
+      - "3307:3306"
+    volumes:
+      - hrls-mysql-data:/var/lib/mysql
+      - ./api/src/main/resources/db/hrls/V1.0__prefixes.sql:/docker-entrypoint-initdb.d/1.sql
+
+volumes:
+  pcc-mysql-data:
+      driver: local
+  hrls-mysql-data:
+      driver: local
+
