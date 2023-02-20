@@ -110,6 +110,11 @@ public class PrefixService {
             .findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Prefix not found"));
 
+    // check the uniqueness of the provided name
+    if (prefixRepository.existsByName(prefixDto.getName())) {
+      throw new ConflictException("Prefix name already exists");
+    }
+
     PrefixMapper.INSTANCE.updatePrefixFromDto(prefixDto, prefix);
 
     // check the existence of the provided provider and update entity on success
