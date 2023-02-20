@@ -7,6 +7,7 @@ import gr.grnet.pccapi.enums.Filter;
 import gr.grnet.pccapi.enums.LookUpServiceType;
 import gr.grnet.pccapi.service.ReverseLookUpService;
 import java.util.EnumSet;
+import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -64,6 +65,7 @@ public class ReverseLookUpEndpoint {
               description = "The filters to be used in the HRLS lookup.",
               required = true,
               schema = @Schema(type = SchemaType.OBJECT, implementation = FiltersDto.class))
+          @Valid
           @RequestBody
           FiltersDto filtersDto,
       @Parameter(
