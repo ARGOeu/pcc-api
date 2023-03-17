@@ -7,6 +7,7 @@ import gr.grnet.pccapi.dto.PrefixResponseDto;
 import gr.grnet.pccapi.dto.ProviderResponseDTO;
 import gr.grnet.pccapi.service.PrefixService;
 import gr.grnet.pccapi.service.StatisticsService;
+import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -64,6 +65,7 @@ public class PrefixEndpoint {
               description = "The Prefix to be saved to the service.",
               required = true,
               schema = @Schema(type = SchemaType.OBJECT, implementation = PrefixDto.class))
+          @Valid
           @RequestBody
           PrefixDto prefixDto) {
     return Response.status(Response.Status.CREATED).entity(prefixService.create(prefixDto)).build();
@@ -98,7 +100,7 @@ public class PrefixEndpoint {
               schema = @Schema(type = SchemaType.INTEGER))
           @PathParam("id")
           int id,
-      @RequestBody PrefixDto prefixDto) {
+      @Valid @RequestBody PrefixDto prefixDto) {
     // fully update a prefix of a specific id
     return prefixService.update(prefixDto, id);
   }
@@ -143,7 +145,7 @@ public class PrefixEndpoint {
               schema = @Schema(type = SchemaType.INTEGER))
           @PathParam("id")
           int id,
-      @RequestBody PartialPrefixDto prefixDto) {
+      @Valid @RequestBody PartialPrefixDto prefixDto) {
     return Response.status(Response.Status.OK)
         .entity(prefixService.patchById(id, prefixDto))
         .build();
