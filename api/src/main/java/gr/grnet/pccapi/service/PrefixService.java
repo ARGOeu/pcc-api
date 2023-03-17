@@ -61,7 +61,6 @@ public class PrefixService {
         providerRepository
             .findByIdOptional(prefixDto.getProviderId())
             .orElseThrow(() -> new NotFoundException("Provider not found"));
-
     Prefix prefix =
         new Prefix()
             .setService(service)
@@ -72,7 +71,9 @@ public class PrefixService {
             .setName(prefixDto.getName())
             .setUsedBy(prefixDto.getUsedBy())
             .setStatus(prefixDto.getStatus())
-            .setResolvable(prefixDto.getResolvable());
+            .setResolvable(prefixDto.getResolvable())
+            .setContactName(prefixDto.getContactName())
+            .setContactEmail(prefixDto.getContactEmail());
 
     prefixRepository.persist(prefix);
     return PrefixMapper.INSTANCE.prefixToResponseDto(prefix);
@@ -209,6 +210,8 @@ public class PrefixService {
     prefix.setUsedBy(prefixDto.usedBy);
     prefix.setName(prefixDto.name);
     prefix.setResolvable(prefixDto.resolvable);
+    prefix.setContactName(prefixDto.contactName);
+    prefix.setContactEmail(prefixDto.contactEmail);
 
     return PrefixMapper.INSTANCE.prefixToResponseDto(prefix);
   }

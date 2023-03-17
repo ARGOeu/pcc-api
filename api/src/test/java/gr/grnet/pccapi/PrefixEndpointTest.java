@@ -57,7 +57,9 @@ public class PrefixEndpointTest {
             .setLookUpServiceType(LookUpServiceType.PRIVATE)
             .setDomainId(1)
             .setServiceId(1)
-            .setProviderId(1);
+            .setProviderId(1)
+            .setContactEmail("test@test.com")
+            .setContactName("testname");
 
     var response =
         given()
@@ -83,6 +85,8 @@ public class PrefixEndpointTest {
     assertEquals("GRNET", response.getProviderName());
     assertEquals(1, response.getProviderId());
     assertEquals(Boolean.TRUE, response.getResolvable());
+    assertEquals("test@test.com", response.getContactEmail());
+    assertEquals("testname", response.getContactName());
   }
 
   @Test
@@ -235,7 +239,9 @@ public class PrefixEndpointTest {
             .setDomainId(2)
             .setServiceId(2)
             .setProviderId(2)
-            .setResolvable(Boolean.FALSE);
+            .setResolvable(Boolean.FALSE)
+            .setContactEmail("test2@test.com")
+            .setContactName("testname2");
 
     var response =
         given()
@@ -259,6 +265,8 @@ public class PrefixEndpointTest {
     assertEquals(3, response.getStatus());
     assertEquals("77777", response.getName());
     assertEquals(Boolean.FALSE, response.getResolvable());
+    assertEquals("testname2", response.getContactName());
+    assertEquals("test2@test.com", response.getContactEmail());
   }
 
   @Test
@@ -481,7 +489,9 @@ public class PrefixEndpointTest {
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1)
-            .setResolvable(Boolean.TRUE);
+            .setResolvable(Boolean.TRUE)
+            .setContactName("testname")
+            .setContactEmail("test@test.com");
 
     var response =
         given()
@@ -499,7 +509,9 @@ public class PrefixEndpointTest {
             .setName("222222")
             .setLookUpServiceType(LookUpServiceType.PRIVATE)
             .setDomainId(2)
-            .setResolvable(Boolean.FALSE);
+            .setResolvable(Boolean.FALSE)
+            .setContactEmail("test2@test.com")
+            .setContactName("testname2");
 
     var patchResponse =
         given()
@@ -516,6 +528,8 @@ public class PrefixEndpointTest {
     assertEquals(patchRequestBody.domainId, patchResponse.domainId);
     assertEquals(patchRequestBody.lookUpServiceType, patchResponse.lookUpServiceType);
     assertEquals(patchRequestBody.resolvable, patchResponse.resolvable);
+    assertEquals(patchRequestBody.contactEmail, patchResponse.contactEmail);
+    assertEquals(patchRequestBody.contactName, patchResponse.contactName);
   }
 
   @Test
