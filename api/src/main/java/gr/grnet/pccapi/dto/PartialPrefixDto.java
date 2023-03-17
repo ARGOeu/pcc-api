@@ -2,6 +2,8 @@ package gr.grnet.pccapi.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import gr.grnet.pccapi.enums.LookUpServiceType;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -57,4 +59,14 @@ public class PartialPrefixDto {
 
   @JsonProperty("resolvable")
   public Boolean resolvable = Boolean.TRUE;
+
+  @JsonProperty("contact_name")
+  public String contactName;
+
+  @Email(
+      regexp =
+          "^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^-]+(?:\\.[a-zA-Z0-9_!#$%&’*+/=?`{|}~^-]+)*@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$",
+      flags = Pattern.Flag.CASE_INSENSITIVE)
+  @JsonProperty("contact_email")
+  public String contactEmail;
 }

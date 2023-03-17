@@ -59,5 +59,13 @@ public interface PrefixMapper {
       target = "lookUpServiceType",
       expression =
           "java(prefixDto.lookUpServiceType != null ? prefixDto.lookUpServiceType : prefix.lookUpServiceType)")
+  @Mapping(
+      target = "contactEmail",
+      expression =
+          "java(StringUtils.isNotEmpty(prefixDto.contactEmail) ? prefixDto.contactEmail : prefix.contactEmail)")
+  @Mapping(
+      target = "contactName",
+      expression =
+          "java(StringUtils.isNotEmpty(prefixDto.contactName) ? prefixDto.contactName : prefix.contactName)")
   void updatePrefixFromDto(PartialPrefixDto prefixDto, @MappingTarget Prefix prefix);
 }
