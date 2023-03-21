@@ -126,7 +126,8 @@ public class PrefixEndpointTest {
             .setUsedBy("someone else")
             .setDomainId(1)
             .setServiceId(999)
-            .setProviderId(1);
+            .setProviderId(1)
+            .setLookUpServiceType(LookUpServiceType.PRIVATE);
 
     var response =
         given()
@@ -153,7 +154,8 @@ public class PrefixEndpointTest {
             .setUsedBy("someone else")
             .setDomainId(999)
             .setServiceId(1)
-            .setProviderId(1);
+            .setProviderId(1)
+            .setLookUpServiceType(LookUpServiceType.PRIVATE);
 
     var response =
         given()
@@ -180,7 +182,8 @@ public class PrefixEndpointTest {
             .setUsedBy("someone else")
             .setDomainId(1)
             .setServiceId(1)
-            .setProviderId(999);
+            .setProviderId(999)
+            .setLookUpServiceType(LookUpServiceType.PRIVATE);
 
     var response =
         given()
