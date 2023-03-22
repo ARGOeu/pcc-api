@@ -71,7 +71,8 @@ public class PrefixService {
             .setOwner(prefixDto.getOwner())
             .setName(prefixDto.getName())
             .setUsedBy(prefixDto.getUsedBy())
-            .setStatus(prefixDto.getStatus());
+            .setStatus(prefixDto.getStatus())
+            .setResolvable(prefixDto.getResolvable());
 
     prefixRepository.persist(prefix);
     return PrefixMapper.INSTANCE.prefixToResponseDto(prefix);
@@ -207,6 +208,7 @@ public class PrefixService {
     prefix.setOwner(prefixDto.owner);
     prefix.setUsedBy(prefixDto.usedBy);
     prefix.setName(prefixDto.name);
+    prefix.setResolvable(prefixDto.resolvable);
 
     return PrefixMapper.INSTANCE.prefixToResponseDto(prefix);
   }

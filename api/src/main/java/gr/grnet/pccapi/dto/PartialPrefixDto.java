@@ -54,4 +54,7 @@ public class PartialPrefixDto {
       example = "1")
   @JsonProperty("provider_id")
   public Integer providerId;
+
+  @JsonProperty("resolvable")
+  public Boolean resolvable = Boolean.TRUE;
 }

@@ -48,4 +48,6 @@ public class Prefix extends PanacheEntityBase {
   @ManyToOne()
   @JoinColumn(name = "provider_id")
   public Provider provider;
+
+  public Boolean resolvable;
 }
