@@ -65,6 +65,9 @@ public class PrefixService {
 
     var lookUpServiceType =
         PrefixMapper.INSTANCE.validateLookUpServiceType(prefixDto.lookUpServiceType);
+
+    var contractType = PrefixMapper.INSTANCE.validateContractType(prefixDto.contractType);
+
     Prefix prefix = PrefixMapper.INSTANCE.requestToPrefix(prefixDto);
 
     prefix
@@ -78,8 +81,8 @@ public class PrefixService {
         .setStatus(prefixDto.getStatus())
         .setResolvable(prefixDto.getResolvable())
         .setContactName(prefixDto.getContactName())
-        .setContactEmail(prefixDto.getContactEmail());
-
+        .setContactEmail(prefixDto.getContactEmail())
+        .setContractType(contractType);
     prefixRepository.persist(prefix);
     return PrefixMapper.INSTANCE.prefixToResponseDto(prefix);
   }
@@ -206,6 +209,7 @@ public class PrefixService {
     }
     var lookUpServiceType =
         PrefixMapper.INSTANCE.validateLookUpServiceType(prefixDto.lookUpServiceType);
+    var contractType = PrefixMapper.INSTANCE.validateContractType(prefixDto.contractType);
 
     PrefixMapper.INSTANCE.updateRequestToPrefix(prefixDto, prefix);
 
@@ -221,6 +225,7 @@ public class PrefixService {
     prefix.setResolvable(prefixDto.resolvable);
     prefix.setContactName(prefixDto.contactName);
     prefix.setContactEmail(prefixDto.contactEmail);
+    prefix.setContractType(contractType);
 
     return PrefixMapper.INSTANCE.prefixToResponseDto(prefix);
   }
