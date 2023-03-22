@@ -82,6 +82,7 @@ public class PrefixEndpointTest {
     assertEquals(1, response.getServiceId());
     assertEquals("GRNET", response.getProviderName());
     assertEquals(1, response.getProviderId());
+    assertEquals(Boolean.TRUE, response.getResolvable());
   }
 
   @Test
@@ -210,7 +211,8 @@ public class PrefixEndpointTest {
             .setLookUpServiceType(LookUpServiceType.NONE)
             .setDomainId(1)
             .setServiceId(1)
-            .setProviderId(1);
+            .setProviderId(1)
+            .setResolvable(Boolean.TRUE);
 
     var resp =
         given()
@@ -232,7 +234,8 @@ public class PrefixEndpointTest {
             .setLookUpServiceType(LookUpServiceType.PRIVATE)
             .setDomainId(2)
             .setServiceId(2)
-            .setProviderId(2);
+            .setProviderId(2)
+            .setResolvable(Boolean.FALSE);
 
     var response =
         given()
@@ -255,6 +258,7 @@ public class PrefixEndpointTest {
 
     assertEquals(3, response.getStatus());
     assertEquals("77777", response.getName());
+    assertEquals(Boolean.FALSE, response.getResolvable());
   }
 
   @Test
@@ -476,7 +480,8 @@ public class PrefixEndpointTest {
             .setLookUpServiceType(LookUpServiceType.CENTRAL)
             .setDomainId(1)
             .setServiceId(1)
-            .setProviderId(1);
+            .setProviderId(1)
+            .setResolvable(Boolean.TRUE);
 
     var response =
         given()
@@ -493,7 +498,8 @@ public class PrefixEndpointTest {
         new PartialPrefixDto()
             .setName("222222")
             .setLookUpServiceType(LookUpServiceType.PRIVATE)
-            .setDomainId(2);
+            .setDomainId(2)
+            .setResolvable(Boolean.FALSE);
 
     var patchResponse =
         given()
@@ -509,6 +515,7 @@ public class PrefixEndpointTest {
     assertEquals(patchRequestBody.name, patchResponse.name);
     assertEquals(patchRequestBody.domainId, patchResponse.domainId);
     assertEquals(patchRequestBody.lookUpServiceType, patchResponse.lookUpServiceType);
+    assertEquals(patchRequestBody.resolvable, patchResponse.resolvable);
   }
 
   @Test
