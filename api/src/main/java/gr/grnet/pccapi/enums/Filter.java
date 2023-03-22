@@ -4,6 +4,7 @@ public enum Filter {
   URL("URL"),
   EMAIL("EMAIL"),
   CHECKSUM("CHECKSUM"),
+  EUDAT_CHECKSUM("EUDAT/CHECKSUM"),
   LOC("10320/LOC"),
   RETRIEVE_RECORDS("retrieverecords");
 
