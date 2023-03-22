@@ -1,7 +1,8 @@
 -- ------------------------------------------------
--- Version: v1.6
---
--- Description: Update Prefix
+-- Version: v1.10
+-- Add contract_type column
 -- -------------------------------------------------
+
+
 ALTER TABLE prefix
-ADD COLUMN resolvable BOOLEAN DEFAULT TRUE;
+ADD COLUMN contract_type ENUM('PROJECT', 'CONTRACT', 'OTHER');

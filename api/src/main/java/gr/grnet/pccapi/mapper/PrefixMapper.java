@@ -4,6 +4,7 @@ import gr.grnet.pccapi.dto.PartialPrefixDto;
 import gr.grnet.pccapi.dto.PrefixDto;
 import gr.grnet.pccapi.dto.PrefixResponseDto;
 import gr.grnet.pccapi.entity.Prefix;
+import gr.grnet.pccapi.enums.ContractType;
 import gr.grnet.pccapi.enums.LookUpServiceType;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -84,6 +85,10 @@ public interface PrefixMapper {
       target = "contractEnd",
       expression =
           "java(prefixDto.contractEnd != null ? convertToMillis(prefixDto.contractEnd) : null)")
+  @Mapping(
+      source = "contractType",
+      target = "contractType",
+      qualifiedByName = "validateContractType")
   void updatePrefixFromDto(PartialPrefixDto prefixDto, @MappingTarget Prefix prefix);
 
   @Mapping(
@@ -111,6 +116,19 @@ public interface PrefixMapper {
       throw new BadRequestException("Invalid lookup_service_type value");
     }
     return lookUpServiceT;
+  }
+
+  @Named("validateContractType")
+  default ContractType validateContractType(String contractType) {
+    ContractType contractTypeT = null;
+    try {
+      if (!StringUtils.isEmpty(contractType)) {
+        contractTypeT = ContractType.valueOf(contractType);
+      }
+    } catch (IllegalArgumentException e) {
+      throw new BadRequestException("Invalid contract type value");
+    }
+    return contractTypeT;
   }
 
   default Timestamp convertToMillis(String contractEnd) {

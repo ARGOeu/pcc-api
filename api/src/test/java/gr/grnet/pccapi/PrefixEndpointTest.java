@@ -9,6 +9,7 @@ import gr.grnet.pccapi.dto.PartialPrefixDto;
 import gr.grnet.pccapi.dto.PrefixDto;
 import gr.grnet.pccapi.dto.PrefixResponseDto;
 import gr.grnet.pccapi.endpoint.PrefixEndpoint;
+import gr.grnet.pccapi.enums.ContractType;
 import gr.grnet.pccapi.enums.LookUpServiceType;
 import gr.grnet.pccapi.repository.DomainRepository;
 import gr.grnet.pccapi.repository.PrefixRepository;
@@ -60,7 +61,8 @@ public class PrefixEndpointTest {
             .setProviderId(1)
             .setContactEmail("test@test.com")
             .setContactName("testname")
-            .setContractEnd("2008-01-01T00:00:00Z");
+            .setContractEnd("2008-01-01T00:00:00Z")
+            .setContractType(ContractType.CONTRACT.name());
 
     var response =
         given()
@@ -89,6 +91,7 @@ public class PrefixEndpointTest {
     assertEquals("test@test.com", response.getContactEmail());
     assertEquals("testname", response.getContactName());
     assertEquals("2008-01-01T00:00:00Z", response.getContractEnd());
+    assertEquals(ContractType.CONTRACT.name(), response.getContractType());
   }
 
   @Test
@@ -223,7 +226,8 @@ public class PrefixEndpointTest {
             .setServiceId(1)
             .setProviderId(1)
             .setResolvable(Boolean.TRUE)
-            .setContractEnd("2008-01-01T00:00:00Z");
+            .setContractEnd("2008-01-01T00:00:00Z")
+            .setContractType(ContractType.PROJECT.name());
 
     var resp =
         given()
@@ -249,7 +253,8 @@ public class PrefixEndpointTest {
             .setResolvable(Boolean.FALSE)
             .setContactEmail("test2@test.com")
             .setContactName("testname2")
-            .setContractEnd("2018-01-01T00:00:00Z");
+            .setContractEnd("2018-01-01T00:00:00Z")
+            .setContractType(ContractType.OTHER.name());
 
     var response =
         given()
@@ -276,6 +281,7 @@ public class PrefixEndpointTest {
     assertEquals("testname2", response.getContactName());
     assertEquals("test2@test.com", response.getContactEmail());
     assertEquals("2018-01-01T00:00:00Z", response.getContractEnd());
+    assertEquals(ContractType.OTHER.name(), response.getContractType());
   }
 
   @Test
@@ -506,7 +512,8 @@ public class PrefixEndpointTest {
             .setResolvable(Boolean.TRUE)
             .setContactName("testname")
             .setContactEmail("test@test.com")
-            .setContractEnd("2008-01-01T00:00:00Z");
+            .setContractEnd("2008-01-01T00:00:00Z")
+            .setContractType(ContractType.OTHER.name());
 
     var response =
         given()
@@ -527,7 +534,8 @@ public class PrefixEndpointTest {
             .setResolvable(Boolean.FALSE)
             .setContactEmail("test2@test.com")
             .setContactName("testname2")
-            .setContractEnd("2018-01-01T00:00:00Z");
+            .setContractEnd("2018-01-01T00:00:00Z")
+            .setContractType(ContractType.PROJECT.name());
     var patchResponse =
         given()
             .contentType(ContentType.JSON)
@@ -546,6 +554,7 @@ public class PrefixEndpointTest {
     assertEquals(patchRequestBody.contactEmail, patchResponse.contactEmail);
     assertEquals(patchRequestBody.contactName, patchResponse.contactName);
     assertEquals(patchRequestBody.contractEnd, patchResponse.contractEnd);
+    assertEquals(ContractType.PROJECT.name(), patchResponse.getContractType());
   }
 
   @Test
