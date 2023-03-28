@@ -7,6 +7,7 @@ import gr.grnet.pccapi.dto.PrefixResponseDto;
 import gr.grnet.pccapi.dto.ProviderResponseDTO;
 import gr.grnet.pccapi.service.PrefixService;
 import gr.grnet.pccapi.service.StatisticsService;
+import java.text.ParseException;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -67,7 +68,8 @@ public class PrefixEndpoint {
               schema = @Schema(type = SchemaType.OBJECT, implementation = PrefixDto.class))
           @Valid
           @RequestBody
-          PrefixDto prefixDto) {
+          PrefixDto prefixDto)
+      throws ParseException {
     return Response.status(Response.Status.CREATED).entity(prefixService.create(prefixDto)).build();
   }
 
