@@ -5,7 +5,12 @@ import gr.grnet.pccapi.dto.PrefixDto;
 import gr.grnet.pccapi.dto.PrefixResponseDto;
 import gr.grnet.pccapi.entity.Prefix;
 import gr.grnet.pccapi.enums.LookUpServiceType;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 import javax.ws.rs.BadRequestException;
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.Mapper;
@@ -19,6 +24,7 @@ import org.mapstruct.factory.Mappers;
 public interface PrefixMapper {
 
   PrefixMapper INSTANCE = Mappers.getMapper(PrefixMapper.class);
+  String format = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
   /**
    * Maps a prefix to its respective dto
@@ -32,6 +38,9 @@ public interface PrefixMapper {
   @Mapping(target = "domainName", source = "domain.name")
   @Mapping(target = "providerId", source = "provider.id")
   @Mapping(target = "providerName", source = "provider.name")
+  @Mapping(
+      target = "contractEnd",
+      expression = "java(prefix.contractEnd != null ? convertToString(prefix.contractEnd) : null)")
   PrefixResponseDto prefixToResponseDto(Prefix prefix);
 
   @Mapping(target = "serviceId", source = "prefix.service.id")
@@ -40,9 +49,10 @@ public interface PrefixMapper {
   @Mapping(target = "domainName", source = "prefix.domain.name")
   @Mapping(target = "providerId", source = "prefix.provider.id")
   @Mapping(target = "providerName", source = "prefix.provider.name")
+  @Mapping(
+      target = "contractEnd",
+      expression = "java(prefix.contractEnd != null ? convertToString(prefix.contractEnd) : null)")
   List<PrefixResponseDto> prefixesToResponseDto(List<Prefix> prefixes);
-
-  PrefixDto prefixToDto(Prefix prefix);
 
   @Mapping(
       target = "name",
@@ -70,7 +80,23 @@ public interface PrefixMapper {
       target = "contactName",
       expression =
           "java(StringUtils.isNotEmpty(prefixDto.contactName) ? prefixDto.contactName : prefix.contactName)")
+  @Mapping(
+      target = "contractEnd",
+      expression =
+          "java(prefixDto.contractEnd != null ? convertToMillis(prefixDto.contractEnd) : null)")
   void updatePrefixFromDto(PartialPrefixDto prefixDto, @MappingTarget Prefix prefix);
+
+  @Mapping(
+      target = "contractEnd",
+      expression =
+          "java(prefixDto.contractEnd != null ? convertToMillis(prefixDto.contractEnd) : null)")
+  Prefix requestToPrefix(PrefixDto prefixDto);
+
+  @Mapping(
+      target = "contractEnd",
+      expression =
+          "java(prefixDto.contractEnd != null ? convertToMillis(prefixDto.contractEnd) : null)")
+  void updateRequestToPrefix(PrefixDto prefixDto, @MappingTarget Prefix prefix);
 
   @Named("validateLookUpServiceType")
   default LookUpServiceType validateLookUpServiceType(String lookUpServiceType) {
@@ -85,5 +111,25 @@ public interface PrefixMapper {
       throw new BadRequestException("Invalid lookup_service_type value");
     }
     return lookUpServiceT;
+  }
+
+  default Timestamp convertToMillis(String contractEnd) {
+    try {
+      SimpleDateFormat formatter = new SimpleDateFormat(format);
+      formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+      return new Timestamp(formatter.parse(contractEnd).getTime());
+    } catch (ParseException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  default String convertToString(Timestamp timestamp) {
+
+    long millis = timestamp.getTime();
+    Date dt = new Date(millis);
+
+    SimpleDateFormat formatter = new SimpleDateFormat(format);
+    formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+    return formatter.format(dt);
   }
 }

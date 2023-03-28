@@ -2,6 +2,7 @@ package gr.grnet.pccapi.entity;
 
 import gr.grnet.pccapi.enums.LookUpServiceType;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import java.sql.Timestamp;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -36,6 +37,9 @@ public class Prefix extends PanacheEntityBase {
 
   @Column(name = "contact_email")
   public String contactEmail;
+
+  @Column(name = "contract_end")
+  public Timestamp contractEnd;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "lookup_service_type", columnDefinition = "enum", nullable = false)

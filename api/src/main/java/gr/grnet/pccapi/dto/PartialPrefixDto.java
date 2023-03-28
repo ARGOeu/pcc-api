@@ -23,6 +23,9 @@ public class PartialPrefixDto {
   @JsonProperty("used_by")
   public String usedBy;
 
+  @JsonProperty("contract_end")
+  public String contractEnd;
+
   public String status;
 
   @Schema(
