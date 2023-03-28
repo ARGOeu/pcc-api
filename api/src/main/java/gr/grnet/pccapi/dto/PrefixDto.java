@@ -30,9 +30,8 @@ public class PrefixDto {
       implementation = LookUpServiceType.class,
       description = "The type of lookup service the prefix supports",
       example = "PRIVATE")
-  @NotNull
   @JsonProperty("lookup_service_type")
-  public LookUpServiceType lookUpServiceType;
+  public String lookUpServiceType;
 
   @Schema(
       type = SchemaType.INTEGER,

@@ -39,7 +39,7 @@ public class PartialPrefixDto {
       description = "The type of lookup service the prefix supports",
       example = "PRIVATE")
   @JsonProperty("lookup_service_type")
-  public LookUpServiceType lookUpServiceType;
+  public String lookUpServiceType;
 
   @Schema(
       type = SchemaType.INTEGER,

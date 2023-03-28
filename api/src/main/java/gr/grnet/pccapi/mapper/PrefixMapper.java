@@ -4,11 +4,14 @@ import gr.grnet.pccapi.dto.PartialPrefixDto;
 import gr.grnet.pccapi.dto.PrefixDto;
 import gr.grnet.pccapi.dto.PrefixResponseDto;
 import gr.grnet.pccapi.entity.Prefix;
+import gr.grnet.pccapi.enums.LookUpServiceType;
 import java.util.List;
+import javax.ws.rs.BadRequestException;
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 
 /** Mapper class for converting between {@link Prefix} and {@link PrefixResponseDto} */
@@ -56,9 +59,9 @@ public interface PrefixMapper {
       expression =
           "java(prefixDto.status != null ? Integer.parseInt(prefixDto.status) : prefix.status)")
   @Mapping(
+      source = "lookUpServiceType",
       target = "lookUpServiceType",
-      expression =
-          "java(prefixDto.lookUpServiceType != null ? prefixDto.lookUpServiceType : prefix.lookUpServiceType)")
+      qualifiedByName = "validateLookUpServiceType")
   @Mapping(
       target = "contactEmail",
       expression =
@@ -68,4 +71,19 @@ public interface PrefixMapper {
       expression =
           "java(StringUtils.isNotEmpty(prefixDto.contactName) ? prefixDto.contactName : prefix.contactName)")
   void updatePrefixFromDto(PartialPrefixDto prefixDto, @MappingTarget Prefix prefix);
+
+  @Named("validateLookUpServiceType")
+  default LookUpServiceType validateLookUpServiceType(String lookUpServiceType) {
+    LookUpServiceType lookUpServiceT;
+    try {
+      if (StringUtils.isEmpty(lookUpServiceType)) {
+        lookUpServiceT = LookUpServiceType.NONE;
+      } else {
+        lookUpServiceT = LookUpServiceType.valueOf(lookUpServiceType);
+      }
+    } catch (IllegalArgumentException e) {
+      throw new BadRequestException("Invalid lookup_service_type value");
+    }
+    return lookUpServiceT;
+  }
 }
