@@ -54,7 +54,7 @@ public class PrefixEndpointTest {
             .setOwner("someone")
             .setStatus(2)
             .setUsedBy("someone else")
-            .setLookUpServiceType(LookUpServiceType.PRIVATE)
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1)
@@ -76,7 +76,7 @@ public class PrefixEndpointTest {
     assertEquals("11523", response.getName());
     assertEquals("someone", response.getOwner());
     assertEquals("someone else", response.getUsedBy());
-    assertEquals(LookUpServiceType.PRIVATE, response.getLookUpServiceType());
+    assertEquals(String.valueOf(LookUpServiceType.PRIVATE), response.getLookUpServiceType());
     assertEquals(2, response.getStatus());
     assertEquals("Medical & Health Sciences", response.getDomainName());
     assertEquals(1, response.getDomainId());
@@ -98,7 +98,7 @@ public class PrefixEndpointTest {
             .setOwner("someone")
             .setStatus(2)
             .setUsedBy("someone else")
-            .setLookUpServiceType(LookUpServiceType.PRIVATE)
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1);
@@ -132,7 +132,7 @@ public class PrefixEndpointTest {
             .setDomainId(1)
             .setServiceId(999)
             .setProviderId(1)
-            .setLookUpServiceType(LookUpServiceType.PRIVATE);
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE));
 
     var response =
         given()
@@ -160,7 +160,7 @@ public class PrefixEndpointTest {
             .setDomainId(999)
             .setServiceId(1)
             .setProviderId(1)
-            .setLookUpServiceType(LookUpServiceType.PRIVATE);
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE));
 
     var response =
         given()
@@ -188,7 +188,7 @@ public class PrefixEndpointTest {
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(999)
-            .setLookUpServiceType(LookUpServiceType.PRIVATE);
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE));
 
     var response =
         given()
@@ -212,7 +212,7 @@ public class PrefixEndpointTest {
             .setOwner("someone")
             .setStatus(2)
             .setUsedBy("someone else")
-            .setLookUpServiceType(LookUpServiceType.NONE)
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.NONE))
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1)
@@ -235,7 +235,7 @@ public class PrefixEndpointTest {
             .setOwner("someone1")
             .setStatus(3)
             .setUsedBy("someone else1")
-            .setLookUpServiceType(LookUpServiceType.PRIVATE)
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
             .setDomainId(2)
             .setServiceId(2)
             .setProviderId(2)
@@ -260,7 +260,7 @@ public class PrefixEndpointTest {
 
     assertEquals("someone1", response.getOwner());
     assertEquals("someone else1", response.getUsedBy());
-    assertEquals(LookUpServiceType.PRIVATE, response.getLookUpServiceType());
+    assertEquals(String.valueOf(LookUpServiceType.PRIVATE), response.getLookUpServiceType());
 
     assertEquals(3, response.getStatus());
     assertEquals("77777", response.getName());
@@ -279,7 +279,7 @@ public class PrefixEndpointTest {
             .setOwner("someone")
             .setStatus(2)
             .setUsedBy("someone else")
-            .setLookUpServiceType(LookUpServiceType.PRIVATE)
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1);
@@ -317,7 +317,7 @@ public class PrefixEndpointTest {
             .setOwner("someone")
             .setStatus(2)
             .setUsedBy("someone else")
-            .setLookUpServiceType(LookUpServiceType.PRIVATE)
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1);
@@ -348,7 +348,7 @@ public class PrefixEndpointTest {
             .setOwner("someone")
             .setStatus(2)
             .setUsedBy("someone else")
-            .setLookUpServiceType(LookUpServiceType.PRIVATE)
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1);
@@ -387,7 +387,7 @@ public class PrefixEndpointTest {
             .setOwner("someone")
             .setStatus(2)
             .setUsedBy("someone else")
-            .setLookUpServiceType(LookUpServiceType.BOTH)
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.BOTH))
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1);
@@ -485,7 +485,7 @@ public class PrefixEndpointTest {
             .setOwner("someone")
             .setStatus(2)
             .setUsedBy("someone else")
-            .setLookUpServiceType(LookUpServiceType.CENTRAL)
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.CENTRAL))
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1)
@@ -507,7 +507,7 @@ public class PrefixEndpointTest {
     var patchRequestBody =
         new PartialPrefixDto()
             .setName("222222")
-            .setLookUpServiceType(LookUpServiceType.PRIVATE)
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
             .setDomainId(2)
             .setResolvable(Boolean.FALSE)
             .setContactEmail("test2@test.com")
@@ -541,7 +541,7 @@ public class PrefixEndpointTest {
             .setOwner("someone")
             .setStatus(2)
             .setUsedBy("someone else")
-            .setLookUpServiceType(LookUpServiceType.PRIVATE)
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1);
@@ -583,7 +583,7 @@ public class PrefixEndpointTest {
             .setOwner("someone")
             .setStatus(2)
             .setUsedBy("someone else")
-            .setLookUpServiceType(LookUpServiceType.PRIVATE)
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1);
