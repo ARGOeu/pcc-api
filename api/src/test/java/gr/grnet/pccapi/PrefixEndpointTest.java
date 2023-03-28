@@ -59,7 +59,8 @@ public class PrefixEndpointTest {
             .setServiceId(1)
             .setProviderId(1)
             .setContactEmail("test@test.com")
-            .setContactName("testname");
+            .setContactName("testname")
+            .setContractEnd("2008-01-01T00:00:00Z");
 
     var response =
         given()
@@ -87,6 +88,7 @@ public class PrefixEndpointTest {
     assertEquals(Boolean.TRUE, response.getResolvable());
     assertEquals("test@test.com", response.getContactEmail());
     assertEquals("testname", response.getContactName());
+    assertEquals("2008-01-01T00:00:00Z", response.getContractEnd());
   }
 
   @Test
@@ -101,7 +103,8 @@ public class PrefixEndpointTest {
             .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
             .setDomainId(1)
             .setServiceId(1)
-            .setProviderId(1);
+            .setProviderId(1)
+            .setContractEnd("2008-01-01T00:00:00Z");
 
     // create the prefix
     given().contentType(ContentType.JSON).body(requestBody).post();
@@ -132,7 +135,8 @@ public class PrefixEndpointTest {
             .setDomainId(1)
             .setServiceId(999)
             .setProviderId(1)
-            .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE));
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
+            .setContractEnd("2008-01-01T00:00:00Z");
 
     var response =
         given()
@@ -160,7 +164,8 @@ public class PrefixEndpointTest {
             .setDomainId(999)
             .setServiceId(1)
             .setProviderId(1)
-            .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE));
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
+            .setContractEnd("2008-01-01T00:00:00Z");
 
     var response =
         given()
@@ -188,7 +193,8 @@ public class PrefixEndpointTest {
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(999)
-            .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE));
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
+            .setContractEnd("2008-01-01T00:00:00Z");
 
     var response =
         given()
@@ -216,7 +222,8 @@ public class PrefixEndpointTest {
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1)
-            .setResolvable(Boolean.TRUE);
+            .setResolvable(Boolean.TRUE)
+            .setContractEnd("2008-01-01T00:00:00Z");
 
     var resp =
         given()
@@ -241,7 +248,8 @@ public class PrefixEndpointTest {
             .setProviderId(2)
             .setResolvable(Boolean.FALSE)
             .setContactEmail("test2@test.com")
-            .setContactName("testname2");
+            .setContactName("testname2")
+            .setContractEnd("2018-01-01T00:00:00Z");
 
     var response =
         given()
@@ -267,6 +275,7 @@ public class PrefixEndpointTest {
     assertEquals(Boolean.FALSE, response.getResolvable());
     assertEquals("testname2", response.getContactName());
     assertEquals("test2@test.com", response.getContactEmail());
+    assertEquals("2018-01-01T00:00:00Z", response.getContractEnd());
   }
 
   @Test
@@ -282,7 +291,8 @@ public class PrefixEndpointTest {
             .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
             .setDomainId(1)
             .setServiceId(1)
-            .setProviderId(1);
+            .setProviderId(1)
+            .setContractEnd("2008-01-01T00:00:00Z");
 
     var response =
         given()
@@ -320,7 +330,8 @@ public class PrefixEndpointTest {
             .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
             .setDomainId(1)
             .setServiceId(1)
-            .setProviderId(1);
+            .setProviderId(1)
+            .setContractEnd("2008-01-01T00:00:00Z");
 
     var response =
         given()
@@ -351,7 +362,8 @@ public class PrefixEndpointTest {
             .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
             .setDomainId(1)
             .setServiceId(1)
-            .setProviderId(1);
+            .setProviderId(1)
+            .setContractEnd("2008-01-01T00:00:00Z");
 
     var response =
         given()
@@ -390,7 +402,8 @@ public class PrefixEndpointTest {
             .setLookUpServiceType(String.valueOf(LookUpServiceType.BOTH))
             .setDomainId(1)
             .setServiceId(1)
-            .setProviderId(1);
+            .setProviderId(1)
+            .setContractEnd("2008-01-01T00:00:00Z");
 
     var created =
         given()
@@ -416,6 +429,7 @@ public class PrefixEndpointTest {
     assertEquals(created.domainId, prefixResponseDto.domainId);
     assertEquals(created.id, prefixResponseDto.id);
     assertEquals(created.lookUpServiceType, prefixResponseDto.lookUpServiceType);
+    assertEquals("2008-01-01T00:00:00Z", prefixResponseDto.contractEnd);
   }
 
   @Test
@@ -491,7 +505,8 @@ public class PrefixEndpointTest {
             .setProviderId(1)
             .setResolvable(Boolean.TRUE)
             .setContactName("testname")
-            .setContactEmail("test@test.com");
+            .setContactEmail("test@test.com")
+            .setContractEnd("2008-01-01T00:00:00Z");
 
     var response =
         given()
@@ -511,8 +526,8 @@ public class PrefixEndpointTest {
             .setDomainId(2)
             .setResolvable(Boolean.FALSE)
             .setContactEmail("test2@test.com")
-            .setContactName("testname2");
-
+            .setContactName("testname2")
+            .setContractEnd("2018-01-01T00:00:00Z");
     var patchResponse =
         given()
             .contentType(ContentType.JSON)
@@ -530,6 +545,7 @@ public class PrefixEndpointTest {
     assertEquals(patchRequestBody.resolvable, patchResponse.resolvable);
     assertEquals(patchRequestBody.contactEmail, patchResponse.contactEmail);
     assertEquals(patchRequestBody.contactName, patchResponse.contactName);
+    assertEquals(patchRequestBody.contractEnd, patchResponse.contractEnd);
   }
 
   @Test
@@ -544,7 +560,8 @@ public class PrefixEndpointTest {
             .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
             .setDomainId(1)
             .setServiceId(1)
-            .setProviderId(1);
+            .setProviderId(1)
+            .setContractEnd("2018-01-01T00:00:00Z");
 
     var response =
         given()
@@ -586,7 +603,8 @@ public class PrefixEndpointTest {
             .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
             .setDomainId(1)
             .setServiceId(1)
-            .setProviderId(1);
+            .setProviderId(1)
+            .setContractEnd("2018-01-01T00:00:00Z");
 
     var response =
         given()

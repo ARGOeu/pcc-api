@@ -13,6 +13,7 @@ import gr.grnet.pccapi.repository.DomainRepository;
 import gr.grnet.pccapi.repository.PrefixRepository;
 import gr.grnet.pccapi.repository.ProviderRepository;
 import gr.grnet.pccapi.repository.ServiceRepository;
+import java.text.ParseException;
 import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.transaction.Transactional;
@@ -35,7 +36,7 @@ public class PrefixService {
    * appropriate response dto
    */
   @Transactional
-  public PrefixResponseDto create(PrefixDto prefixDto) {
+  public PrefixResponseDto create(PrefixDto prefixDto) throws ParseException {
 
     logger.info("Inserting new prefix . . .");
 
@@ -64,20 +65,20 @@ public class PrefixService {
 
     var lookUpServiceType =
         PrefixMapper.INSTANCE.validateLookUpServiceType(prefixDto.lookUpServiceType);
+    Prefix prefix = PrefixMapper.INSTANCE.requestToPrefix(prefixDto);
 
-    Prefix prefix =
-        new Prefix()
-            .setService(service)
-            .setDomain(domain)
-            .setProvider(provider)
-            .setLookUpServiceType(lookUpServiceType)
-            .setOwner(prefixDto.getOwner())
-            .setName(prefixDto.getName())
-            .setUsedBy(prefixDto.getUsedBy())
-            .setStatus(prefixDto.getStatus())
-            .setResolvable(prefixDto.getResolvable())
-            .setContactName(prefixDto.getContactName())
-            .setContactEmail(prefixDto.getContactEmail());
+    prefix
+        .setService(service)
+        .setDomain(domain)
+        .setProvider(provider)
+        .setLookUpServiceType(lookUpServiceType)
+        .setOwner(prefixDto.getOwner())
+        .setName(prefixDto.getName())
+        .setUsedBy(prefixDto.getUsedBy())
+        .setStatus(prefixDto.getStatus())
+        .setResolvable(prefixDto.getResolvable())
+        .setContactName(prefixDto.getContactName())
+        .setContactEmail(prefixDto.getContactEmail());
 
     prefixRepository.persist(prefix);
     return PrefixMapper.INSTANCE.prefixToResponseDto(prefix);
@@ -203,9 +204,10 @@ public class PrefixService {
     if (prefixRepository.existsByName(prefixDto.getName())) {
       throw new ConflictException("Prefix name already exists");
     }
-
     var lookUpServiceType =
         PrefixMapper.INSTANCE.validateLookUpServiceType(prefixDto.lookUpServiceType);
+
+    PrefixMapper.INSTANCE.updateRequestToPrefix(prefixDto, prefix);
 
     // update the prefix
     prefix.setService(service);

@@ -23,6 +23,9 @@ public class PrefixDto {
   @JsonProperty("used_by")
   public String usedBy;
 
+  @JsonProperty("contract_end")
+  public String contractEnd;
+
   @NotNull public Integer status;
 
   @Schema(
