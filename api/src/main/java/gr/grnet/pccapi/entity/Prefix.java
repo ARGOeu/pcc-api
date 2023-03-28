@@ -38,7 +38,7 @@ public class Prefix extends PanacheEntityBase {
   public String contactEmail;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "lookup_service_type", columnDefinition = "enum", nullable = true)
+  @Column(name = "lookup_service_type", columnDefinition = "enum", nullable = false)
   public LookUpServiceType lookUpServiceType;
 
   public Integer status;
