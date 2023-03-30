@@ -1,6 +1,7 @@
 package gr.grnet.pccapi.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import gr.grnet.pccapi.enums.ContractType;
 import gr.grnet.pccapi.enums.LookUpServiceType;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Pattern;
@@ -72,4 +73,12 @@ public class PartialPrefixDto {
       flags = Pattern.Flag.CASE_INSENSITIVE)
   @JsonProperty("contact_email")
   public String contactEmail;
+
+  @Schema(
+      type = SchemaType.STRING,
+      implementation = ContractType.class,
+      description = "The type of contract type",
+      example = "Project")
+  @JsonProperty("contract_type")
+  public String contractType;
 }
