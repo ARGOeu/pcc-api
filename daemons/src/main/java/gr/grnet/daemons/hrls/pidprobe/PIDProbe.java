@@ -76,6 +76,12 @@ public class PIDProbe implements Callable<Integer> {
       description = "The HTTP timeout in us")
   private static int http_timeout = 100;
 
+  @Option(
+      names = {"-p", "--prefix"},
+      paramLabel = "PREFIX",
+      description = "The specific prefix to use for probing")
+  private static String prefix = "";
+
   Logger logger = Logger.getLogger(PIDProbe.class.getName());
 
   public static void main(String[] args) {
@@ -134,6 +140,7 @@ public class PIDProbe implements Callable<Integer> {
                 pids_chunk_size,
                 (probe_offset * pids_total_num) + (i * pids_chunk_size),
                 expiration,
+                prefix,
                 hrlsConnector,
                 httpclient);
         executor.submit(worker);
@@ -153,6 +160,7 @@ class WorkerThread implements Runnable {
   private int limit;
   private int offset;
   private int expiration;
+  private String prefix;
   private HRLSConnector hrlsConnector;
   private CloseableHttpClient httpclient;
 
@@ -162,29 +170,48 @@ class WorkerThread implements Runnable {
       int limit,
       int offset,
       int expiration,
+      String prefix,
       HRLSConnector hrlsConnector,
       CloseableHttpClient httpclient) {
     this.limit = limit;
     this.offset = offset;
     this.expiration = expiration;
+    this.prefix = prefix;
     this.hrlsConnector = hrlsConnector;
     this.httpclient = httpclient;
   }
 
-  public String getPID(int limit, int offset, int expiration) throws SQLException {
+  public String getPID(int limit, int offset, int expiration, String prefix) throws SQLException {
     String handle;
+    String prefix_like = "";
     int size = 0;
     String data = "";
-    String sq =
-        "SELECT handle, data FROM handles WHERE type='url' AND TIMESTAMPDIFF(SECOND, last_resolved, UTC_TIMESTAMP()) > ? LIMIT ?,?";
+
+    String sq;
+    if (prefix == "") {
+      sq =
+          "SELECT handle, data FROM handles WHERE type='url' AND TIMESTAMPDIFF(SECOND, last_resolved, UTC_TIMESTAMP()) > ? LIMIT ?,?";
+    } else {
+      prefix_like = prefix + '%';
+      sq =
+          "SELECT handle, data FROM handles WHERE type='url' AND prefix like ? AND TIMESTAMPDIFF(SECOND, last_resolved, UTC_TIMESTAMP()) > ? LIMIT ?,?";
+    }
     String uq = "UPDATE handles SET resolved=?, last_resolved=? WHERE handle=?";
     int code;
     Connection conn = hrlsConnector.getConnection();
     try (PreparedStatement pss = conn.prepareStatement(sq);
         PreparedStatement psu = conn.prepareStatement(uq)) {
-      pss.setInt(1, expiration);
-      pss.setInt(2, offset);
-      pss.setInt(3, limit);
+
+      if (prefix == "") {
+        pss.setInt(1, expiration);
+        pss.setInt(2, offset);
+        pss.setInt(3, limit);
+      } else {
+        pss.setString(1, prefix_like);
+        pss.setInt(2, expiration);
+        pss.setInt(3, offset);
+        pss.setInt(4, limit);
+      }
       try (ResultSet rs = pss.executeQuery()) {
         size = 0;
         while (rs.next()) {
@@ -243,7 +270,7 @@ class WorkerThread implements Runnable {
                 + " "
                 + this.offset));
     try {
-      getPID(this.limit, this.offset, this.expiration);
+      getPID(this.limit, this.offset, this.expiration, this.prefix);
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
