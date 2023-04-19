@@ -7,13 +7,15 @@ import gr.grnet.connectors.mysql.HRLSConnector;
 import java.io.IOException;
 import java.sql.*;
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.concurrent.*;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.hc.client5.http.ClientProtocolException;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpHead;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
@@ -174,7 +176,7 @@ class WorkerThread implements Runnable {
     int size = 0;
     String data = "";
     String sq =
-        "SELECT handle, data FROM handles WHERE type='url' AND TIMESTAMPDIFF(SECOND, last_resolved, NOW()) > ? LIMIT ?,?";
+        "SELECT handle, data FROM handles WHERE type='url' AND TIMESTAMPDIFF(SECOND, last_resolved, UTC_TIMESTAMP()) > ? LIMIT ?,?";
     String uq = "UPDATE handles SET resolved=?, last_resolved=? WHERE handle=?";
     int code;
     Connection conn = hrlsConnector.getConnection();
@@ -197,12 +199,12 @@ class WorkerThread implements Runnable {
             } else {
               psu.setBoolean(1, false);
             }
-            psu.setTimestamp(2, Timestamp.from(Instant.now()));
+            psu.setObject(2, OffsetDateTime.now(ZoneOffset.UTC));
             psu.setString(3, handle);
             psu.addBatch();
           } catch (Exception e) {
             psu.setBoolean(1, false);
-            psu.setTimestamp(2, Timestamp.from(Instant.now()));
+            psu.setObject(2, OffsetDateTime.now(ZoneOffset.UTC));
             psu.setString(3, handle);
             psu.addBatch();
             int[] r = psu.executeBatch();
@@ -218,10 +220,10 @@ class WorkerThread implements Runnable {
   }
 
   public int get(String uri) throws Exception {
-    HttpGet get = new HttpGet(uri);
+    HttpHead head = new HttpHead(uri);
     CloseableHttpResponse response = null;
     try {
-      response = httpclient.execute(get);
+      response = httpclient.execute(head);
       EntityUtils.consume(response.getEntity());
     } catch (ClientProtocolException ex) {
     } catch (IOException ex) {
