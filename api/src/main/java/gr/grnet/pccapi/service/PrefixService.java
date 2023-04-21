@@ -65,24 +65,13 @@ public class PrefixService {
 
     var lookUpServiceType =
         PrefixMapper.INSTANCE.validateLookUpServiceType(prefixDto.lookUpServiceType);
+    prefixDto.lookUpServiceType = String.valueOf(lookUpServiceType);
 
     var contractType = PrefixMapper.INSTANCE.validateContractType(prefixDto.contractType);
+    prefixDto.contractType = String.valueOf(contractType);
 
     Prefix prefix = PrefixMapper.INSTANCE.requestToPrefix(prefixDto);
-
-    prefix
-        .setService(service)
-        .setDomain(domain)
-        .setProvider(provider)
-        .setLookUpServiceType(lookUpServiceType)
-        .setOwner(prefixDto.getOwner())
-        .setName(prefixDto.getName())
-        .setUsedBy(prefixDto.getUsedBy())
-        .setStatus(prefixDto.getStatus())
-        .setResolvable(prefixDto.getResolvable())
-        .setContactName(prefixDto.getContactName())
-        .setContactEmail(prefixDto.getContactEmail())
-        .setContractType(contractType);
+    prefix.setService(service).setDomain(domain).setProvider(provider);
     prefixRepository.persist(prefix);
     return PrefixMapper.INSTANCE.prefixToResponseDto(prefix);
   }
@@ -209,7 +198,10 @@ public class PrefixService {
     }
     var lookUpServiceType =
         PrefixMapper.INSTANCE.validateLookUpServiceType(prefixDto.lookUpServiceType);
+    prefixDto.lookUpServiceType = String.valueOf(lookUpServiceType);
+
     var contractType = PrefixMapper.INSTANCE.validateContractType(prefixDto.contractType);
+    prefixDto.contractType = String.valueOf(contractType);
 
     PrefixMapper.INSTANCE.updateRequestToPrefix(prefixDto, prefix);
 
@@ -217,15 +209,6 @@ public class PrefixService {
     prefix.setService(service);
     prefix.setProvider(provider);
     prefix.setDomain(domain);
-    prefix.setStatus(prefixDto.status);
-    prefix.setLookUpServiceType(lookUpServiceType);
-    prefix.setOwner(prefixDto.owner);
-    prefix.setUsedBy(prefixDto.usedBy);
-    prefix.setName(prefixDto.name);
-    prefix.setResolvable(prefixDto.resolvable);
-    prefix.setContactName(prefixDto.contactName);
-    prefix.setContactEmail(prefixDto.contactEmail);
-    prefix.setContractType(contractType);
 
     return PrefixMapper.INSTANCE.prefixToResponseDto(prefix);
   }
