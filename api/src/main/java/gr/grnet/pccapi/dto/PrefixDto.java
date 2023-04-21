@@ -71,7 +71,7 @@ public class PrefixDto {
 
   @Email(
       regexp =
-          "^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^-]+(?:\\.[a-zA-Z0-9_!#$%&’*+/=?`{|}~^-]+)*@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$",
+          "^$|(^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^-]+(?:\\.[a-zA-Z0-9_!#$%&’*+/=?`{|}~^-]+)*@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$)",
       flags = Pattern.Flag.CASE_INSENSITIVE)
   @JsonProperty("contact_email")
   public String contactEmail;

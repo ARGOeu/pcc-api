@@ -52,7 +52,9 @@ public interface PrefixMapper {
   @Mapping(target = "providerName", source = "prefix.provider.name")
   @Mapping(
       target = "contractEnd",
-      expression = "java(prefix.contractEnd != null ? convertToString(prefix.contractEnd) : null)")
+      expression =
+          "java(prefix.contractEnd != null && StringUtils.isNotEmpty(prefixDto.contractEnd) ? "
+              + "convertToString(prefix.contractEnd) : null)")
   List<PrefixResponseDto> prefixesToResponseDto(List<Prefix> prefixes);
 
   @Mapping(
@@ -84,7 +86,8 @@ public interface PrefixMapper {
   @Mapping(
       target = "contractEnd",
       expression =
-          "java(prefixDto.contractEnd != null ? convertToMillis(prefixDto.contractEnd) : null)")
+          "java(prefixDto.contractEnd != null && StringUtils.isNotEmpty(prefixDto.contractEnd) ? "
+              + "convertToMillis(prefixDto.contractEnd) : null)")
   @Mapping(
       source = "contractType",
       target = "contractType",
@@ -94,13 +97,15 @@ public interface PrefixMapper {
   @Mapping(
       target = "contractEnd",
       expression =
-          "java(prefixDto.contractEnd != null ? convertToMillis(prefixDto.contractEnd) : null)")
+          "java(prefixDto.contractEnd != null && StringUtils.isNotEmpty(prefixDto.contractEnd) ? "
+              + "convertToMillis(prefixDto.contractEnd) : null)")
   Prefix requestToPrefix(PrefixDto prefixDto);
 
   @Mapping(
       target = "contractEnd",
       expression =
-          "java(prefixDto.contractEnd != null ? convertToMillis(prefixDto.contractEnd) : null)")
+          "java(prefixDto.contractEnd != null && StringUtils.isNotEmpty(prefixDto.contractEnd) ? "
+              + "convertToMillis(prefixDto.contractEnd) : null)")
   void updateRequestToPrefix(PrefixDto prefixDto, @MappingTarget Prefix prefix);
 
   @Named("validateLookUpServiceType")
@@ -122,7 +127,9 @@ public interface PrefixMapper {
   default ContractType validateContractType(String contractType) {
     ContractType contractTypeT = null;
     try {
-      if (!StringUtils.isEmpty(contractType)) {
+      if (StringUtils.isEmpty(contractType)) {
+        contractTypeT = ContractType.PROJECT;
+      } else {
         contractTypeT = ContractType.valueOf(contractType);
       }
     } catch (IllegalArgumentException e) {
