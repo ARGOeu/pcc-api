@@ -20,4 +20,14 @@ public class StatisticsService {
       throw new InternalServerErrorException(e.getMessage());
     }
   }
+
+  public int getResolvablePIDCountByPrefixID(String prefix) {
+    try {
+      return MySQLConnector.getResolvablePIDCountByPrefixID(prefix);
+    } catch (IllegalArgumentException e) {
+      throw new NotFoundException(e.getMessage());
+    } catch (SQLException e) {
+      throw new InternalServerErrorException(e.getMessage());
+    }
+  }
 }

@@ -248,4 +248,35 @@ public class PrefixEndpoint {
     var count = statisticsService.getPIDCountByPrefixID(id);
     return Response.ok().entity(count).build();
   }
+
+  @Operation(
+      summary = "Fetch the count of resolvable PIDs for a particular Prefix.",
+      description =
+          "Passing the unique Prefix ID, you can fetch the count of resolvable PIDs for the particular Prefix.")
+  @APIResponse(
+      responseCode = "200",
+      description = "The count of resolvable PIDs for the particular Prefix.",
+      content =
+          @Content(
+              schema = @Schema(type = SchemaType.OBJECT, implementation = PrefixResponseDto.class)))
+  @APIResponse(
+      responseCode = "404",
+      description = "Prefix not Found.",
+      content =
+          @Content(
+              schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class)))
+  @GET
+  @Path("/{id}/resolvable")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response getResolvablePIDCountByPrefix(
+      @Parameter(
+              description = "The Prefix ID for which the resolvable PIDs count will be retrieved.",
+              required = true,
+              example = "1",
+              schema = @Schema(type = SchemaType.STRING))
+          @PathParam("id")
+          String id) {
+    var count = statisticsService.getResolvablePIDCountByPrefixID(id);
+    return Response.ok().entity(count).build();
+  }
 }
