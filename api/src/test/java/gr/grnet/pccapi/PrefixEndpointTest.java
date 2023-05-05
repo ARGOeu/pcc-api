@@ -497,6 +497,39 @@ public class PrefixEndpointTest {
   }
 
   @Test
+  public void fetchResolvablePIDCountByPrefixId() throws SQLException {
+
+    Mockito.when(statisticsService.getResolvablePIDCountByPrefixID(any())).thenReturn(21);
+    var resp =
+        given()
+            .get("/{id}/resolvable", 21.12132)
+            .then()
+            .assertThat()
+            .statusCode(200)
+            .extract()
+            .as(Integer.class);
+
+    assertEquals(21, resp);
+  }
+
+  @Test
+  public void fetchResolvablePIDCountByPrefixIdNotFound() {
+
+    Mockito.when(statisticsService.getResolvablePIDCountByPrefixID("invalid"))
+        .thenThrow(new NotFoundException("Prefix invalid not found"));
+    var resp =
+        given()
+            .get("/{id}/resolvable", "invalid")
+            .then()
+            .assertThat()
+            .statusCode(404)
+            .extract()
+            .as(APIResponseMsg.class);
+
+    assertEquals("Prefix invalid not found", resp.getMessage());
+  }
+
+  @Test
   public void testPartiallyUpdatePrefix() {
 
     var postRequestBody =
