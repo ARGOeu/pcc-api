@@ -190,11 +190,11 @@ class WorkerThread implements Runnable {
     String sq;
     if (prefix == "") {
       sq =
-          "SELECT handle, data FROM handles WHERE type='url' AND TIMESTAMPDIFF(SECOND, last_resolved, UTC_TIMESTAMP()) > ? LIMIT ?,?";
+          "SELECT handle, data FROM handles WHERE TIMESTAMPDIFF(SECOND, last_resolved, UTC_TIMESTAMP()) > ? AND (type='URL' OR type='url') LIMIT ?,?";
     } else {
       prefix_like = prefix + '%';
       sq =
-          "SELECT handle, data FROM handles WHERE type='url' AND prefix like ? AND TIMESTAMPDIFF(SECOND, last_resolved, UTC_TIMESTAMP()) > ? LIMIT ?,?";
+          "SELECT handle, data FROM handles WHERE handle like ? AND (type='URL' OR type='url') AND TIMESTAMPDIFF(SECOND, last_resolved, UTC_TIMESTAMP()) > ? LIMIT ?,?";
     }
     String uq = "UPDATE handles SET resolved=?, last_resolved=? WHERE handle=?";
     int code;
