@@ -25,7 +25,7 @@ public class StatisticsService {
 
   public int getResolvablePIDCountByPrefixID(String prefix) {
     try {
-      return MySQLConnector.getResolvablePIDCountByPrefixID(prefix);
+      return statisticsRepository.getResolvablePIDCountByPrefixID(prefix);
     } catch (IllegalArgumentException e) {
       throw new NotFoundException(e.getMessage());
     } catch (SQLException e) {

@@ -32,6 +32,6 @@ export HRLS_DATABASE_NAME=hrlsdb
 export HRLS_DATABASE_USERNAME=hrls
 export HRLS_DATABASE_PASSWORD=hrls
 echo "Starting quarkus pcc-api . .. "
-mvn clean install -DskipTests=true
+mvn clean install
 mvn quarkus:dev -Dquarkus.profile=local-db -DskipTests=true
 

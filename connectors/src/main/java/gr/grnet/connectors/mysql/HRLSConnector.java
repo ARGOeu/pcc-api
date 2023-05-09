@@ -25,7 +25,7 @@ public class HRLSConnector {
     config.addDataSourceProperty("cachePrepStmts", "true");
     config.addDataSourceProperty("prepStmtCacheSize", "250");
     config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-    config.setMaximumPoolSize(1000);
+    config.setMaximumPoolSize(10);
     ds = new HikariDataSource(config);
   }
 
