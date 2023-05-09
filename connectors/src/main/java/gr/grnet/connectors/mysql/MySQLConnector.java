@@ -54,7 +54,7 @@ public class MySQLConnector {
   public static int getResolvablePIDCountByPrefixID(String prefix) throws SQLException {
 
     int total = 0;
-    String query = "SELECT count(*) FROM handles where LOWER(CONVERT(type using utf8))='url' AND handle like ? AND resolved=1";
+    String query = "SELECT resolvable_count FROM prefixes where prefix like ?";
     String connectionUrl = null;
 
     connectionUrl =
