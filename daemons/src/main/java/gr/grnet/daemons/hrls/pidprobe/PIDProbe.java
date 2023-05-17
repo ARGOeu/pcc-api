@@ -222,7 +222,7 @@ class WorkerThread implements Runnable {
       int expiration,
       String prefix,
       String http_method,
-      int polite,
+      int request_interval,
       HRLSConnector hrlsConnector,
       CloseableHttpClient httpclient) {
     this.limit = limit;
@@ -239,28 +239,22 @@ class WorkerThread implements Runnable {
       throws SQLException {
     String handle;
     String prefix_like = "";
-    int size = 0;
-    int count = 0;
     String data = "";
 
     String sq;
-    String pq;
     if (prefix == "") {
       sq =
           "SELECT handle, data FROM handles WHERE TIMESTAMPDIFF(SECOND, last_resolved, UTC_TIMESTAMP()) > ? AND LOWER(CONVERT(type using utf8))='url' LIMIT ?,?";
-      pq = "UPDATE prefixes SET resolvable_count=resolvable_count+1 WHERE prefix=?";
     } else {
       prefix_like = prefix + '%';
       sq =
           "SELECT handle, data FROM handles WHERE handle like ? AND LOWER(CONVERT(type using utf8))='url' AND TIMESTAMPDIFF(SECOND, last_resolved, UTC_TIMESTAMP()) > ? LIMIT ?,?";
-      pq = "UPDATE prefixes SET resolvable_count=resolvable_count+? WHERE prefix=?";
     }
     String uq = "UPDATE handles SET resolved=?, last_resolved=? WHERE handle=?";
     int code;
     Connection conn = hrlsConnector.getConnection();
     try (PreparedStatement pss = conn.prepareStatement(sq);
-        PreparedStatement psu = conn.prepareStatement(uq);
-        PreparedStatement psp = conn.prepareStatement(pq)) {
+        PreparedStatement psu = conn.prepareStatement(uq)) {
 
       if (prefix == "") {
         pss.setInt(1, expiration);
@@ -273,25 +267,17 @@ class WorkerThread implements Runnable {
         pss.setInt(4, limit);
       }
       try (ResultSet rs = pss.executeQuery()) {
-        size = 0;
-        count = 0;
         while (rs.next()) {
-          size++;
           handle = rs.getString("handle");
           data = rs.getString("data");
           try {
             if (request_interval > 0) {
-              Thread.sleep(request_interval);
+              processCommand(request_interval);
             }
             code = http_probe(data, http_method);
             logger.log(Level.FINE, String.format(data + ":" + code));
             if (code == 200) {
               psu.setBoolean(1, true);
-              count++;
-              if (prefix == "") {
-                psp.setString(1, handle.split("/", 2)[0]);
-                psp.addBatch();
-              }
             } else {
               psu.setBoolean(1, false);
             }
@@ -309,8 +295,6 @@ class WorkerThread implements Runnable {
         }
         // Execute batch query on handles table
         int[] r = psu.executeBatch();
-
-        appendToFile(prefix+".log", count);
         return null;
       }
     } catch (SQLException e) {
@@ -345,7 +329,7 @@ class WorkerThread implements Runnable {
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
-    processCommand();
+    processCommand(100);
     logger.log(
         Level.FINE,
         String.format(
@@ -356,26 +340,11 @@ class WorkerThread implements Runnable {
                 + this.offset));
   }
 
-  private void processCommand() {
+  private void processCommand(long t) {
     try {
-      sleep(100);
+      sleep(t);
     } catch (InterruptedException e) {
       e.printStackTrace();
-    }
-  }
-
-  public void appendToFile(String filePath, int count) {
-    try {
-      fileLock.lock(); // Acquire the lock
-
-      try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
-        writer.write(String.valueOf(count));
-        writer.newLine();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-    } finally {
-      fileLock.unlock(); // Release the lock
     }
   }
 }
