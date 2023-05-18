@@ -1,6 +1,6 @@
 package gr.grnet.pccapi.service;
 
-import gr.grnet.connectors.mysql.MySQLConnector;
+import gr.grnet.pccapi.repository.StatisticsRepository;
 import java.sql.SQLException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.InternalServerErrorException;
@@ -11,9 +11,11 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class StatisticsService {
 
+  StatisticsRepository statisticsRepository;
+
   public int getPIDCountByPrefixID(String prefix) {
     try {
-      return MySQLConnector.getPIDCountByPrefixID(prefix);
+      return statisticsRepository.getPIDCountByPrefixID(prefix);
     } catch (IllegalArgumentException e) {
       throw new NotFoundException(e.getMessage());
     } catch (SQLException e) {
@@ -23,7 +25,7 @@ public class StatisticsService {
 
   public int getResolvablePIDCountByPrefixID(String prefix) {
     try {
-      return MySQLConnector.getResolvablePIDCountByPrefixID(prefix);
+      return statisticsRepository.getResolvablePIDCountByPrefixID(prefix);
     } catch (IllegalArgumentException e) {
       throw new NotFoundException(e.getMessage());
     } catch (SQLException e) {
