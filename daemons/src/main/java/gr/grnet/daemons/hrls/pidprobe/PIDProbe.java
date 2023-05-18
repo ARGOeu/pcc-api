@@ -4,10 +4,7 @@ import static java.lang.String.format;
 import static java.lang.Thread.sleep;
 
 import gr.grnet.connectors.mysql.HRLSConnector;
-
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
 import java.sql.*;
@@ -21,7 +18,6 @@ import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.apache.hc.client5.http.ClientProtocolException;
 import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
 import org.apache.hc.client5.http.config.RequestConfig;
@@ -30,12 +26,6 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.client5.http.io.HttpClientConnectionManager;
-import org.apache.hc.client5.http.protocol.RedirectStrategy;
-import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Timeout;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -96,9 +86,9 @@ public class PIDProbe implements Callable<Integer> {
   private static String http_method = "HEAD";
 
   @Option(
-          names = {"-w", "--request-interval"},
-          paramLabel = "REQUEST_INTERVAL",
-          description = "The interval between HTTP request in usecs")
+      names = {"-w", "--request-interval"},
+      paramLabel = "REQUEST_INTERVAL",
+      description = "The interval between HTTP request in usecs")
   private static int request_interval = 0;
 
   @Option(
@@ -108,9 +98,9 @@ public class PIDProbe implements Callable<Integer> {
   private static String prefix = "";
 
   @Option(
-          names = {"-v", "--verbose"},
-          paramLabel = "VERBOSE",
-          description = "The logging verbose")
+      names = {"-v", "--verbose"},
+      paramLabel = "VERBOSE",
+      description = "The logging verbose")
   private static String verbose = "INFO";
 
   Logger logger = Logger.getLogger(PIDProbe.class.getName());
@@ -167,15 +157,15 @@ public class PIDProbe implements Callable<Integer> {
       // Delete the log file where resolvable PID count is appended
       File myObj = new File(prefix + ".log");
       if (myObj.delete()) {
-        logger.log(
-                Level.INFO, String.format("Deleted already existing: %s", myObj.getName()));
+        logger.log(Level.INFO, String.format("Deleted already existing: %s", myObj.getName()));
       } else {
-        logger.log(
-                Level.INFO, String.format("Failed to delete: %s", myObj.getName()));
+        logger.log(Level.INFO, String.format("Failed to delete: %s", myObj.getName()));
       }
 
       logger.log(
-          Level.INFO, String.format("Probing prefix %s started at: %s %n", prefix, Timestamp.from(Instant.now())));
+          Level.INFO,
+          String.format(
+              "Probing prefix %s started at: %s %n", prefix, Timestamp.from(Instant.now())));
 
       ExecutorService executor = Executors.newFixedThreadPool(threads_num);
       for (int i = 0; i < iterations; i++) {
@@ -196,7 +186,9 @@ public class PIDProbe implements Callable<Integer> {
     } catch (Exception e) {
     }
     logger.log(
-        Level.INFO, String.format("Probing prefix %s finished at: %s %n", prefix, Timestamp.from(Instant.now())));
+        Level.INFO,
+        String.format(
+            "Probing prefix %s finished at: %s %n", prefix, Timestamp.from(Instant.now())));
     return 1;
   }
 }
@@ -235,7 +227,13 @@ class WorkerThread implements Runnable {
     this.httpclient = httpclient;
   }
 
-  public String getPID(int limit, int offset, int expiration, String prefix, String http_method, int request_interval)
+  public String getPID(
+      int limit,
+      int offset,
+      int expiration,
+      String prefix,
+      String http_method,
+      int request_interval)
       throws SQLException {
     String handle;
     String prefix_like = "";
@@ -325,7 +323,13 @@ class WorkerThread implements Runnable {
                 + " "
                 + this.offset));
     try {
-      getPID(this.limit, this.offset, this.expiration, this.prefix, this.http_method, this.request_interval);
+      getPID(
+          this.limit,
+          this.offset,
+          this.expiration,
+          this.prefix,
+          this.http_method,
+          this.request_interval);
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }

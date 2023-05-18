@@ -1,5 +1,7 @@
 package gr.grnet.pccapi.repository;
 
+import static java.lang.String.format;
+
 import gr.grnet.connectors.mysql.HRLSConnector;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,7 +11,15 @@ import javax.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class StatisticsRepository {
 
-  HRLSConnector hrlsConnector;
+  HRLSConnector hrlsConnector =
+      new HRLSConnector(
+          format(
+              "jdbc:mysql://%s:%s/%s?serverTimezone=UTC",
+              System.getenv("HRLS_DATABASE_IP"),
+              System.getenv("HRLS_DATABASE_PORT"),
+              System.getenv("HRLS_DATABASE_NAME")),
+          System.getenv("HRLS_DATABASE_USERNAME"),
+          System.getenv("HRLS_DATABASE_PASSWORD"));
 
   public int getPIDCountByPrefixID(String prefix) throws SQLException {
     int total = 0;
