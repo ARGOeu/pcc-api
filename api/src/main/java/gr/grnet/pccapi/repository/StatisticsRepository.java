@@ -1,8 +1,7 @@
 package gr.grnet.pccapi.repository;
 
-import static java.lang.String.format;
-
 import gr.grnet.connectors.mysql.HRLSConnector;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,21 +10,12 @@ import javax.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class StatisticsRepository {
 
-  HRLSConnector hrlsConnector =
-      new HRLSConnector(
-          format(
-              "jdbc:mysql://%s:%s/%s?serverTimezone=UTC",
-              System.getenv("HRLS_DATABASE_IP"),
-              System.getenv("HRLS_DATABASE_PORT"),
-              System.getenv("HRLS_DATABASE_NAME")),
-          System.getenv("HRLS_DATABASE_USERNAME"),
-          System.getenv("HRLS_DATABASE_PASSWORD"));
-
   public int getPIDCountByPrefixID(String prefix) throws SQLException {
     int total = 0;
-    String query = "SELECT handles_count FROM prefixes where prefix=?";
+    String query = "SELECT handles_count FROM prefixes WHERE prefix=?";
 
-    try (PreparedStatement ps = hrlsConnector.getConnection().prepareStatement(query)) {
+    try (Connection connection = HRLSConnector.getHRLSConnector().getConnection();
+        PreparedStatement ps = connection.prepareStatement(query)) {
       ps.setString(1, prefix);
       try (ResultSet rs = ps.executeQuery()) {
         if (rs.next()) {
@@ -43,12 +33,12 @@ public class StatisticsRepository {
   public int getResolvablePIDCountByPrefixID(String prefix) throws SQLException {
 
     int total = 0;
-    String query =
-        "SELECT count(*) FROM handles where LOWER(CONVERT(type using utf8))='url' AND handle like ? AND resolved=1";
+    String query = "SELECT resolvable_count FROM prefixes WHERE prefix=?";
     String connectionUrl = null;
 
-    try (PreparedStatement ps = hrlsConnector.getConnection().prepareStatement(query)) {
-      ps.setString(1, prefix + "%");
+    try (Connection connection = HRLSConnector.getHRLSConnector().getConnection();
+        PreparedStatement ps = connection.prepareStatement(query)) {
+      ps.setString(1, prefix);
       try (ResultSet rs = ps.executeQuery()) {
         if (rs.next()) {
           total = rs.getInt(1);

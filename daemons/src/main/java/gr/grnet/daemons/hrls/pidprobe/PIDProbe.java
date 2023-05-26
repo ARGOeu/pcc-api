@@ -1,10 +1,8 @@
 package gr.grnet.daemons.hrls.pidprobe;
 
-import static java.lang.String.format;
 import static java.lang.Thread.sleep;
 
 import gr.grnet.connectors.mysql.HRLSConnector;
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.sql.*;
@@ -114,7 +112,7 @@ public class PIDProbe implements Callable<Integer> {
     HRLSConnector hrlsConnector;
 
     try {
-      Handler fileHandler = new FileHandler("/var/log/pcc-api.log");
+      Handler fileHandler = new FileHandler("/tmp/pcc-api.log");
       fileHandler.setFormatter(new MyFormatter());
       logger.addHandler(fileHandler);
       logger.setLevel(Level.parse(verbose));
@@ -134,15 +132,6 @@ public class PIDProbe implements Callable<Integer> {
 
       {
         logger.log(Level.INFO, String.format("Connecting to DB..."));
-        hrlsConnector =
-            new HRLSConnector(
-                format(
-                    "jdbc:mysql://%s:%s/%s?serverTimezone=UTC",
-                    System.getenv("HRLS_DATABASE_IP"),
-                    System.getenv("HRLS_DATABASE_PORT"),
-                    System.getenv("HRLS_DATABASE_NAME")),
-                System.getenv("HRLS_DATABASE_USERNAME"),
-                System.getenv("HRLS_DATABASE_PASSWORD"));
       }
 
       int iterations = pids_total_num / pids_chunk_size;
@@ -153,15 +142,6 @@ public class PIDProbe implements Callable<Integer> {
       logger.log(Level.INFO, String.format("Total number of threads: %d %n", threads_num));
       logger.log(Level.INFO, String.format("Size of PID chunks: %d %n", pids_chunk_size));
       logger.log(Level.INFO, String.format("Total chunks calculated: %d %n", iterations));
-
-      // Delete the log file where resolvable PID count is appended
-      File myObj = new File(prefix + ".log");
-      if (myObj.delete()) {
-        logger.log(Level.INFO, String.format("Deleted already existing: %s", myObj.getName()));
-      } else {
-        logger.log(Level.INFO, String.format("Failed to delete: %s", myObj.getName()));
-      }
-
       logger.log(
           Level.INFO,
           String.format(
@@ -177,7 +157,6 @@ public class PIDProbe implements Callable<Integer> {
                 prefix,
                 http_method,
                 request_interval,
-                hrlsConnector,
                 httpclient);
         executor.submit(worker);
       }
@@ -215,7 +194,6 @@ class WorkerThread implements Runnable {
       String prefix,
       String http_method,
       int request_interval,
-      HRLSConnector hrlsConnector,
       CloseableHttpClient httpclient) {
     this.limit = limit;
     this.offset = offset;
@@ -223,7 +201,6 @@ class WorkerThread implements Runnable {
     this.prefix = prefix;
     this.http_method = http_method;
     this.request_interval = request_interval;
-    this.hrlsConnector = hrlsConnector;
     this.httpclient = httpclient;
   }
 
@@ -250,8 +227,8 @@ class WorkerThread implements Runnable {
     }
     String uq = "UPDATE handles SET resolved=?, last_resolved=? WHERE handle=?";
     int code;
-    Connection conn = hrlsConnector.getConnection();
-    try (PreparedStatement pss = conn.prepareStatement(sq);
+    try (Connection conn = HRLSConnector.getHRLSConnector().getConnection();
+        PreparedStatement pss = conn.prepareStatement(sq);
         PreparedStatement psu = conn.prepareStatement(uq)) {
 
       if (prefix == "") {

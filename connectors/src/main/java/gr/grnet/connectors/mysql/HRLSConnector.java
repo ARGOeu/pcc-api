@@ -1,11 +1,15 @@
 package gr.grnet.connectors.mysql;
 
+import static java.lang.String.format;
+
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
 public class HRLSConnector {
+
+  private static HRLSConnector instance;
 
   private HikariConfig config;
   private HikariDataSource ds;
@@ -17,7 +21,7 @@ public class HRLSConnector {
   private String user;
   private String password;
 
-  public HRLSConnector(String url, String username, String password) {
+  private HRLSConnector(String url, String username, String password) {
     config = new HikariConfig();
     config.setJdbcUrl(url);
     config.setUsername(username);
@@ -27,6 +31,21 @@ public class HRLSConnector {
     config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
     config.setMaximumPoolSize(10);
     ds = new HikariDataSource(config);
+  }
+
+  public static synchronized HRLSConnector getHRLSConnector() {
+    if (instance == null) {
+      instance =
+          new HRLSConnector(
+              format(
+                  "jdbc:mysql://%s:%s/%s?serverTimezone=UTC",
+                  System.getenv("HRLS_DATABASE_IP"),
+                  System.getenv("HRLS_DATABASE_PORT"),
+                  System.getenv("HRLS_DATABASE_NAME")),
+              System.getenv("HRLS_DATABASE_USERNAME"),
+              System.getenv("HRLS_DATABASE_PASSWORD"));
+    }
+    return instance;
   }
 
   public Connection getConnection() throws SQLException {
