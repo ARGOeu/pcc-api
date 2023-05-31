@@ -4,13 +4,12 @@ import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 
-import gr.grnet.pccapi.dto.APIResponseMsg;
-import gr.grnet.pccapi.dto.PartialPrefixDto;
-import gr.grnet.pccapi.dto.PrefixDto;
-import gr.grnet.pccapi.dto.PrefixResponseDto;
+import gr.grnet.pccapi.dto.*;
 import gr.grnet.pccapi.endpoint.PrefixEndpoint;
+import gr.grnet.pccapi.entity.Statistics;
 import gr.grnet.pccapi.enums.ContractType;
 import gr.grnet.pccapi.enums.LookUpServiceType;
+import gr.grnet.pccapi.mapper.StatisticsMapper;
 import gr.grnet.pccapi.repository.DomainRepository;
 import gr.grnet.pccapi.repository.PrefixRepository;
 import gr.grnet.pccapi.repository.ProviderRepository;
@@ -527,6 +526,27 @@ public class PrefixEndpointTest {
             .as(APIResponseMsg.class);
 
     assertEquals("Prefix invalid not found", resp.getMessage());
+  }
+
+  @Test
+  public void fetchStatisticsByPrefixId() throws SQLException {
+
+    Mockito.when(statisticsService.getPrefixStatisticsByID(any()))
+        .thenReturn(
+            StatisticsMapper.INSTANCE.statisticsToDto(new Statistics("21.12132", 2, 3, 4, 5)));
+    var resp =
+        given()
+            .get("/{id}/statistics", 21.12132)
+            .then()
+            .assertThat()
+            .statusCode(200)
+            .extract()
+            .as(StatisticsDto.class);
+    assertEquals(resp.prefix, "21.12132");
+    assertEquals(resp.handlesCount, 2);
+    assertEquals(resp.resolvableCount, 3);
+    assertEquals(resp.unresolvableCount, 4);
+    assertEquals(resp.uncheckedCount, 5);
   }
 
   @Test
