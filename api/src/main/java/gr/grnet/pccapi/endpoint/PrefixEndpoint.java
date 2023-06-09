@@ -279,4 +279,19 @@ public class PrefixEndpoint {
     var count = statisticsService.getResolvablePIDCountByPrefixID(id);
     return Response.ok().entity(count).build();
   }
+
+  @GET
+  @Path("/{id}/statistics")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response getStatisticsByPrefix(
+      @Parameter(
+              description = "The Prefix ID for which the statistics will be retrieved.",
+              required = true,
+              example = "1",
+              schema = @Schema(type = SchemaType.STRING))
+          @PathParam("id")
+          String id) {
+    var count = statisticsService.getPrefixStatisticsByID(id);
+    return Response.ok().entity(count).build();
+  }
 }
