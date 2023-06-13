@@ -1,12 +1,12 @@
 version: '3.8'
 services:
   pcc-db:
-    image: mysql:8.0
+    image: mariadb:10.3.39
     environment:
-      - MYSQL_DATABASE=pccdb
-      - MYSQL_USER=pcc
-      - MYSQL_PASSWORD=pcc
-      - MYSQL_ROOT_PASSWORD=pcc-root
+      - MARIADB_DATABASE=pccdb
+      - MARIADB_USER=pcc
+      - MARIADB_PASSWORD=pcc
+      - MARIADB_ROOT_PASSWORD=pcc-root
     ports:
       - "3306:3306"
     volumes:
