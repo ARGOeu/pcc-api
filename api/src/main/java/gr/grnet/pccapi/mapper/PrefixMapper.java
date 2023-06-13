@@ -41,7 +41,9 @@ public interface PrefixMapper {
   @Mapping(target = "providerName", source = "provider.name")
   @Mapping(
       target = "contractEnd",
-      expression = "java(prefix.contractEnd != null ? convertToString(prefix.contractEnd) : null)")
+      expression =
+          "java(prefix.contractEnd != null && StringUtils.isNotEmpty(convertToString(prefix.contractEnd)) ? "
+              + "convertToString(prefix.contractEnd) : null)")
   PrefixResponseDto prefixToResponseDto(Prefix prefix);
 
   @Mapping(target = "serviceId", source = "prefix.service.id")
@@ -72,9 +74,10 @@ public interface PrefixMapper {
       expression =
           "java(prefixDto.status != null ? Integer.parseInt(prefixDto.status) : prefix.status)")
   @Mapping(
-      source = "lookUpServiceType",
       target = "lookUpServiceType",
-      qualifiedByName = "validateLookUpServiceType")
+      expression =
+          "java(prefixDto.lookUpServiceType != null && StringUtils.isNotEmpty(prefixDto.lookUpServiceType) ? "
+              + "LookUpServiceType.valueOf(prefixDto.lookUpServiceType) : prefix.lookUpServiceType)")
   @Mapping(
       target = "contactEmail",
       expression =
@@ -89,9 +92,10 @@ public interface PrefixMapper {
           "java(prefixDto.contractEnd != null && StringUtils.isNotEmpty(prefixDto.contractEnd) ? "
               + "convertToMillis(prefixDto.contractEnd) : null)")
   @Mapping(
-      source = "contractType",
       target = "contractType",
-      qualifiedByName = "validateContractType")
+      expression =
+          "java(prefixDto.contractType != null && StringUtils.isNotEmpty(prefixDto.contractType) ? "
+              + "ContractType.valueOf(prefixDto.contractType) : prefix.contractType)")
   void updatePrefixFromDto(PartialPrefixDto prefixDto, @MappingTarget Prefix prefix);
 
   @Mapping(
