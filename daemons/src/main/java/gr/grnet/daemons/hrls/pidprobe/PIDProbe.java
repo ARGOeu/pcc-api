@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 import org.apache.hc.client5.http.ClientProtocolException;
 import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
 import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.DefaultRedirectStrategy;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -101,6 +102,12 @@ public class PIDProbe implements Callable<Integer> {
       description = "The logging verbose")
   private static String verbose = "INFO";
 
+  @Option(
+          names = {"-l", "--logfile"},
+          paramLabel = "LOGFILE",
+          description = "The output logfile")
+  private static String logfile = "/tmp/log";
+
   Logger logger = Logger.getLogger(PIDProbe.class.getName());
 
   public static void main(String[] args) {
@@ -112,7 +119,7 @@ public class PIDProbe implements Callable<Integer> {
     HRLSConnector hrlsConnector;
 
     try {
-      Handler fileHandler = new FileHandler("/tmp/pcc-api.log");
+      Handler fileHandler = new FileHandler(logfile);
       fileHandler.setFormatter(new MyFormatter());
       logger.addHandler(fileHandler);
       logger.setLevel(Level.parse(verbose));
@@ -120,7 +127,7 @@ public class PIDProbe implements Callable<Integer> {
       RequestConfig config =
           RequestConfig.custom()
               .setConnectTimeout(Timeout.ofMilliseconds(http_timeout))
-              .setConnectionRequestTimeout(Timeout.ofMilliseconds(http_timeout))
+              .setConnectionRequestTimeout(Timeout.ofMilliseconds(http_timeout)).setRedirectsEnabled(true)
               .build();
       logger.log(Level.INFO, String.format("Setting up HTTP client..."));
       CloseableHttpClient httpclient =
@@ -128,6 +135,7 @@ public class PIDProbe implements Callable<Integer> {
               .setConnectionManager(poolingConnManager)
               .setConnectionManagerShared(true)
               .setDefaultRequestConfig(config)
+              .setRedirectStrategy(new DefaultRedirectStrategy())
               .build();
 
       {
@@ -185,8 +193,6 @@ class WorkerThread implements Runnable {
 
   Logger logger = Logger.getLogger(PIDProbe.class.getName());
 
-  private static final Lock fileLock = new ReentrantLock();
-
   public WorkerThread(
       int limit,
       int offset,
@@ -230,7 +236,6 @@ class WorkerThread implements Runnable {
     try (Connection conn = HRLSConnector.getHRLSConnector().getConnection();
         PreparedStatement pss = conn.prepareStatement(sq);
         PreparedStatement psu = conn.prepareStatement(uq)) {
-
       if (prefix == "") {
         pss.setInt(1, expiration);
         pss.setInt(2, offset);
@@ -241,6 +246,7 @@ class WorkerThread implements Runnable {
         pss.setInt(3, offset);
         pss.setInt(4, limit);
       }
+      logger.log(Level.FINE, pss.toString());
       try (ResultSet rs = pss.executeQuery()) {
         while (rs.next()) {
           handle = rs.getString("handle");
@@ -279,11 +285,15 @@ class WorkerThread implements Runnable {
 
   public int http_probe(String uri, String method) throws Exception {
     HttpUriRequestBase http_req = new HttpUriRequestBase(method, URI.create(uri));
+    logger.log(Level.FINE, http_req.toString());
     CloseableHttpResponse response = null;
     try {
       response = httpclient.execute(http_req);
+      logger.log(Level.FINE, response.toString());
     } catch (ClientProtocolException ex) {
+      logger.log(Level.FINE, String.format(ex.toString()));
     } catch (IOException ex) {
+      logger.log(Level.FINE, String.format(ex.toString()));
     }
 
     return response.getCode();
