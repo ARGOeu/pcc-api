@@ -44,19 +44,6 @@ public class PrefixService {
     if (prefixRepository.existsByName(prefixDto.getName())) {
       throw new ConflictException("Prefix name already exists");
     }
-
-    // check the existence of the provided service
-    Service service =
-        serviceRepository
-            .findByIdOptional(prefixDto.getServiceId())
-            .orElseThrow(() -> new NotFoundException("Service not found"));
-
-    // check the existence of the provided domain
-    Domain domain =
-        domainRepository
-            .findByIdOptional(prefixDto.getDomainId())
-            .orElseThrow(() -> new NotFoundException("Domain not found"));
-
     // check the existence of the provided provider
     Provider provider =
         providerRepository
@@ -71,7 +58,23 @@ public class PrefixService {
     prefixDto.contractType = String.valueOf(contractType);
 
     Prefix prefix = PrefixMapper.INSTANCE.requestToPrefix(prefixDto);
-    prefix.setService(service).setDomain(domain).setProvider(provider);
+    if (prefixDto.serviceId != null) {
+      // check the existence of the provided service
+      Service service =
+          serviceRepository
+              .findByIdOptional(prefixDto.getServiceId())
+              .orElseThrow(() -> new NotFoundException("Service not found"));
+      prefix.setService(service);
+    }
+    // check the existence of the provided domain
+    if (prefixDto.domainId != null) {
+      Domain domain =
+          domainRepository
+              .findByIdOptional(prefixDto.getDomainId())
+              .orElseThrow(() -> new NotFoundException("Domain not found"));
+      prefix.setDomain(domain);
+    }
+    prefix.setProvider(provider);
     prefixRepository.persist(prefix);
     return PrefixMapper.INSTANCE.prefixToResponseDto(prefix);
   }
@@ -175,17 +178,6 @@ public class PrefixService {
             .findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Prefix not found"));
 
-    Service service =
-        serviceRepository
-            .findByIdOptional(prefixDto.getServiceId())
-            .orElseThrow(() -> new NotFoundException("Service not found"));
-
-    // check the existence of the provided domain
-    Domain domain =
-        domainRepository
-            .findByIdOptional(prefixDto.getDomainId())
-            .orElseThrow(() -> new NotFoundException("Domain not found"));
-
     // check the existence of the provided provider
     Provider provider =
         providerRepository
@@ -204,11 +196,24 @@ public class PrefixService {
     prefixDto.contractType = String.valueOf(contractType);
 
     PrefixMapper.INSTANCE.updateRequestToPrefix(prefixDto, prefix);
+    if (prefixDto.serviceId != null) {
+      Service service =
+          serviceRepository
+              .findByIdOptional(prefixDto.getServiceId())
+              .orElseThrow(() -> new NotFoundException("Service not found"));
+      prefix.setService(service);
+    }
 
+    // check the existence of the provided domain
+    if (prefixDto.domainId != null) {
+      Domain domain =
+          domainRepository
+              .findByIdOptional(prefixDto.getDomainId())
+              .orElseThrow(() -> new NotFoundException("Domain not found"));
+      prefix.setDomain(domain);
+    }
     // update the prefix
-    prefix.setService(service);
     prefix.setProvider(provider);
-    prefix.setDomain(domain);
 
     return PrefixMapper.INSTANCE.prefixToResponseDto(prefix);
   }
