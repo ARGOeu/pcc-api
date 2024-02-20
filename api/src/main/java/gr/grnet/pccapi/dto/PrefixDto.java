@@ -43,7 +43,6 @@ public class PrefixDto {
       description = "The unique service ID to be linked with the prefix.",
       example = "1")
   @JsonProperty("service_id")
-  @NotNull
   public Integer serviceId;
 
   @Schema(
@@ -67,6 +66,7 @@ public class PrefixDto {
   public Boolean resolvable = Boolean.TRUE;
 
   @JsonProperty("contact_name")
+  @NotNull
   public String contactName;
 
   @Email(
@@ -74,6 +74,7 @@ public class PrefixDto {
           "^$|(^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^-]+(?:\\.[a-zA-Z0-9_!#$%&’*+/=?`{|}~^-]+)*@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$)",
       flags = Pattern.Flag.CASE_INSENSITIVE)
   @JsonProperty("contact_email")
+  @NotNull
   public String contactEmail;
 
   @Schema(

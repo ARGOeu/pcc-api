@@ -106,7 +106,9 @@ public class PrefixEndpointTest {
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1)
-            .setContractEnd("2008-01-01T00:00:00Z");
+            .setContractEnd("2008-01-01T00:00:00Z")
+            .setContactName("test")
+            .setContactEmail("test@test.gr");
 
     // create the prefix
     given().contentType(ContentType.JSON).body(requestBody).post();
@@ -138,7 +140,9 @@ public class PrefixEndpointTest {
             .setServiceId(999)
             .setProviderId(1)
             .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
-            .setContractEnd("2008-01-01T00:00:00Z");
+            .setContractEnd("2008-01-01T00:00:00Z")
+            .setContactName("test")
+            .setContactEmail("test@test.gr");
 
     var response =
         given()
@@ -167,7 +171,9 @@ public class PrefixEndpointTest {
             .setServiceId(1)
             .setProviderId(1)
             .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
-            .setContractEnd("2008-01-01T00:00:00Z");
+            .setContractEnd("2008-01-01T00:00:00Z")
+            .setContactName("test")
+            .setContactEmail("test@test.gr");
 
     var response =
         given()
@@ -196,7 +202,9 @@ public class PrefixEndpointTest {
             .setServiceId(1)
             .setProviderId(999)
             .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
-            .setContractEnd("2008-01-01T00:00:00Z");
+            .setContractEnd("2008-01-01T00:00:00Z")
+            .setContactName("test")
+            .setContactEmail("test@test.gr");
 
     var response =
         given()
@@ -226,7 +234,10 @@ public class PrefixEndpointTest {
             .setProviderId(1)
             .setResolvable(Boolean.TRUE)
             .setContractEnd("2008-01-01T00:00:00Z")
-            .setContractType(ContractType.PROJECT.name());
+            .setContractType(ContractType.PROJECT.name())
+            .setContactEmail("test@test.gr")
+            .setContactName("test");
+    ;
 
     var resp =
         given()
@@ -297,7 +308,9 @@ public class PrefixEndpointTest {
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1)
-            .setContractEnd("2008-01-01T00:00:00Z");
+            .setContractEnd("2008-01-01T00:00:00Z")
+            .setContactEmail("test@test.gr")
+            .setContactName("test");
 
     var response =
         given()
@@ -336,7 +349,9 @@ public class PrefixEndpointTest {
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1)
-            .setContractEnd("2008-01-01T00:00:00Z");
+            .setContractEnd("2008-01-01T00:00:00Z")
+            .setContactName("test")
+            .setContactEmail("test@test.gr");
 
     var response =
         given()
@@ -368,7 +383,9 @@ public class PrefixEndpointTest {
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1)
-            .setContractEnd("2008-01-01T00:00:00Z");
+            .setContractEnd("2008-01-01T00:00:00Z")
+            .setContactName("test")
+            .setContactEmail("test@test.gr");
 
     var response =
         given()
@@ -408,7 +425,9 @@ public class PrefixEndpointTest {
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1)
-            .setContractEnd("2008-01-01T00:00:00Z");
+            .setContractEnd("2008-01-01T00:00:00Z")
+            .setContactEmail("test@test.gr")
+            .setContactName("test");
 
     var created =
         given()
@@ -623,7 +642,9 @@ public class PrefixEndpointTest {
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1)
-            .setContractEnd("2018-01-01T00:00:00Z");
+            .setContractEnd("2018-01-01T00:00:00Z")
+            .setContactName("test")
+            .setContactEmail("test@test.gr");
 
     var response =
         given()
@@ -666,7 +687,9 @@ public class PrefixEndpointTest {
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1)
-            .setContractEnd("2018-01-01T00:00:00Z");
+            .setContractEnd("2018-01-01T00:00:00Z")
+            .setContactName("test")
+            .setContactEmail("test@test.gr");
 
     var response =
         given()
@@ -700,8 +723,6 @@ public class PrefixEndpointTest {
     statisticsDto.unresolvableCount = 1;
     statisticsDto.uncheckedCount = 8;
 
-    // Mockito.when(mockedPrefixRepository.existsByName(any())).thenReturn(true);
-    // Mockito.when(mockedPrefixRepository.existsByName(any())).thenReturn(true);
     Mockito.when(statisticsService.setPrefixStatistics(any(), any())).thenReturn(statisticsDto);
 
     var dto =
