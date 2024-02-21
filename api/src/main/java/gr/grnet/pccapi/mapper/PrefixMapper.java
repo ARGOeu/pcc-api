@@ -90,7 +90,7 @@ public interface PrefixMapper {
       target = "contractEnd",
       expression =
           "java(prefixDto.contractEnd != null && StringUtils.isNotEmpty(prefixDto.contractEnd) ? "
-              + "convertToMillis(prefixDto.contractEnd) : null)")
+              + "convertToMillis(prefixDto.contractEnd) : prefix.contractEnd)")
   @Mapping(
       target = "contractType",
       expression =
