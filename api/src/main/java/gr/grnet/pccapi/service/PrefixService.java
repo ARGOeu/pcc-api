@@ -114,7 +114,10 @@ public class PrefixService {
 
     // check the uniqueness of the provided name
     if (prefixRepository.existsByName(prefixDto.getName())) {
-      throw new ConflictException("Prefix name already exists");
+      Prefix prefixByName = prefixRepository.findByName(prefixDto.getName());
+      if (prefixByName != null && prefixByName.id != id) {
+        throw new ConflictException("Prefix name already exists");
+      }
     }
 
     PrefixMapper.INSTANCE.updatePrefixFromDto(prefixDto, prefix);
@@ -129,17 +132,21 @@ public class PrefixService {
     }
 
     // check the existence of the provided service and update entity on success
+    Service service = null;
+
     if (prefixDto.getServiceId() != null) {
-      Service service =
+      service =
           serviceRepository
               .findByIdOptional(prefixDto.getServiceId())
               .orElseThrow(() -> new NotFoundException("Service not found"));
-      prefix.setService(service);
     }
+    prefix.setService(service);
 
     // check the existence of the provided domain and update entity on success
+    Domain domain = null;
+
     if (prefixDto.getDomainId() != null) {
-      Domain domain =
+      domain =
           domainRepository
               .findByIdOptional(prefixDto.getDomainId())
               .orElseThrow(() -> new NotFoundException("Domain not found"));
@@ -186,7 +193,10 @@ public class PrefixService {
 
     // check the uniqueness of the provided name
     if (prefixRepository.existsByName(prefixDto.getName())) {
-      throw new ConflictException("Prefix name already exists");
+      Prefix prefixByName = prefixRepository.findByName(prefixDto.getName());
+      if (prefixByName != null && prefixByName.id != id) {
+        throw new ConflictException("Prefix name already exists");
+      }
     }
     var lookUpServiceType =
         PrefixMapper.INSTANCE.validateLookUpServiceType(prefixDto.lookUpServiceType);
@@ -196,22 +206,26 @@ public class PrefixService {
     prefixDto.contractType = String.valueOf(contractType);
 
     PrefixMapper.INSTANCE.updateRequestToPrefix(prefixDto, prefix);
+    Service service = null;
     if (prefixDto.serviceId != null) {
-      Service service =
+      service =
           serviceRepository
               .findByIdOptional(prefixDto.getServiceId())
               .orElseThrow(() -> new NotFoundException("Service not found"));
-      prefix.setService(service);
     }
+    prefix.setService(service);
 
     // check the existence of the provided domain
+    Domain domain = null;
+
     if (prefixDto.domainId != null) {
-      Domain domain =
+      domain =
           domainRepository
               .findByIdOptional(prefixDto.getDomainId())
               .orElseThrow(() -> new NotFoundException("Domain not found"));
-      prefix.setDomain(domain);
     }
+    prefix.setDomain(domain);
+
     // update the prefix
     prefix.setProvider(provider);
 
