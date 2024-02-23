@@ -72,7 +72,7 @@ public interface PrefixMapper {
   @Mapping(
       target = "status",
       expression =
-          "java(prefixDto.status!=null ? Integer.parseInt(prefixDto.status) : prefix.status)")
+          "java(prefixDto.status != null ? Integer.parseInt(prefixDto.status) : prefix.status)")
   @Mapping(
       target = "lookUpServiceType",
       expression =
@@ -116,7 +116,11 @@ public interface PrefixMapper {
   default LookUpServiceType validateLookUpServiceType(String lookUpServiceType) {
     LookUpServiceType lookUpServiceT;
     try {
-      lookUpServiceT = LookUpServiceType.valueOf(lookUpServiceType);
+      if (StringUtils.isEmpty(lookUpServiceType)) {
+        lookUpServiceT = LookUpServiceType.NONE;
+      } else {
+        lookUpServiceT = LookUpServiceType.valueOf(lookUpServiceType);
+      }
     } catch (IllegalArgumentException e) {
       throw new BadRequestException("Invalid lookup_service_type value");
     }
@@ -127,7 +131,11 @@ public interface PrefixMapper {
   default ContractType validateContractType(String contractType) {
     ContractType contractTypeT = null;
     try {
-      contractTypeT = ContractType.valueOf(contractType);
+      if (StringUtils.isEmpty(contractType)) {
+        contractTypeT = ContractType.PROJECT;
+      } else {
+        contractTypeT = ContractType.valueOf(contractType);
+      }
     } catch (IllegalArgumentException e) {
       throw new BadRequestException("Invalid contract type value");
     }
