@@ -27,7 +27,7 @@ public class PrefixDto {
   @JsonProperty("contract_end")
   public String contractEnd;
 
-  public Integer status;
+  @NotNull public Integer status;
 
   @Schema(
       type = SchemaType.STRING,
@@ -35,7 +35,6 @@ public class PrefixDto {
       description = "The type of lookup service the prefix supports",
       example = "PRIVATE")
   @JsonProperty("lookup_service_type")
-  @NotNull
   public String lookUpServiceType;
 
   @Schema(
@@ -84,6 +83,5 @@ public class PrefixDto {
       description = "The type of contract type",
       example = "Project")
   @JsonProperty("contract_type")
-  @NotNull
   public String contractType;
 }
