@@ -120,8 +120,11 @@ public class PrefixService {
       }
     }
 
-    PrefixMapper.INSTANCE.updatePrefixFromDto(prefixDto, prefix);
+    if (prefixDto.status != null) {
+      prefix.status = Integer.valueOf(prefixDto.status);
+    }
 
+    PrefixMapper.INSTANCE.updatePrefixFromDto(prefixDto, prefix);
     // check the existence of the provided provider and update entity on success
     if (prefixDto.getProviderId() != null) {
       Provider provider =
@@ -132,21 +135,20 @@ public class PrefixService {
     }
 
     // check the existence of the provided service and update entity on success
-    Service service = null;
 
     if (prefixDto.getServiceId() != null) {
-      service =
+      Service service =
           serviceRepository
               .findByIdOptional(prefixDto.getServiceId())
               .orElseThrow(() -> new NotFoundException("Service not found"));
+
+      prefix.setService(service);
     }
-    prefix.setService(service);
 
     // check the existence of the provided domain and update entity on success
-    Domain domain = null;
 
     if (prefixDto.getDomainId() != null) {
-      domain =
+      Domain domain =
           domainRepository
               .findByIdOptional(prefixDto.getDomainId())
               .orElseThrow(() -> new NotFoundException("Domain not found"));
