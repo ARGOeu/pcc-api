@@ -1,16 +1,5 @@
 version: '3.8'
 services:
-  pcc-db:
-    image: mariadb:10.3.39
-    environment:
-      - MARIADB_DATABASE=pccdb
-      - MARIADB_USER=pcc
-      - MARIADB_PASSWORD=pcc
-      - MARIADB_ROOT_PASSWORD=pcc-root
-    ports:
-      - "3306:3306"
-    volumes:
-      - pcc-mysql-data:/var/lib/mysql
   hrls-db:
     image: mysql:8.0
     environment:
@@ -25,8 +14,6 @@ services:
       - ./api/src/main/resources/db/hrls/V1.0__prefixes.sql:/docker-entrypoint-initdb.d/1.sql
 
 volumes:
-  pcc-mysql-data:
-      driver: local
   hrls-mysql-data:
       driver: local
 
