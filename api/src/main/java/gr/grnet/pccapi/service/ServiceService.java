@@ -3,10 +3,10 @@ package gr.grnet.pccapi.service;
 import gr.grnet.pccapi.dto.ServiceDto;
 import gr.grnet.pccapi.mapper.ServiceMapper;
 import gr.grnet.pccapi.repository.ServiceRepository;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ws.rs.NotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.NotFoundException;
 import lombok.AllArgsConstructor;
 
 /** Service layer service for the service resource */

@@ -1,10 +1,10 @@
 package gr.grnet.pccapi.client.hrls;
 
+import jakarta.ws.rs.client.ClientRequestContext;
+import jakarta.ws.rs.client.ClientRequestFilter;
+import jakarta.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.util.Map;
-import javax.ws.rs.client.ClientRequestContext;
-import javax.ws.rs.client.ClientRequestFilter;
-import javax.ws.rs.core.UriBuilder;
 
 /**
  * QueryParamBuildingFilter allows us to dynamically build the query parameters and as a result we

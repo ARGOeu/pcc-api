@@ -5,11 +5,11 @@ import gr.grnet.pccapi.dto.StatisticsRequestDto;
 import gr.grnet.pccapi.mapper.StatisticsMapper;
 import gr.grnet.pccapi.repository.PrefixRepository;
 import gr.grnet.pccapi.repository.StatisticsRepository;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.InternalServerErrorException;
+import jakarta.ws.rs.NotFoundException;
 import java.sql.SQLException;
-import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.NotFoundException;
 import lombok.AllArgsConstructor;
 
 @ApplicationScoped

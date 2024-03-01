@@ -6,17 +6,17 @@ import gr.grnet.pccapi.dto.HandleDto;
 import gr.grnet.pccapi.enums.Filter;
 import gr.grnet.pccapi.enums.LookUpServiceType;
 import gr.grnet.pccapi.service.ReverseLookUpService;
+import jakarta.validation.Valid;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DefaultValue;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.util.EnumSet;
-import javax.validation.Valid;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import lombok.AllArgsConstructor;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
@@ -33,7 +33,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
  */
 @AllArgsConstructor
 @Tag(name = "Reverse LookUp", description = "Provide a proxy endpoint to query the HRLS Service.")
-@Path("/reverse-lookup")
+@Path("/v1/reverse-lookup")
 public class ReverseLookUpEndpoint {
 
   ReverseLookUpService reverseLookUpService;
