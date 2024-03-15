@@ -5,7 +5,6 @@ import gr.grnet.pccapi.dto.PrefixDto;
 import gr.grnet.pccapi.dto.PrefixResponseDto;
 import gr.grnet.pccapi.entity.Prefix;
 import gr.grnet.pccapi.enums.ContractType;
-import gr.grnet.pccapi.enums.LookUpServiceType;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -39,6 +38,8 @@ public interface PrefixMapper {
   @Mapping(target = "domainName", source = "domain.name")
   @Mapping(target = "providerId", source = "provider.id")
   @Mapping(target = "providerName", source = "provider.name")
+  @Mapping(target = "lookUpServiceType", source = "lookupServiceType.id")
+  @Mapping(target = "lookUpServiceName", source = "lookupServiceType.name")
   @Mapping(
       target = "contractEnd",
       expression =
@@ -52,6 +53,8 @@ public interface PrefixMapper {
   @Mapping(target = "domainName", source = "prefix.domain.name")
   @Mapping(target = "providerId", source = "prefix.provider.id")
   @Mapping(target = "providerName", source = "prefix.provider.name")
+  @Mapping(target = "lookUpServiceType", source = "prefix.lookupServiceType.id")
+  @Mapping(target = "lookUpServiceName", source = "prefix.lookupServiceType.name")
   @Mapping(
       target = "contractEnd",
       expression =
@@ -73,11 +76,13 @@ public interface PrefixMapper {
       target = "status",
       expression =
           "java(prefixDto.status!=null ? Integer.parseInt(prefixDto.status) : prefix.status)")
-  @Mapping(
-      target = "lookUpServiceType",
-      expression =
-          "java(prefixDto.lookUpServiceType != null && StringUtils.isNotEmpty(prefixDto.lookUpServiceType) ? "
-              + "LookUpServiceType.valueOf(prefixDto.lookUpServiceType) : prefix.lookUpServiceType)")
+  //  @Mapping(
+  //      target = "lookUpServiceType",
+  //      expression =
+  //          "java(prefixDto.lookUpServiceType != null &&
+  // StringUtils.isNotEmpty(prefixDto.lookUpServiceType) ? "
+  //              + "LookUpServiceType.valueOf(prefixDto.lookUpServiceType) :
+  // prefix.lookUpServiceType)")
   @Mapping(
       target = "contactEmail",
       expression =
@@ -112,16 +117,16 @@ public interface PrefixMapper {
               + "convertToMillis(prefixDto.contractEnd) : null)")
   void updateRequestToPrefix(PrefixDto prefixDto, @MappingTarget Prefix prefix);
 
-  @Named("validateLookUpServiceType")
-  default LookUpServiceType validateLookUpServiceType(String lookUpServiceType) {
-    LookUpServiceType lookUpServiceT;
-    try {
-      lookUpServiceT = LookUpServiceType.valueOf(lookUpServiceType);
-    } catch (IllegalArgumentException e) {
-      throw new BadRequestException("Invalid lookup_service_type value");
-    }
-    return lookUpServiceT;
-  }
+  //  @Named("validateLookUpServiceType")
+  //  default LookUpServiceType validateLookUpServiceType(String lookUpServiceType) {
+  //    LookUpServiceType lookUpServiceT;
+  //    try {
+  //      lookUpServiceT = LookUpServiceType.valueOf(lookUpServiceType);
+  //    } catch (IllegalArgumentException e) {
+  //      throw new BadRequestException("Invalid lookup_service_type value");
+  //    }
+  //    return lookUpServiceT;
+  //  }
 
   @Named("validateContractType")
   default ContractType validateContractType(String contractType) {

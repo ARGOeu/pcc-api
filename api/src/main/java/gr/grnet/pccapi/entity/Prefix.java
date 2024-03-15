@@ -1,7 +1,6 @@
 package gr.grnet.pccapi.entity;
 
 import gr.grnet.pccapi.enums.ContractType;
-import gr.grnet.pccapi.enums.LookUpServiceType;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import java.sql.Timestamp;
 import javax.persistence.Column;
@@ -42,10 +41,6 @@ public class Prefix extends PanacheEntityBase {
   @Column(name = "contract_end")
   public Timestamp contractEnd;
 
-  @Enumerated(EnumType.STRING)
-  @Column(name = "lookup_service_type", columnDefinition = "enum", nullable = false)
-  public LookUpServiceType lookUpServiceType;
-
   public Integer status;
 
   @Enumerated(EnumType.STRING)
@@ -65,4 +60,8 @@ public class Prefix extends PanacheEntityBase {
   public Provider provider;
 
   public Boolean resolvable;
+
+  @ManyToOne()
+  @JoinColumn(name = "lookup_service_type")
+  public Codelist lookupServiceType;
 }

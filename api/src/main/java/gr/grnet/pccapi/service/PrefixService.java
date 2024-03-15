@@ -10,6 +10,7 @@ import gr.grnet.pccapi.entity.Provider;
 import gr.grnet.pccapi.entity.Service;
 import gr.grnet.pccapi.exception.ConflictException;
 import gr.grnet.pccapi.mapper.PrefixMapper;
+import gr.grnet.pccapi.repository.CodelistRepository;
 import gr.grnet.pccapi.repository.DomainRepository;
 import gr.grnet.pccapi.repository.PrefixRepository;
 import gr.grnet.pccapi.repository.ProviderRepository;
@@ -30,6 +31,7 @@ public class PrefixService {
   ProviderRepository providerRepository;
   ServiceRepository serviceRepository;
   PrefixRepository prefixRepository;
+  CodelistRepository codelistRepository;
   Logger logger;
 
   /**
@@ -37,7 +39,7 @@ public class PrefixService {
    * appropriate response dto
    */
   @Transactional
-  public PrefixResponseDto create(PrefixDto prefixDto){
+  public PrefixResponseDto create(PrefixDto prefixDto) {
 
     logger.info("Inserting new prefix . . .");
 
@@ -51,14 +53,24 @@ public class PrefixService {
             .findByIdOptional(prefixDto.getProviderId())
             .orElseThrow(() -> new NotFoundException("Provider not found"));
 
-    var lookUpServiceType =
-        PrefixMapper.INSTANCE.validateLookUpServiceType(prefixDto.lookUpServiceType);
-    prefixDto.lookUpServiceType = String.valueOf(lookUpServiceType);
+    //    var lookUpServiceType =
+    //        PrefixMapper.INSTANCE.validateLookUpServiceType(prefixDto.lookUpServiceType);
+    //    prefixDto.lookUpServiceType = String.valueOf(lookUpServiceType);
 
     var contractType = PrefixMapper.INSTANCE.validateContractType(prefixDto.contractType);
     prefixDto.contractType = String.valueOf(contractType);
 
     Prefix prefix = PrefixMapper.INSTANCE.requestToPrefix(prefixDto);
+
+    if (prefixDto.lookUpServiceType != null) {
+
+      var lookUpServiceType =
+          codelistRepository
+              .findByIdOptional(prefixDto.lookUpServiceType)
+              .orElseThrow(() -> new NotFoundException("LookUp Service not found"));
+
+      prefix.setLookupServiceType(lookUpServiceType);
+    }
     if (prefixDto.serviceId != null) {
       // check the existence of the provided service
       Service service =
@@ -208,14 +220,23 @@ public class PrefixService {
         throw new ConflictException("Prefix name already exists");
       }
     }
-    var lookUpServiceType =
-        PrefixMapper.INSTANCE.validateLookUpServiceType(prefixDto.lookUpServiceType);
-    prefixDto.lookUpServiceType = String.valueOf(lookUpServiceType);
+    //    var lookUpServiceType =
+    //        PrefixMapper.INSTANCE.validateLookUpServiceType(prefixDto.lookUpServiceType);
+    //    prefixDto.lookUpServiceType = String.valueOf(lookUpServiceType);
 
     var contractType = PrefixMapper.INSTANCE.validateContractType(prefixDto.contractType);
     prefixDto.contractType = String.valueOf(contractType);
 
     PrefixMapper.INSTANCE.updateRequestToPrefix(prefixDto, prefix);
+    if (prefixDto.lookUpServiceType != null) {
+
+      var lookUpServiceType =
+          codelistRepository
+              .findByIdOptional(prefixDto.lookUpServiceType)
+              .orElseThrow(() -> new NotFoundException("LookUp Service not found"));
+
+      prefix.setLookupServiceType(lookUpServiceType);
+    }
     Service service = null;
     if (prefixDto.serviceId != null) {
       service =
