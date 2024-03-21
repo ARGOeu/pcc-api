@@ -1,9 +1,6 @@
 package gr.grnet.pccapi.endpoint;
 
-import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.QUERY;
-
 import gr.grnet.pccapi.dto.APIResponseMsg;
-import gr.grnet.pccapi.dto.PageResource;
 import gr.grnet.pccapi.dto.PartialPrefixDto;
 import gr.grnet.pccapi.dto.PrefixDto;
 import gr.grnet.pccapi.dto.PrefixResponseDto;
@@ -13,13 +10,9 @@ import gr.grnet.pccapi.dto.StatisticsRequestDto;
 import gr.grnet.pccapi.service.PrefixService;
 import gr.grnet.pccapi.service.StatisticsService;
 import java.text.ParseException;
-import java.util.List;
 import javax.validation.Valid;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
@@ -27,11 +20,8 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import lombok.AllArgsConstructor;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
@@ -122,30 +112,15 @@ public class PrefixEndpoint {
   @Tag(name = "Prefix")
   @APIResponse(
       responseCode = "200",
-      description = "List of prefix objects.",
+      description = "Get the list of all the available prefixes in PCC-api.",
       content =
           @Content(
-              schema = @Schema(type = SchemaType.OBJECT, implementation = PageableObjects.class)))
-  @Operation(summary = "Get a list of all available prefixes fetched by page and size")
+              schema = @Schema(type = SchemaType.ARRAY, implementation = PrefixResponseDto.class)))
+  @Operation(summary = "Get a list of all available prefixes")
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public Response getAllByPageAndSize(
-      @Parameter(
-              name = "page",
-              in = QUERY,
-              description = "Indicates the page number. Page number must be >= 1.")
-          @DefaultValue("1")
-          @Min(value = 1, message = "Page number must be >= 1.")
-          @QueryParam("page")
-          int page,
-      @Parameter(name = "size", in = QUERY, description = "The page size.")
-          @DefaultValue("10")
-          @Min(value = 1, message = "Page size must be between 1 and 100.")
-          @Max(value = 100, message = "Page size must be between 1 and 100.")
-          @QueryParam("size")
-          int size,
-      @Context UriInfo uriInfo) {
-    var prefixes = prefixService.fetchByPageAndSize(page - 1, size, uriInfo);
+  public Response getAll() {
+    var prefixes = prefixService.fetchAll();
     return Response.ok().entity(prefixes).build();
   }
 
@@ -359,20 +334,5 @@ public class PrefixEndpoint {
     resp = statisticsService.setPrefixStatistics(id, statisticsRequestDto);
 
     return Response.ok().entity(resp).build();
-  }
-
-  public static class PageableObjects extends PageResource<PrefixResponseDto> {
-
-    private List<PrefixResponseDto> content;
-
-    @Override
-    public List<PrefixResponseDto> getContent() {
-      return content;
-    }
-
-    @Override
-    public void setContent(List<PrefixResponseDto> content) {
-      this.content = content;
-    }
   }
 }
