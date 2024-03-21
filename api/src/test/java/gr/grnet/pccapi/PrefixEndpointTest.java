@@ -10,7 +10,10 @@ import gr.grnet.pccapi.entity.Statistics;
 import gr.grnet.pccapi.enums.ContractType;
 import gr.grnet.pccapi.enums.LookUpServiceType;
 import gr.grnet.pccapi.mapper.StatisticsMapper;
+import gr.grnet.pccapi.repository.DomainRepository;
 import gr.grnet.pccapi.repository.PrefixRepository;
+import gr.grnet.pccapi.repository.ProviderRepository;
+import gr.grnet.pccapi.repository.ServiceRepository;
 import gr.grnet.pccapi.service.StatisticsService;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
@@ -31,6 +34,9 @@ import org.mockito.Mockito;
 public class PrefixEndpointTest {
 
   @Inject PrefixRepository prefixRepository;
+  @Inject DomainRepository domainRepository;
+  @Inject ProviderRepository providerRepository;
+  @Inject ServiceRepository serviceRepository;
   @InjectMock StatisticsService statisticsService;
 
   @BeforeEach
@@ -473,18 +479,18 @@ public class PrefixEndpointTest {
   }
 
   @Test
-  public void testFetchPrefixesByPage() {
+  public void testFetchAllPrefixes() {
 
     var prefixes = prefixRepository.findAll().list();
 
     var prefixResponseDto =
-        given().get().then().assertThat().statusCode(200).extract().as(PageResource.class);
+        given().get().then().assertThat().statusCode(200).extract().as(PrefixResponseDto[].class);
 
-    assertEquals(prefixes.size(), prefixResponseDto.getTotalElements());
+    assertEquals(prefixes.size(), prefixResponseDto.length);
   }
 
   @Test
-  public void fetchHandlesCountByPrefixId() {
+  public void fetchHandlesCountByPrefixId() throws SQLException {
 
     Mockito.when(statisticsService.getPIDCountByPrefixID(any())).thenReturn(21);
     var resp =
@@ -550,7 +556,7 @@ public class PrefixEndpointTest {
   }
 
   @Test
-  public void fetchStatisticsByPrefixId() {
+  public void fetchStatisticsByPrefixId() throws SQLException {
 
     Mockito.when(statisticsService.getPrefixStatisticsByID(any()))
         .thenReturn(
