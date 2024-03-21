@@ -1,7 +1,6 @@
 package gr.grnet.pccapi.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import gr.grnet.pccapi.enums.ContractType;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Pattern;
 import lombok.Getter;
@@ -39,14 +38,6 @@ public class PartialPrefixDto {
   @Schema(
       type = SchemaType.INTEGER,
       implementation = Integer.class,
-      description = "The unique lookup service ID to be linked with the prefix.",
-      example = "1")
-  @JsonProperty("lookup_service_type")
-  public Integer lookUpServiceType;
-
-  @Schema(
-      type = SchemaType.INTEGER,
-      implementation = Integer.class,
       description = "The unique domain ID to be linked with the prefix.",
       example = "1")
   @JsonProperty("domain_id")
@@ -74,10 +65,18 @@ public class PartialPrefixDto {
   public String contactEmail;
 
   @Schema(
-      type = SchemaType.STRING,
-      implementation = ContractType.class,
-      description = "The type of contract type",
-      example = "Project")
-  @JsonProperty("contract_type")
-  public String contractType;
+      type = SchemaType.INTEGER,
+      implementation = Integer.class,
+      description = "The unique contract type ID to be linked with the prefix.",
+      example = "1")
+  @JsonProperty("contract_type_id")
+  public Integer contractTypeId;
+
+  @Schema(
+      type = SchemaType.INTEGER,
+      implementation = Integer.class,
+      description = "The unique lookup service type ID to be linked with the prefix.",
+      example = "1")
+  @JsonProperty("lookup_service_type_id")
+  public Integer lookUpServiceTypeId;
 }

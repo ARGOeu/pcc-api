@@ -43,8 +43,16 @@ public class PrefixResponseDto extends PrefixDto {
   @Schema(
       type = SchemaType.STRING,
       implementation = String.class,
+      description = "The name of the contract type.",
+      example = "1")
+  @JsonProperty("contract_type_name")
+  public String contractTypeName;
+
+  @Schema(
+      type = SchemaType.STRING,
+      implementation = String.class,
       description = "The name of the lookup service.",
       example = "NONE")
-  @JsonProperty("lookup_service_name")
+  @JsonProperty("lookup_service_type_name")
   public String lookUpServiceName;
 }
