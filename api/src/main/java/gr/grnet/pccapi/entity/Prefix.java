@@ -1,13 +1,9 @@
 package gr.grnet.pccapi.entity;
 
-import gr.grnet.pccapi.enums.ContractType;
-import gr.grnet.pccapi.enums.LookUpServiceType;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import java.sql.Timestamp;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -42,15 +38,11 @@ public class Prefix extends PanacheEntityBase {
   @Column(name = "contract_end")
   public Timestamp contractEnd;
 
-  @Enumerated(EnumType.STRING)
-  @Column(name = "lookup_service_type", columnDefinition = "enum", nullable = false)
-  public LookUpServiceType lookUpServiceType;
-
   public Integer status;
 
-  @Enumerated(EnumType.STRING)
-  @Column(name = "contract_type", columnDefinition = "enum")
-  public ContractType contractType;
+  //  @Enumerated(EnumType.STRING)
+  //  @Column(name = "contract_type", columnDefinition = "enum")
+  //  public ContractType contractType;
 
   @ManyToOne()
   @JoinColumn(name = "domain_id")
@@ -65,4 +57,20 @@ public class Prefix extends PanacheEntityBase {
   public Provider provider;
 
   public Boolean resolvable;
+  //
+  //  @Enumerated(EnumType.STRING)
+  //  @Column(name = "lookup_service_type", columnDefinition = "enum")
+  //  public LookUpServiceType lookUpServiceType;
+  //
+  //  @ManyToOne()
+  //  @JoinColumn(name = "lookup_service_type")
+  //  public Codelist lookupServiceType;
+
+  @ManyToOne()
+  @JoinColumn(name = "contract_type_id")
+  public Codelist contractType;
+
+  @ManyToOne()
+  @JoinColumn(name = "lookup_service_type_id")
+  public Codelist lookUpServiceType;
 }
