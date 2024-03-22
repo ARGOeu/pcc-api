@@ -11,9 +11,9 @@ import gr.grnet.pccapi.wiremock.EOSCPortalDomainWiremockServer;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
+import jakarta.inject.Inject;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import javax.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
 

@@ -1,7 +1,7 @@
 package gr.grnet.pccapi.exception;
 
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.ClientErrorException;
+import jakarta.ws.rs.core.Response;
 
 /**
  * ConflictException is used to describe errors that occur when a resource is trying to use

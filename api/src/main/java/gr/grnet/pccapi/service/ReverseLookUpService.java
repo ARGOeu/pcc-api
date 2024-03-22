@@ -5,14 +5,14 @@ import gr.grnet.pccapi.client.hrls.HRLSHandle;
 import gr.grnet.pccapi.dto.FiltersDto;
 import gr.grnet.pccapi.dto.HandleDto;
 import gr.grnet.pccapi.enums.Filter;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.InternalServerErrorException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.InternalServerErrorException;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 

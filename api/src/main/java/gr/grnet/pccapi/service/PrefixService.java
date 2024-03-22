@@ -13,11 +13,11 @@ import gr.grnet.pccapi.repository.DomainRepository;
 import gr.grnet.pccapi.repository.PrefixRepository;
 import gr.grnet.pccapi.repository.ProviderRepository;
 import gr.grnet.pccapi.repository.ServiceRepository;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
+import jakarta.ws.rs.NotFoundException;
 import java.text.ParseException;
 import java.util.List;
-import javax.enterprise.context.ApplicationScoped;
-import javax.transaction.Transactional;
-import javax.ws.rs.NotFoundException;
 import lombok.AllArgsConstructor;
 import org.jboss.logging.Logger;
 
