@@ -1,5 +1,6 @@
 package gr.grnet.pccapi.service;
 
+import gr.grnet.pccapi.dto.PageResource;
 import gr.grnet.pccapi.dto.PartialPrefixDto;
 import gr.grnet.pccapi.dto.PrefixDto;
 import gr.grnet.pccapi.dto.PrefixResponseDto;
@@ -13,11 +14,11 @@ import gr.grnet.pccapi.repository.DomainRepository;
 import gr.grnet.pccapi.repository.PrefixRepository;
 import gr.grnet.pccapi.repository.ProviderRepository;
 import gr.grnet.pccapi.repository.ServiceRepository;
-import java.text.ParseException;
 import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.transaction.Transactional;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.core.UriInfo;
 import lombok.AllArgsConstructor;
 import org.jboss.logging.Logger;
 
@@ -36,7 +37,7 @@ public class PrefixService {
    * appropriate response dto
    */
   @Transactional
-  public PrefixResponseDto create(PrefixDto prefixDto) throws ParseException {
+  public PrefixResponseDto create(PrefixDto prefixDto) {
 
     logger.info("Inserting new prefix . . .");
 
@@ -84,6 +85,13 @@ public class PrefixService {
     var prefixes = prefixRepository.findAll().list();
     // Map the prefixes retrieved from the database to the equivalent prefixDTO list and return
     return PrefixMapper.INSTANCE.prefixesToResponseDto(prefixes);
+  }
+
+  public PageResource<PrefixResponseDto> fetchByPageAndSize(int page, int size, UriInfo uriInfo) {
+
+    var prefixes = prefixRepository.fetchPrefixesByPage(page, size);
+    return new PageResource<>(
+        prefixes, PrefixMapper.INSTANCE.prefixesToResponseDto(prefixes.list()), uriInfo);
   }
 
   /**
