@@ -70,3 +70,13 @@ java -jar daemons-1.0.0-SNAPSHOT.jar
 ```
 
 Use the `--help` argument to see the list of supported arguments.
+
+
+
+## Execute PID Probe tool through pcc-api
+
+Copy daemons-1.0.0-SNAPSHOT.jar to a location in the pc and add daemon.jar.path env parameter
+ at the api's application.properties file e.g daemon.jar.path=/home/user/daemons-1.0.0-SNAPSHOT.jar
+Add pcc.log file to a location in the pc and add daemon.log.path env parameter
+ at the api application.properties file, e.g daemon.log.path=/home/cthermolia/pcc.log
+

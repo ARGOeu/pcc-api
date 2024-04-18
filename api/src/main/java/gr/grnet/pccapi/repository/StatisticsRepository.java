@@ -3,6 +3,7 @@ package gr.grnet.pccapi.repository;
 import gr.grnet.connectors.mysql.HRLSConnector;
 import gr.grnet.pccapi.entity.Statistics;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -82,7 +83,6 @@ public class StatisticsRepository implements PanacheRepositoryBase<Statistics, I
     String query =
         "INSERT INTO prefixes ( prefix,handles_count, resolvable_count, unresolvable_count, unchecked_count)"
             + " VALUES(?,?,?,?,?)";
-    String connectionUrl = null;
 
     try (Connection connection = HRLSConnector.getHRLSConnector().getConnection();
         PreparedStatement ps = connection.prepareStatement(query)) {
@@ -109,8 +109,6 @@ public class StatisticsRepository implements PanacheRepositoryBase<Statistics, I
     String query =
         "UPDATE prefixes SET handles_count =? , resolvable_count =? , unresolvable_count =? , unchecked_count =? "
             + " WHERE  prefix =?";
-
-    String connectionUrl = null;
 
     try (Connection connection = HRLSConnector.getHRLSConnector().getConnection();
         PreparedStatement ps = connection.prepareStatement(query)) {
@@ -148,6 +146,20 @@ public class StatisticsRepository implements PanacheRepositoryBase<Statistics, I
 
     } catch (SQLException e) {
       throw new SQLException(e);
+    }
+  }
+
+  public void executeUpdateResolvablePerPrefixProc(String prefix) {
+
+    System.out.println("exec procedure thread--- " + Thread.currentThread());
+    String call = "{ call UpdateResolvableCountPerPrefix(?) }";
+    try (Connection connection = HRLSConnector.getHRLSConnector().getConnection()) {
+      try (CallableStatement stmt = connection.prepareCall(call)) {
+        stmt.setString(1, prefix);
+        stmt.execute();
+      }
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
     }
   }
 }

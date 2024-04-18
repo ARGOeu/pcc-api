@@ -14,23 +14,39 @@ import gr.grnet.pccapi.repository.DomainRepository;
 import gr.grnet.pccapi.repository.PrefixRepository;
 import gr.grnet.pccapi.repository.ProviderRepository;
 import gr.grnet.pccapi.repository.ServiceRepository;
-import java.util.List;
+import gr.grnet.pccapi.repository.StatisticsRepository;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.sql.SQLException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.function.Supplier;
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.UriInfo;
-import lombok.AllArgsConstructor;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 @ApplicationScoped
-@AllArgsConstructor
 public class PrefixService {
+  @Inject DomainRepository domainRepository;
+  @Inject ProviderRepository providerRepository;
+  @Inject ServiceRepository serviceRepository;
+  @Inject PrefixRepository prefixRepository;
+  // Logger logger;
+  @Inject StatisticsRepository statisticsRepository;
 
-  DomainRepository domainRepository;
-  ProviderRepository providerRepository;
-  ServiceRepository serviceRepository;
-  PrefixRepository prefixRepository;
-  Logger logger;
+  @ConfigProperty(name = "daemon.jar.path")
+  String daemonJarPath;
+
+  @ConfigProperty(name = "daemon.log.path")
+  String daemonLogPath;
+
+  private static final Logger logger = Logger.getLogger(PrefixService.class);
 
   /**
    * Creates a new prefix based on the provided arguments, runs validation checks and returns the
@@ -77,14 +93,12 @@ public class PrefixService {
     }
     prefix.setProvider(provider);
     prefixRepository.persist(prefix);
+    try {
+      resolvePrefixes(prefix.name);
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
     return PrefixMapper.INSTANCE.prefixToResponseDto(prefix);
-  }
-
-  public List<PrefixResponseDto> fetchAll() {
-
-    var prefixes = prefixRepository.findAll().list();
-    // Map the prefixes retrieved from the database to the equivalent prefixDTO list and return
-    return PrefixMapper.INSTANCE.prefixesToResponseDto(prefixes);
   }
 
   public PageResource<PrefixResponseDto> fetchByPageAndSize(int page, int size, UriInfo uriInfo) {
@@ -240,5 +254,85 @@ public class PrefixService {
     prefix.setProvider(provider);
 
     return PrefixMapper.INSTANCE.prefixToResponseDto(prefix);
+  }
+
+  private void executePIDResolveProcess(String prefixNum) {
+    Process proc = null;
+    try {
+      if (Files.exists(Paths.get(daemonLogPath))) {
+        System.out.println("log exists ");
+        proc =
+            Runtime.getRuntime()
+                .exec(
+                    "java -jar "
+                        + daemonJarPath
+                        + " -e 1 -m HEAD -N 54 -s 10 -p "
+                        + prefixNum
+                        + " -v FINE -T 1 -l "
+                        + daemonLogPath);
+      } else {
+        System.out.println("log does not exists");
+
+        proc =
+            Runtime.getRuntime()
+                .exec(
+                    "java -jar "
+                        + daemonJarPath
+                        + " -e 1 -m HEAD -N 54 -s 10 -p "
+                        + prefixNum
+                        + " -v FINE -T 1 ");
+      }
+      System.out.println("is alive process " + proc.isAlive());
+
+      // Thread.sleep(60000);
+      synchronized (proc) {
+        try {
+          Thread.sleep(60000);
+          proc.wait();
+          System.out.println("am i waiting or not?");
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+      }
+
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private void resolvePrefixes(String prefixNum) throws SQLException {
+    System.out.println("Thread in exec command " + Thread.currentThread().getName());
+    if (!Files.exists(Paths.get(daemonJarPath))) {
+      return;
+    }
+    statisticsRepository.insertPrefixStatistics(prefixNum, 0, 0, 0, 0);
+    CustomCompletableFuture.runAsync(() -> executePIDResolveProcess(prefixNum))
+        .thenRun(() -> statisticsRepository.executeUpdateResolvablePerPrefixProc(prefixNum));
+  }
+
+  public static class CustomCompletableFuture<T> extends CompletableFuture<T> {
+    static final Executor EXEC = Executors.newCachedThreadPool();
+
+    @Override
+    public Executor defaultExecutor() {
+      return EXEC;
+    }
+
+    @Override
+    public <U> CompletableFuture<U> newIncompleteFuture() {
+      return new CustomCompletableFuture<>();
+    }
+
+    public static CompletableFuture<Void> runAsync(Runnable runnable) {
+      return supplyAsync(
+          () -> {
+            runnable.run();
+            return null;
+          });
+    }
+
+    public static <U> CompletableFuture<U> supplyAsync(Supplier<U> supplier) {
+      return new CompletableFuture<U>().completeAsync(supplier);
+    }
   }
 }
