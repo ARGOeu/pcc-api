@@ -21,6 +21,8 @@ if ! [ -x "$(command -v mvn)" ]; then
 fi
 
 
+docker-compose down --volumes
+
 docker-compose up -d
 # make sure the db has been set up before starting quarkus
 echo "Waiting 5 seconds for DB to initialise . . ."
