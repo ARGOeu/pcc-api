@@ -4,15 +4,11 @@ import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 
-import gr.grnet.pccapi.dto.APIResponseMsg;
-import gr.grnet.pccapi.dto.PageResource;
-import gr.grnet.pccapi.dto.PartialPrefixDto;
-import gr.grnet.pccapi.dto.PrefixDto;
-import gr.grnet.pccapi.dto.PrefixResponseDto;
-import gr.grnet.pccapi.dto.StatisticsDto;
-import gr.grnet.pccapi.dto.StatisticsRequestDto;
+import gr.grnet.pccapi.dto.*;
 import gr.grnet.pccapi.endpoint.PrefixEndpoint;
 import gr.grnet.pccapi.entity.Statistics;
+import gr.grnet.pccapi.enums.ContractType;
+import gr.grnet.pccapi.enums.LookUpServiceType;
 import gr.grnet.pccapi.mapper.StatisticsMapper;
 import gr.grnet.pccapi.repository.PrefixRepository;
 import gr.grnet.pccapi.service.StatisticsService;
@@ -52,14 +48,14 @@ public class PrefixEndpointTest {
             .setOwner("someone")
             .setStatus(2)
             .setUsedBy("someone else")
-            .setLookUpServiceTypeId(2)
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1)
             .setContactEmail("test@test.com")
             .setContactName("testname")
             .setContractEnd("2008-01-01T00:00:00Z")
-            .setContractTypeId(6);
+            .setContractType(ContractType.CONTRACT.name());
 
     var response =
         given()
@@ -76,7 +72,7 @@ public class PrefixEndpointTest {
     assertEquals("11523", response.getName());
     assertEquals("someone", response.getOwner());
     assertEquals("someone else", response.getUsedBy());
-    assertEquals(2, response.getLookUpServiceTypeId());
+    assertEquals(String.valueOf(LookUpServiceType.PRIVATE), response.getLookUpServiceType());
     assertEquals(2, response.getStatus());
     assertEquals("Medical & Health Sciences", response.getDomainName());
     assertEquals(1, response.getDomainId());
@@ -88,7 +84,7 @@ public class PrefixEndpointTest {
     assertEquals("test@test.com", response.getContactEmail());
     assertEquals("testname", response.getContactName());
     assertEquals("2008-01-01T00:00:00Z", response.getContractEnd());
-    assertEquals(6, response.getContractTypeId());
+    assertEquals(ContractType.CONTRACT.name(), response.getContractType());
   }
 
   @Test
@@ -100,8 +96,8 @@ public class PrefixEndpointTest {
             .setOwner("someone")
             .setStatus(2)
             .setUsedBy("someone else")
-            .setLookUpServiceTypeId(2)
-            .setContractTypeId(5)
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
+            .setContractType(String.valueOf(ContractType.PROJECT))
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1)
@@ -138,8 +134,8 @@ public class PrefixEndpointTest {
             .setDomainId(1)
             .setServiceId(999)
             .setProviderId(1)
-            .setLookUpServiceTypeId(2)
-            .setContractTypeId(5)
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
+            .setContractType(String.valueOf(ContractType.PROJECT))
             .setContractEnd("2008-01-01T00:00:00Z")
             .setContactName("test")
             .setContactEmail("test@test.gr");
@@ -170,8 +166,8 @@ public class PrefixEndpointTest {
             .setDomainId(999)
             .setServiceId(1)
             .setProviderId(1)
-            .setLookUpServiceTypeId(2)
-            .setContractTypeId(5)
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
+            .setContractType(String.valueOf(ContractType.PROJECT))
             .setContractEnd("2008-01-01T00:00:00Z")
             .setContactName("test")
             .setContactEmail("test@test.gr");
@@ -202,8 +198,8 @@ public class PrefixEndpointTest {
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(999)
-            .setLookUpServiceTypeId(1)
-            .setContractTypeId(5)
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
+            .setContractType(String.valueOf(ContractType.PROJECT))
             .setContractEnd("2008-01-01T00:00:00Z")
             .setContactName("test")
             .setContactEmail("test@test.gr");
@@ -230,13 +226,13 @@ public class PrefixEndpointTest {
             .setOwner("someone")
             .setStatus(2)
             .setUsedBy("someone else")
-            .setLookUpServiceTypeId(2)
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.NONE))
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1)
             .setResolvable(Boolean.TRUE)
             .setContractEnd("2008-01-01T00:00:00Z")
-            .setContractTypeId(5)
+            .setContractType(ContractType.PROJECT.name())
             .setContactEmail("test@test.gr")
             .setContactName("test");
     ;
@@ -258,7 +254,7 @@ public class PrefixEndpointTest {
             .setOwner("someone1")
             .setStatus(3)
             .setUsedBy("someone else1")
-            .setLookUpServiceTypeId(2)
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
             .setDomainId(2)
             .setServiceId(2)
             .setProviderId(2)
@@ -266,7 +262,7 @@ public class PrefixEndpointTest {
             .setContactEmail("test2@test.com")
             .setContactName("testname2")
             .setContractEnd("2018-01-01T00:00:00Z")
-            .setContractTypeId(7);
+            .setContractType(ContractType.OTHER.name());
 
     var response =
         given()
@@ -285,7 +281,7 @@ public class PrefixEndpointTest {
 
     assertEquals("someone1", response.getOwner());
     assertEquals("someone else1", response.getUsedBy());
-    assertEquals(2, response.getLookUpServiceTypeId());
+    assertEquals(String.valueOf(LookUpServiceType.PRIVATE), response.getLookUpServiceType());
 
     assertEquals(3, response.getStatus());
     assertEquals("77777", response.getName());
@@ -293,7 +289,7 @@ public class PrefixEndpointTest {
     assertEquals("testname2", response.getContactName());
     assertEquals("test2@test.com", response.getContactEmail());
     assertEquals("2018-01-01T00:00:00Z", response.getContractEnd());
-    assertEquals(7, response.getContractTypeId());
+    assertEquals(ContractType.OTHER.name(), response.getContractType());
   }
 
   @Test
@@ -306,8 +302,8 @@ public class PrefixEndpointTest {
             .setOwner("someone")
             .setStatus(2)
             .setUsedBy("someone else")
-            .setLookUpServiceTypeId(2)
-            .setContractTypeId(5)
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
+            .setContractType(String.valueOf(ContractType.PROJECT))
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1)
@@ -348,8 +344,8 @@ public class PrefixEndpointTest {
             .setOwner("someone")
             .setStatus(2)
             .setUsedBy("someone else")
-            .setLookUpServiceTypeId(2)
-            .setContractTypeId(5)
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
+            .setContractType(String.valueOf(ContractType.PROJECT))
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1)
@@ -383,8 +379,8 @@ public class PrefixEndpointTest {
             .setOwner("someone")
             .setStatus(2)
             .setUsedBy("someone else")
-            .setLookUpServiceTypeId(2)
-            .setContractTypeId(5)
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
+            .setContractType(String.valueOf(ContractType.PROJECT))
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1)
@@ -426,8 +422,8 @@ public class PrefixEndpointTest {
             .setOwner("someone")
             .setStatus(2)
             .setUsedBy("someone else")
-            .setLookUpServiceTypeId(2)
-            .setContractTypeId(5)
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.BOTH))
+            .setContractType(String.valueOf(ContractType.PROJECT))
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1)
@@ -458,7 +454,7 @@ public class PrefixEndpointTest {
     assertEquals(created.name, prefixResponseDto.name);
     assertEquals(created.domainId, prefixResponseDto.domainId);
     assertEquals(created.id, prefixResponseDto.id);
-    assertEquals(created.lookUpServiceTypeId, prefixResponseDto.lookUpServiceTypeId);
+    assertEquals(created.lookUpServiceType, prefixResponseDto.lookUpServiceType);
     assertEquals("2008-01-01T00:00:00Z", prefixResponseDto.contractEnd);
   }
 
@@ -583,15 +579,16 @@ public class PrefixEndpointTest {
             .setOwner("someone")
             .setStatus(2)
             .setUsedBy("someone else")
-            .setLookUpServiceTypeId(2)
-            .setContractTypeId(5)
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.CENTRAL))
+            .setContractType(String.valueOf(ContractType.PROJECT))
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1)
             .setResolvable(Boolean.TRUE)
             .setContactName("testname")
             .setContactEmail("test@test.com")
-            .setContractEnd("2008-01-01T00:00:00Z");
+            .setContractEnd("2008-01-01T00:00:00Z")
+            .setContractType(ContractType.OTHER.name());
 
     var response =
         given()
@@ -607,13 +604,14 @@ public class PrefixEndpointTest {
     var patchRequestBody =
         new PartialPrefixDto()
             .setName("222222")
-            .setLookUpServiceTypeId(2)
-            .setContractTypeId(5)
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
+            .setContractType(String.valueOf(ContractType.PROJECT))
             .setDomainId(2)
             .setResolvable(Boolean.FALSE)
             .setContactEmail("test2@test.com")
             .setContactName("testname2")
-            .setContractEnd("2018-01-01T00:00:00Z");
+            .setContractEnd("2018-01-01T00:00:00Z")
+            .setContractType(ContractType.PROJECT.name());
     var patchResponse =
         given()
             .contentType(ContentType.JSON)
@@ -627,12 +625,12 @@ public class PrefixEndpointTest {
 
     assertEquals(patchRequestBody.name, patchResponse.name);
     assertEquals(patchRequestBody.domainId, patchResponse.domainId);
-    assertEquals(patchRequestBody.lookUpServiceTypeId, patchResponse.lookUpServiceTypeId);
+    assertEquals(patchRequestBody.lookUpServiceType, patchResponse.lookUpServiceType);
     assertEquals(patchRequestBody.resolvable, patchResponse.resolvable);
     assertEquals(patchRequestBody.contactEmail, patchResponse.contactEmail);
     assertEquals(patchRequestBody.contactName, patchResponse.contactName);
     assertEquals(patchRequestBody.contractEnd, patchResponse.contractEnd);
-    assertEquals(5, patchResponse.getContractTypeId());
+    assertEquals(ContractType.PROJECT.name(), patchResponse.getContractType());
   }
 
   @Test
@@ -644,8 +642,8 @@ public class PrefixEndpointTest {
             .setOwner("someone")
             .setStatus(2)
             .setUsedBy("someone else")
-            .setLookUpServiceTypeId(2)
-            .setContractTypeId(5)
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
+            .setContractType(String.valueOf(ContractType.PROJECT))
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1)
@@ -690,8 +688,8 @@ public class PrefixEndpointTest {
             .setOwner("someone")
             .setStatus(2)
             .setUsedBy("someone else")
-            .setLookUpServiceTypeId(2)
-            .setContractTypeId(5)
+            .setLookUpServiceType(String.valueOf(LookUpServiceType.PRIVATE))
+            .setContractType(String.valueOf(ContractType.PROJECT))
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1)
