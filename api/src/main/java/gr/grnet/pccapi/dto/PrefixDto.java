@@ -1,6 +1,8 @@
 package gr.grnet.pccapi.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import gr.grnet.pccapi.enums.ContractType;
+import gr.grnet.pccapi.enums.LookUpServiceType;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -26,6 +28,15 @@ public class PrefixDto {
   public String contractEnd;
 
   public Integer status;
+
+  @Schema(
+      type = SchemaType.STRING,
+      implementation = LookUpServiceType.class,
+      description = "The type of lookup service the prefix supports",
+      example = "PRIVATE")
+  @JsonProperty("lookup_service_type")
+  @NotNull
+  public String lookUpServiceType;
 
   @Schema(
       type = SchemaType.INTEGER,
@@ -68,18 +79,11 @@ public class PrefixDto {
   public String contactEmail;
 
   @Schema(
-      type = SchemaType.INTEGER,
-      implementation = Integer.class,
-      description = "The unique contract type ID to be linked with the prefix.",
-      example = "1")
-  @JsonProperty("contract_type_id")
-  public Integer contractTypeId;
-
-  @Schema(
-      type = SchemaType.INTEGER,
-      implementation = Integer.class,
-      description = "The unique lookup service type ID to be linked with the prefix.",
-      example = "1")
-  @JsonProperty("lookup_service_type_id")
-  public Integer lookUpServiceTypeId;
+      type = SchemaType.STRING,
+      implementation = ContractType.class,
+      description = "The type of contract type",
+      example = "Project")
+  @JsonProperty("contract_type")
+  @NotNull
+  public String contractType;
 }
