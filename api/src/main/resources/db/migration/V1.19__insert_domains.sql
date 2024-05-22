@@ -12,5 +12,3 @@ INSERT IGNORE INTO domain VALUES
 ( 6,"scientific_domain-other","Other", null),
 ( 7, "scientific_domain-humanities" , "Humanities","The branches of learning that investigate human constructs and concerns as opposed to natural processes (as in physics or chemistry) and social relations (as in anthropology or economics)."),
 ( 8, "scientific_domain-social_sciences" ,   "Social Sciences",  "A branch of science that deals with the institutions and functioning of human society and with the interpersonal relationships of individuals as members of society."   );
-
-
