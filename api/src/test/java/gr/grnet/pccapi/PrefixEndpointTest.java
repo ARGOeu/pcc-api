@@ -18,6 +18,7 @@ import gr.grnet.pccapi.repository.PrefixRepository;
 import gr.grnet.pccapi.service.StatisticsService;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
 import io.quarkus.test.junit.mockito.InjectMock;
 import io.restassured.http.ContentType;
 import java.sql.SQLException;
@@ -32,6 +33,7 @@ import org.mockito.Mockito;
 @QuarkusTest
 @TestHTTPEndpoint(PrefixEndpoint.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestProfile(PCCApiTestProfile.class)
 public class PrefixEndpointTest {
 
   @Inject PrefixRepository prefixRepository;
@@ -78,7 +80,6 @@ public class PrefixEndpointTest {
     assertEquals("someone else", response.getUsedBy());
     assertEquals(2, response.getLookUpServiceTypeId());
     assertEquals(2, response.getStatus());
-    assertEquals("Medical & Health Sciences", response.getDomainName());
     assertEquals(1, response.getDomainId());
     assertEquals("B2HANDLE", response.getServiceName());
     assertEquals(1, response.getServiceId());

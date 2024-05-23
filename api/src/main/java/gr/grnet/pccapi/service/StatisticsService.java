@@ -2,10 +2,12 @@ package gr.grnet.pccapi.service;
 
 import gr.grnet.pccapi.dto.StatisticsDto;
 import gr.grnet.pccapi.dto.StatisticsRequestDto;
+import gr.grnet.pccapi.entity.Statistics;
 import gr.grnet.pccapi.mapper.StatisticsMapper;
 import gr.grnet.pccapi.repository.PrefixRepository;
 import gr.grnet.pccapi.repository.StatisticsRepository;
 import java.sql.SQLException;
+import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.InternalServerErrorException;
@@ -58,33 +60,31 @@ public class StatisticsService {
     }
 
     try {
-      boolean update = false;
-
+      Optional<Statistics> statistics;
       if (statisticsRepository.getPrefixByID(prefix)) {
-        update = true;
-      }
 
-      if (!update) {
-
-        var retrieveStatistics =
-            statisticsRepository.insertPrefixStatistics(
-                prefix,
-                statisticsDto.handlesCount,
-                statisticsDto.resolvableCount,
-                statisticsDto.unresolvableCount,
-                statisticsDto.uncheckedCount);
-        return StatisticsMapper.INSTANCE.statisticsToDto(retrieveStatistics);
-
-      } else {
-        var retrieveStatistics =
+        statistics =
             statisticsRepository.updatePrefixStatistics(
                 prefix,
                 statisticsDto.handlesCount,
                 statisticsDto.resolvableCount,
                 statisticsDto.unresolvableCount,
                 statisticsDto.uncheckedCount);
-        return StatisticsMapper.INSTANCE.statisticsToDto(retrieveStatistics);
+      } else {
+
+        statistics =
+            statisticsRepository.insertPrefixStatistics(
+                prefix,
+                statisticsDto.handlesCount,
+                statisticsDto.resolvableCount,
+                statisticsDto.unresolvableCount,
+                statisticsDto.uncheckedCount);
       }
+
+      return StatisticsMapper.INSTANCE.statisticsToDto(
+          statistics.orElseThrow(
+              () -> new SQLException("Can not handle prefix statistics in hrls database.")));
+
     } catch (IllegalArgumentException e) {
       throw new NotFoundException(e.getMessage());
     } catch (SQLException e) {
