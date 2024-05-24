@@ -1,0 +1,29 @@
+DELIMITER //
+
+CREATE PROCEDURE insert_prefix_to_prefixes()
+BEGIN
+DECLARE finished INT DEFAULT 0;
+DECLARE handle_prefix VARCHAR(20);
+DECLARE cur CURSOR FOR SELECT DISTINCT(SUBSTRING_INDEX(handle, '/', 1)) as handle_prefix from handles;
+DECLARE CONTINUE HANDLER FOR NOT FOUND SET finished = 1;
+DECLARE exit HANDLER FOR SQLEXCEPTION, SQLWARNING
+BEGIN
+ROLLBACK;
+RESIGNAL;
+END;
+START TRANSACTION;
+OPEN cur;
+label: LOOP
+FETCH cur INTO handle_prefix;
+IF finished = 1 THEN
+LEAVE label;
+END IF;
+
+INSERT INTO prefixes(prefix) VALUES(handle_prefix);
+
+END LOOP;
+CLOSE cur;
+COMMIT;
+END //
+
+DELIMITER ;
