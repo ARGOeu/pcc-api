@@ -1,0 +1,14 @@
+1::gr.grnet.daemons.hrls.pidprobe.PIDProbe::call::Fri May 24 10:10:02 EEST 2024::Setting up HTTP client...
+1::gr.grnet.daemons.hrls.pidprobe.PIDProbe::call::Fri May 24 10:10:03 EEST 2024::Connecting to DB...
+1::gr.grnet.daemons.hrls.pidprobe.PIDProbe::call::Fri May 24 10:10:03 EEST 2024::Probing resolving handle 21.12139/1.BB1A0527407F4B6C started at: 2024-05-24 10:10:03.047819698 
+
+15::gr.grnet.daemons.hrls.pidprobe.HandleWorkerThread::run::Fri May 24 10:10:03 EEST 2024::pool-1-thread-1 Start searching: 
+15::gr.grnet.daemons.hrls.pidprobe.HandleWorkerThread::getPID::Fri May 24 10:10:03 EEST 2024:: Thread running is : pool-1-thread-1
+15::gr.grnet.daemons.hrls.pidprobe.HandleWorkerThread::getPID::Fri May 24 10:10:03 EEST 2024::HikariProxyPreparedStatement@1147392576 wrapping com.mysql.cj.jdbc.ClientPreparedStatement: SELECT handle, data FROM handles WHERE handle = '21.12139/1.BB1A0527407F4B6C' AND LOWER(CONVERT(type using utf8))='url' AND TIMESTAMPDIFF(SECOND, last_resolved, UTC_TIMESTAMP()) > 86400 
+15::gr.grnet.daemons.hrls.pidprobe.HandleWorkerThread::http_probe::Fri May 24 10:10:03 EEST 2024::HEAD /file/9a5b2492-c6e0-41e5-bc8b-663b67e9dfdf
+15::gr.grnet.daemons.hrls.pidprobe.HandleWorkerThread::http_probe::Fri May 24 10:10:03 EEST 2024::code is in response200
+15::gr.grnet.daemons.hrls.pidprobe.HandleWorkerThread::http_probe::Fri May 24 10:10:03 EEST 2024::200 OK HTTP/1.1
+15::gr.grnet.daemons.hrls.pidprobe.HandleWorkerThread::getPID::Fri May 24 10:10:03 EEST 2024::updating handles to resolved=1  for handle : 21.12139/1.BB1A0527407F4B6C
+15::gr.grnet.daemons.hrls.pidprobe.HandleWorkerThread::run::Fri May 24 10:10:04 EEST 2024::pool-1-thread-1 Stop searching: 
+1::gr.grnet.daemons.hrls.pidprobe.PIDProbe::call::Fri May 24 10:10:04 EEST 2024::Probing prefix 21.12139/1.BB1A0527407F4B6C finished at: 2024-05-24 10:10:04.080362885 
+

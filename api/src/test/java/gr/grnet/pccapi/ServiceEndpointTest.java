@@ -8,6 +8,7 @@ import gr.grnet.pccapi.dto.ServiceDto;
 import gr.grnet.pccapi.endpoint.ServiceEndpoint;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.TestInstance;
 @QuarkusTest
 @TestHTTPEndpoint(ServiceEndpoint.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestProfile(PCCApiTestProfile.class)
 public class ServiceEndpointTest {
 
   @Test
