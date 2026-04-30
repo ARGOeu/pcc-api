@@ -6,21 +6,22 @@ import gr.grnet.pccapi.entity.Statistics;
 import gr.grnet.pccapi.mapper.StatisticsMapper;
 import gr.grnet.pccapi.repository.PrefixRepository;
 import gr.grnet.pccapi.repository.StatisticsRepository;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.InternalServerErrorException;
+import jakarta.ws.rs.NotFoundException;
 import java.sql.SQLException;
 import java.util.Optional;
-import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.NotFoundException;
 import lombok.AllArgsConstructor;
 
 @ApplicationScoped
 @AllArgsConstructor
 public class StatisticsService {
 
-  StatisticsRepository statisticsRepository;
+  @Inject StatisticsRepository statisticsRepository;
 
-  PrefixRepository prefixRepository;
+  @Inject PrefixRepository prefixRepository;
 
   public int getPIDCountByPrefixID(String prefix) {
     try {

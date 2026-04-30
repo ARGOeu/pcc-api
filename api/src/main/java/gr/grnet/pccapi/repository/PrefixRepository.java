@@ -5,7 +5,7 @@ import gr.grnet.pccapi.entity.PageQuery;
 import gr.grnet.pccapi.entity.PageQueryImpl;
 import gr.grnet.pccapi.entity.Prefix;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class PrefixRepository implements PanacheRepositoryBase<Prefix, Integer> {

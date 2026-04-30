@@ -3,6 +3,7 @@ package gr.grnet.pccapi.repository;
 import gr.grnet.connectors.mysql.HRLSConnector;
 import gr.grnet.pccapi.entity.Statistics;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
+import jakarta.enterprise.context.ApplicationScoped;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,7 +11,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Optional;
-import javax.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class StatisticsRepository implements PanacheRepositoryBase<Statistics, Integer> {

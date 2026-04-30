@@ -1,9 +1,9 @@
 package gr.grnet.pccapi.exception;
 
 import gr.grnet.pccapi.dto.APIResponseMsg;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.ExceptionMapper;
+import jakarta.ws.rs.ext.Provider;
 
 /**
  * ThrowableMapper handles any unexpected exceptions that might occur and returns an appropriate 500

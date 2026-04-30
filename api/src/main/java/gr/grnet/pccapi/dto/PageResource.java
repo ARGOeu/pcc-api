@@ -2,9 +2,9 @@ package gr.grnet.pccapi.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import gr.grnet.pccapi.entity.PageQuery;
+import jakarta.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.List;
-import javax.ws.rs.core.UriInfo;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 

@@ -5,16 +5,17 @@ import gr.grnet.pccapi.entity.Codelist;
 import gr.grnet.pccapi.enums.CodelistCategory;
 import gr.grnet.pccapi.mapper.CodelistMapper;
 import gr.grnet.pccapi.repository.CodelistRepository;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
-import javax.enterprise.context.ApplicationScoped;
 import lombok.AllArgsConstructor;
 
 @ApplicationScoped
 @AllArgsConstructor
 public class CodelistService {
 
-  CodelistRepository codelistRepository;
+  @Inject CodelistRepository codelistRepository;
 
   /**
    * Returns the available codes

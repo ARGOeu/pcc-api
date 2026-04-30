@@ -24,5 +24,6 @@ public class EOSCPortalDomain {
   public String domainId;
 
   @EqualsAndHashCode.Include public String name;
+
   @EqualsAndHashCode.Include public String description;
 }

@@ -3,74 +3,83 @@ package gr.grnet.pccapi.endpoint;
 import gr.grnet.pccapi.dto.APIResponseMsg;
 import gr.grnet.pccapi.dto.ProviderResponseDTO;
 import gr.grnet.pccapi.service.ProviderService;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import lombok.AllArgsConstructor;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
-import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
-@AllArgsConstructor
 @Tag(name = "Provider", description = "Provider is an organisation that hosts the handle service")
 @Path("/providers")
+@Produces(MediaType.APPLICATION_JSON)
 public class ProviderEndpoint {
 
-  ProviderService providerService;
+  @Inject ProviderService providerService;
 
-  @Tag(name = "Provider")
+  @GET
+  @Operation(summary = "Get all providers")
   @APIResponse(
       responseCode = "200",
-      description = "Get the list of all the available providers in PCC-api.",
+      description = "Providers retrieved.",
       content =
           @Content(
               schema =
                   @Schema(type = SchemaType.ARRAY, implementation = ProviderResponseDTO.class)))
-  @Operation(summary = "Get a list of all available providers")
-  @GET
-  @Produces(MediaType.APPLICATION_JSON)
+  @APIResponse(
+      responseCode = "401",
+      description = "Unauthorized.",
+      content =
+          @Content(
+              schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class)))
+  @APIResponse(
+      responseCode = "500",
+      description = "Internal Server Error.",
+      content =
+          @Content(
+              schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class)))
   public Response getAll() {
-    var providers = providerService.fetchAll();
-    return Response.ok().entity(providers).build();
+
+    return Response.ok(providerService.fetchAll()).build();
   }
 
-  @Tag(name = "Provider")
-  @Operation(
-      summary = "Get Provider by id",
-      description =
-          " From here you may get the details of a provider with the requested id in PCC-api .")
+  @GET
+  @Path("/{id}")
+  @Operation(summary = "Get provider by id")
   @APIResponse(
       responseCode = "200",
-      description = "A successful request" + "retrieving a provider with the given id",
+      description = "Provider retrieved.",
       content =
           @Content(
               schema =
                   @Schema(type = SchemaType.OBJECT, implementation = ProviderResponseDTO.class)))
   @APIResponse(
-      responseCode = "404",
-      description = "The service cannot find the requested provider.",
+      responseCode = "401",
+      description = "Unauthorized.",
       content =
           @Content(
               schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class)))
-  @GET
-  @Path("/{id}")
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response getById(
-      @Parameter(
-              description = "The id of the provider to be retrieved.",
-              required = true,
-              example = "1",
-              schema = @Schema(type = SchemaType.INTEGER))
-          @PathParam("id")
-          int id) {
-    var provider = providerService.fetchById(id);
-    return Response.ok().entity(provider).build();
+  @APIResponse(
+      responseCode = "404",
+      description = "Provider not found.",
+      content =
+          @Content(
+              schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class)))
+  @APIResponse(
+      responseCode = "500",
+      description = "Internal Server Error.",
+      content =
+          @Content(
+              schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class)))
+  public Response getById(@PathParam("id") int id) {
+
+    return Response.ok(providerService.fetchById(id)).build();
   }
 }

@@ -1,13 +1,16 @@
 package gr.grnet.pccapi.dto;
 
+import lombok.Getter;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 /** A class that represents a Provider served as response by the Provider endpoint */
+@Getter
 @Schema(
     name = "ProviderResponse",
     description = "Provider is an organisation that hosts the handle service")
 public class ProviderResponseDTO {
+
   @Schema(
       type = SchemaType.INTEGER,
       implementation = Integer.class,
@@ -21,12 +24,4 @@ public class ProviderResponseDTO {
       description = "The name of the provider .",
       example = "GRNET")
   public String name;
-
-  public int getId() {
-    return id;
-  }
-
-  public String getName() {
-    return name;
-  }
 }

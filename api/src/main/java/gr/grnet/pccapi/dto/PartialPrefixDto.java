@@ -1,8 +1,8 @@
 package gr.grnet.pccapi.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.Pattern;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
