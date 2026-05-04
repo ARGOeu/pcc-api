@@ -6,7 +6,6 @@ import gr.grnet.pccapi.dto.PrefixDto;
 import gr.grnet.pccapi.dto.PrefixResponseDto;
 import gr.grnet.pccapi.entity.Codelist;
 import gr.grnet.pccapi.entity.Domain;
-import gr.grnet.pccapi.entity.Prefix;
 import gr.grnet.pccapi.entity.Provider;
 import gr.grnet.pccapi.entity.Service;
 import gr.grnet.pccapi.enums.CodelistCategory;
@@ -17,11 +16,12 @@ import gr.grnet.pccapi.repository.DomainRepository;
 import gr.grnet.pccapi.repository.PrefixRepository;
 import gr.grnet.pccapi.repository.ProviderRepository;
 import gr.grnet.pccapi.repository.ServiceRepository;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.core.UriInfo;
 import java.util.List;
-import javax.enterprise.context.ApplicationScoped;
-import javax.transaction.Transactional;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.core.UriInfo;
 import lombok.AllArgsConstructor;
 import org.jboss.logging.Logger;
 
@@ -29,12 +29,17 @@ import org.jboss.logging.Logger;
 @AllArgsConstructor
 public class PrefixService {
 
-  DomainRepository domainRepository;
-  ProviderRepository providerRepository;
-  ServiceRepository serviceRepository;
-  PrefixRepository prefixRepository;
-  CodelistRepository codelistRepository;
-  Logger logger;
+  @Inject DomainRepository domainRepository;
+
+  @Inject ProviderRepository providerRepository;
+
+  @Inject ServiceRepository serviceRepository;
+
+  @Inject PrefixRepository prefixRepository;
+
+  @Inject CodelistRepository codelistRepository;
+
+  @Inject Logger logger;
 
   /**
    * Creates a new prefix based on the provided arguments, runs validation checks and returns the
@@ -55,7 +60,7 @@ public class PrefixService {
             .findByIdOptional(prefixDto.getProviderId())
             .orElseThrow(() -> new NotFoundException("Provider not found"));
 
-    Prefix prefix = PrefixMapper.INSTANCE.requestToPrefix(prefixDto);
+    var prefix = PrefixMapper.INSTANCE.requestToPrefix(prefixDto);
 
     if (prefixDto.contractTypeId != null) {
 
@@ -81,7 +86,7 @@ public class PrefixService {
 
     if (prefixDto.serviceId != null) {
       // check the existence of the provided service
-      Service service =
+      var service =
           serviceRepository
               .findByIdOptional(prefixDto.getServiceId())
               .orElseThrow(() -> new NotFoundException("Service not found"));
@@ -89,7 +94,7 @@ public class PrefixService {
     }
     // check the existence of the provided domain
     if (prefixDto.domainId != null) {
-      Domain domain =
+      var domain =
           domainRepository
               .findByIdOptional(prefixDto.getDomainId())
               .orElseThrow(() -> new NotFoundException("Domain not found"));
@@ -135,14 +140,16 @@ public class PrefixService {
   public PrefixResponseDto patchById(int id, PartialPrefixDto prefixDto) {
 
     logger.info("Partially updating existing prefix . . .");
-    Prefix prefix =
+    var prefix =
         prefixRepository
             .findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Prefix not found"));
 
     // check the uniqueness of the provided name
     if (prefixRepository.existsByName(prefixDto.getName())) {
-      Prefix prefixByName = prefixRepository.findByName(prefixDto.getName());
+
+      var prefixByName = prefixRepository.findByName(prefixDto.getName());
+
       if (prefixByName != null && prefixByName.id != id) {
         throw new ConflictException("Prefix name already exists");
       }
@@ -155,17 +162,18 @@ public class PrefixService {
     PrefixMapper.INSTANCE.updatePrefixFromDto(prefixDto, prefix);
     // check the existence of the provided provider and update entity on success
     if (prefixDto.getProviderId() != null) {
-      Provider provider =
+      var provider =
           providerRepository
               .findByIdOptional(prefixDto.getProviderId())
               .orElseThrow(() -> new NotFoundException("Provider not found"));
+
       prefix.setProvider(provider);
     }
 
     // check the existence of the provided service and update entity on success
 
     if (prefixDto.getServiceId() != null) {
-      Service service =
+      var service =
           serviceRepository
               .findByIdOptional(prefixDto.getServiceId())
               .orElseThrow(() -> new NotFoundException("Service not found"));
@@ -176,10 +184,11 @@ public class PrefixService {
     // check the existence of the provided domain and update entity on success
 
     if (prefixDto.getDomainId() != null) {
-      Domain domain =
+      var domain =
           domainRepository
               .findByIdOptional(prefixDto.getDomainId())
               .orElseThrow(() -> new NotFoundException("Domain not found"));
+
       prefix.setDomain(domain);
     }
     if (prefixDto.getContractTypeId() != null) {
@@ -188,6 +197,7 @@ public class PrefixService {
               .findByIdAndCategory(
                   prefixDto.contractTypeId, CodelistCategory.CONTRACT_TYPE.getText())
               .orElseThrow(() -> new NotFoundException("Contract Type not found"));
+
       prefix.setContractType(contractType);
     }
     if (prefixDto.getLookUpServiceTypeId() != null) {
@@ -197,6 +207,7 @@ public class PrefixService {
                   prefixDto.getLookUpServiceTypeId(),
                   CodelistCategory.LOOKUP_SERVICE_TYPE.getText())
               .orElseThrow(() -> new NotFoundException("LookUp Service Type  not found"));
+
       prefix.setLookUpServiceType(lookUpService);
     }
     return PrefixMapper.INSTANCE.prefixToResponseDto(prefix);
@@ -209,7 +220,9 @@ public class PrefixService {
    */
   @Transactional
   public void deleteById(Integer id) {
-    boolean deleted = prefixRepository.deleteById(id);
+
+    var deleted = prefixRepository.deleteById(id);
+
     if (!deleted) {
       throw new NotFoundException("Prefix not found");
     }
@@ -227,20 +240,22 @@ public class PrefixService {
 
     logger.info("Full updating a  prefix . . .");
     // check the existence of the provided service
-    Prefix prefix =
+    var prefix =
         prefixRepository
             .findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Prefix not found"));
 
     // check the existence of the provided provider
-    Provider provider =
+    var provider =
         providerRepository
             .findByIdOptional(prefixDto.getProviderId())
             .orElseThrow(() -> new NotFoundException("Provider not found"));
 
     // check the uniqueness of the provided name
     if (prefixRepository.existsByName(prefixDto.getName())) {
-      Prefix prefixByName = prefixRepository.findByName(prefixDto.getName());
+
+      var prefixByName = prefixRepository.findByName(prefixDto.getName());
+
       if (prefixByName != null && prefixByName.id != id) {
         throw new ConflictException("Prefix name already exists");
       }

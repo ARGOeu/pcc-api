@@ -122,6 +122,7 @@ public interface PrefixMapper {
           "java(prefixDto.contractEnd != null && StringUtils.isNotEmpty(prefixDto.contractEnd) ? "
               + "convertToMillis(prefixDto.contractEnd) : null)")
   void updateRequestToPrefix(PrefixDto prefixDto, @MappingTarget Prefix prefix);
+
   //
   //  @Named("validateLookUpServiceType")
   //  default LookUpServiceType validateLookUpServiceType(String lookUpServiceType) {

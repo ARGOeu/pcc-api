@@ -3,9 +3,9 @@ package gr.grnet.pccapi.service;
 import gr.grnet.pccapi.dto.ProviderResponseDTO;
 import gr.grnet.pccapi.mapper.ProviderMapper;
 import gr.grnet.pccapi.repository.ProviderRepository;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ws.rs.NotFoundException;
 import java.util.List;
-import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.NotFoundException;
 import lombok.AllArgsConstructor;
 
 @ApplicationScoped

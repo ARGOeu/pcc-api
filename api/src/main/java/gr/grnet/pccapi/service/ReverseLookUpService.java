@@ -5,14 +5,14 @@ import gr.grnet.pccapi.client.hrls.HRLSHandle;
 import gr.grnet.pccapi.dto.FiltersDto;
 import gr.grnet.pccapi.dto.HandleDto;
 import gr.grnet.pccapi.enums.Filter;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.InternalServerErrorException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.InternalServerErrorException;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 
@@ -38,7 +38,7 @@ public class ReverseLookUpService {
 
     boolean fullrecords = false;
     List<HandleDto> responseDto = new ArrayList<>();
-    Map<String, String> params =
+    var params =
         new HashMap<String, String>(
             Map.of(
                 "page", page != null ? page.toString() : "0",
@@ -68,9 +68,9 @@ public class ReverseLookUpService {
     params.put(Filter.RETRIEVE_RECORDS.toString(), String.valueOf(fullrecords));
     try {
       if (fullrecords) {
-        Map<String, List<HRLSHandle>> result = hrlsClient.getHandles(params);
+        var result = hrlsClient.getHandles(params);
         for (Map.Entry<String, List<HRLSHandle>> handle : result.entrySet()) {
-          HandleDto handleDto = new HandleDto();
+          var handleDto = new HandleDto();
           handleDto.setHandle(handle.getKey());
           handle.getValue().stream()
               .filter(v -> !v.getType().equals("HS_ADMIN"))

@@ -4,11 +4,11 @@ import gr.grnet.pccapi.client.eoscportal.EOSCPortalDomain;
 import gr.grnet.pccapi.dto.DomainDto;
 import gr.grnet.pccapi.mapper.DomainMapper;
 import gr.grnet.pccapi.repository.DomainRepository;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
+import jakarta.ws.rs.NotFoundException;
 import java.util.List;
 import java.util.Set;
-import javax.enterprise.context.ApplicationScoped;
-import javax.transaction.Transactional;
-import javax.ws.rs.NotFoundException;
 import lombok.AllArgsConstructor;
 import org.jboss.logging.Logger;
 

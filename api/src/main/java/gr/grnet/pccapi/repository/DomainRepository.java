@@ -3,8 +3,8 @@ package gr.grnet.pccapi.repository;
 import gr.grnet.pccapi.entity.Domain;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import io.quarkus.panache.common.Parameters;
+import jakarta.enterprise.context.ApplicationScoped;
 import java.util.Optional;
-import javax.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class DomainRepository implements PanacheRepositoryBase<Domain, Integer> {

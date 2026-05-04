@@ -1,6 +1,6 @@
 package gr.grnet.pccapi.dto;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -20,5 +20,6 @@ public class CodelistDto {
   public Integer id;
 
   @NotNull public String name;
+
   @NotNull public String category;
 }

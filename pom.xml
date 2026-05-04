@@ -15,17 +15,35 @@
     </modules>
 
     <properties>
-        <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
-        <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-        <quarkus.platform.version>2.10.2.Final</quarkus.platform.version>
-        <spotless.maven.plugin.version>2.9.0</spotless.maven.plugin.version>
-        <maven.compiler.parameters>true</maven.compiler.parameters>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <revision>1.0.0-SNAPSHOT</revision>
+        <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <revision>1.0.0-SNAPSHOT</revision>
-        <compiler-plugin.version>3.8.1</compiler-plugin.version>
+
+        <!-- Quarkus -->
+        <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
+        <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
+        <quarkus.platform.version>3.27.0</quarkus.platform.version>
+
+        <!-- Plugins -->
+        <compiler-plugin.version>3.15.0</compiler-plugin.version>
+        <surefire-plugin.version>3.5.5</surefire-plugin.version>
+        <spotless.maven.plugin.version>2.43.0</spotless.maven.plugin.version>
+        <checkstyle.maven.plugin.version>3.3.1</checkstyle.maven.plugin.version>
+        <checkstyle.puppycrawl.version>10.12.5</checkstyle.puppycrawl.version>
+        <mysql.connector.version>9.1.0</mysql.connector.version>
+        <hikari.version>5.1.0</hikari.version>
+
+        <!-- Libraries -->
+        <mapstruct.version>1.5.5.Final</mapstruct.version>
+        <lombok.version>1.18.30</lombok.version>
+        <apache.commons3.version>3.17.0</apache.commons3.version>
+        <wiremock.version>3.13.2</wiremock.version>
+        <httpclient5.version>5.4.4</httpclient5.version>
+        <quartz.version>2.5.2</quartz.version>
+        <picocli.version>4.7.7</picocli.version>
+        <junit.version>4.13.2</junit.version>
+        <logging.version>3.6.3.Final</logging.version>
     </properties>
 
     <dependencyManagement>
@@ -38,14 +56,24 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>${dependency.version.lombok}</version>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct</artifactId>
+                <version>${mapstruct.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.mapstruct</groupId>
-                <artifactId>mapstruct</artifactId>
-                <version>${dependency.version.mapstruct}</version>
+                <artifactId>mapstruct-processor</artifactId>
+                <version>${mapstruct.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${apache.commons3.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -71,7 +99,7 @@
                         <java>
                             <!-- apply a specific flavor of google-java-format -->
                             <googleJavaFormat>
-                                <version>1.7</version>
+                                <version>1.22.0</version>
                                 <style>GOOGLE</style>
                             </googleJavaFormat>
                         </java>
@@ -105,7 +133,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>flatten-maven-plugin</artifactId>
-                    <version>1.3.0</version>
+                    <version>1.7.0</version>
                     <configuration>
                     </configuration>
                     <executions>
@@ -121,5 +149,4 @@
             </plugins>
         </pluginManagement>
     </build>
-
 </project>

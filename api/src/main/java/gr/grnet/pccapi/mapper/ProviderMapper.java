@@ -22,7 +22,7 @@ public interface ProviderMapper {
   /**
    * Converts a list of Provider instances to a list of ProviderResponseDTO instances
    *
-   * @param provider A list of Provider instances
+   * @param providers A list of Provider instances
    * @return The converted ProviderResponseDTO providers list
    */
   List<ProviderResponseDTO> providersToResponse(List<Provider> providers);
