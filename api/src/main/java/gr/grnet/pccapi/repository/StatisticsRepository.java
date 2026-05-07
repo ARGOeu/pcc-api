@@ -187,19 +187,17 @@ public class StatisticsRepository implements PanacheRepositoryBase<Statistics, I
     String query = "SELECT handle FROM aux_handles ";
 
     try (Connection connection = HRLSConnector.getHRLSConnector().getConnection();
-        PreparedStatement ps = connection.prepareStatement(query)) {
-
+        PreparedStatement ps =
+            connection.prepareStatement(
+                query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
+      ps.setFetchSize(Integer.MIN_VALUE);
       try (ResultSet rs = ps.executeQuery()) {
-
         while (rs.next()) {
-          String handle = rs.getString("handle");
-          handles.add(handle);
+          handles.add(rs.getString("handle"));
         }
-      } catch (SQLException e) {
-        throw new RuntimeException(e);
       }
     } catch (SQLException e) {
-      throw new RuntimeException();
+      throw new RuntimeException(e);
     }
     return handles;
   }
