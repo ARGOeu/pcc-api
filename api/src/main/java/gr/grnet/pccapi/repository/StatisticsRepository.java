@@ -59,8 +59,7 @@ public class StatisticsRepository implements PanacheRepositoryBase<Statistics, I
 
   public Statistics getPrefixStatisticsByID(String prefix) throws SQLException {
 
-    String query =
-        "SELECT prefix, handles_count, resolvable_count, unresolvable_count, unchecked_count FROM prefixes WHERE prefix =?";
+    String query = "SELECT prefix, handles_count, resolvable_count, unresolvable_count, unchecked_count FROM prefixes WHERE prefix =?";
 
     try (Connection connection = HRLSConnector.getHRLSConnector().getConnection();
         PreparedStatement ps = connection.prepareStatement(query)) {
@@ -83,9 +82,8 @@ public class StatisticsRepository implements PanacheRepositoryBase<Statistics, I
       throws SQLException {
 
     String isExistQuery = "SELECT count(*) from prefixes where prefix =?";
-    String insertQuery =
-        "INSERT IGNORE INTO prefixes ( prefix,handles_count, resolvable_count, unresolvable_count, unchecked_count)"
-            + " VALUES(?,?,?,?,?)";
+    String insertQuery = "INSERT IGNORE INTO prefixes ( prefix,handles_count, resolvable_count, unresolvable_count, unchecked_count)"
+        + " VALUES(?,?,?,?,?)";
 
     try (Connection connection = HRLSConnector.getHRLSConnector().getConnection();
         PreparedStatement ps = connection.prepareStatement(isExistQuery)) {
@@ -126,9 +124,8 @@ public class StatisticsRepository implements PanacheRepositoryBase<Statistics, I
       String prefix, int handleCount, int resolvable, int unresolvable, int unchecked)
       throws SQLException {
 
-    String query =
-        "UPDATE prefixes SET handles_count =? , resolvable_count =? , unresolvable_count =? , unchecked_count =? "
-            + " WHERE  prefix =?";
+    String query = "UPDATE prefixes SET handles_count =? , resolvable_count =? , unresolvable_count =? , unchecked_count =? "
+        + " WHERE  prefix =?";
 
     try (Connection connection = HRLSConnector.getHRLSConnector().getConnection();
         PreparedStatement ps = connection.prepareStatement(query)) {
@@ -187,19 +184,16 @@ public class StatisticsRepository implements PanacheRepositoryBase<Statistics, I
     String query = "SELECT handle FROM aux_handles ";
 
     try (Connection connection = HRLSConnector.getHRLSConnector().getConnection();
-        PreparedStatement ps = connection.prepareStatement(query)) {
-
+        PreparedStatement ps = connection.prepareStatement(
+            query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
+      ps.setFetchSize(Integer.MIN_VALUE);
       try (ResultSet rs = ps.executeQuery()) {
-
         while (rs.next()) {
-          String handle = rs.getString("handle");
-          handles.add(handle);
+          handles.add(rs.getString("handle"));
         }
-      } catch (SQLException e) {
-        throw new RuntimeException(e);
       }
     } catch (SQLException e) {
-      throw new RuntimeException();
+      throw new RuntimeException(e);
     }
     return handles;
   }
