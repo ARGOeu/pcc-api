@@ -49,21 +49,23 @@ public class PIDSchedule {
   private void execute() {
     logger.info("executing PIDSchedule for date : " + Calendar.getInstance().getTime());
 
-    int limit = 100;
-    int offset = 0;
+    CustomCompletableFuture.runAsync(
+        () -> {
+          int limit = 100;
+          int offset = 0;
 
-    while (true) {
+          while (true) {
+            var handles = statisticsRepository.getHandlessOfAuxHandles(limit, offset);
 
-      var handles = statisticsRepository.getHandlessOfAuxHandles(limit, offset);
+            if (handles.isEmpty()) {
+              break;
+            }
 
-      if (handles.isEmpty()) {
-        break;
-      }
+            resolvePrefixes(handles);
 
-      resolvePrefixes(handles);
-
-      offset += limit;
-    }
+            offset += limit;
+          }
+        });
   }
 
   private void executeScheduler(List<String> handles) {
