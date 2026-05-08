@@ -182,9 +182,9 @@ public class StatisticsRepository implements PanacheRepositoryBase<Statistics, I
     }
   }
 
-  public ArrayList<String> getHandlessOfAuxHandles() {
+  public ArrayList<String> getHandlessOfAuxHandles(int limit, int offset) {
     ArrayList<String> handles = new ArrayList<>();
-    String query = "SELECT handle FROM aux_handles ";
+    String query = "SELECT handle FROM aux_handles LIMIT " + limit + " OFFSET " + offset;
 
     try (Connection connection = HRLSConnector.getHRLSConnector().getConnection();
         PreparedStatement ps = connection.prepareStatement(query)) {

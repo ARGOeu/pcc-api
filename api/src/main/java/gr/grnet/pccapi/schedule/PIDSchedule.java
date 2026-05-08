@@ -47,9 +47,23 @@ public class PIDSchedule {
   }
 
   private void execute() {
+
     logger.info("executing PIDSchedule for date : " + Calendar.getInstance().getTime());
-    ArrayList<String> handles = statisticsRepository.getHandlessOfAuxHandles();
-    resolvePrefixes(handles);
+
+    int limit = 100;
+    int offset = 0;
+
+    while (true) {
+
+      var handles = statisticsRepository.getHandlessOfAuxHandles(limit, offset);
+
+      if (handles.isEmpty()) break;
+
+      resolvePrefixes(handles);
+
+      offset += limit;
+    }
+
   }
 
   private void executeScheduler(List<String> handles) {
