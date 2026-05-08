@@ -39,3 +39,4 @@ nb-configuration.xml
 .env
 
 api/.flattened-pom.xml
+api/pcc-mysql-data
