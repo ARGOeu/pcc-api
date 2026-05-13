@@ -1,80 +1,154 @@
-# pcc-api Project
+# PCC
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+PCC is a multi-module Java project built with Quarkus and Apache Maven.
 
-If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
+## Modules
 
-## Prerequisites
--   Java 11+
--   Apache Maven 3.8.1+
--   Docker (for dev mode)
+- `api`
+- `connectors`
+- `daemons`
 
-## Packaging and running the application
+---
 
-The application can be packaged using:
-```shell script
-./mvnw package
-```
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+# Prerequisites
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
+Before running the project, make sure the following tools are installed:
 
-If you want to build an _über-jar_, execute the following command:
-```shell script
-./mvnw package -Dquarkus.package.type=uber-jar
-```
+- Java 17+
+- Apache Maven 3.8.1+
+- Docker & Docker Compose
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
+Verify installation:
 
-## Creating a native executable
-
-You can create a native executable using: 
-```shell script
-./mvnw package -Pnative
+```bash
+java -version
+mvn -version
+docker --version
+docker compose version
 ```
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using: 
-```shell script
-./mvnw package -Pnative -Dquarkus.native.container-build=true
+---
+
+# Build the Project
+
+Package all modules:
+
+```bash
+./mvnw clean package
 ```
 
-You can then execute your native executable with: `./target/pcc-api-1.0.0-SNAPSHOT-runner`
+This produces the Quarkus application in:
 
-If you want to learn more about building native executables, please consult https://quarkus.io/guides/maven-tooling.
-
-## Codebase Format
-```shell
-mvn spotless:apply
+```text
+target/quarkus-app/
 ```
 
-## Running the application in dev mode
+Run the application:
 
-Execute the script:
-```shell
-run-local-db-env.sh
+```bash
+java -jar target/quarkus-app/quarkus-run.jar
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at http://localhost:8080/q/dev/.
+---
 
+# Build an Uber JAR
 
-After the initial set up, you can run the quarkus application
-on its own without the script.
+To create a single executable JAR:
 
-In order to reset the local-db, you can issue the command:
-
-```shell
-docker-compose down --volumes
+```bash
+./mvnw clean package -Dquarkus.package.jar.type=uber-jar
 ```
 
-## HRLS Service Communication
-In order to communicate with the HRLS service, pcc-api
-needs two environmental variables that dictate the username
-and password for basic auth.
+Run it with:
 
-```shell
-$ export HRLS_USERNAME = user
-``` 
-```shell
-$ export HRLS_PASSWORD = pass
-``` 
+```bash
+java -jar target/*-runner.jar
+```
+
+---
+
+# Development Mode
+
+Start the local database environment:
+
+```bash
+./run-local-db-env.sh
+```
+
+Then run Quarkus in development mode:
+
+```bash
+./mvnw quarkus:dev
+```
+
+The Quarkus Dev UI is available at:
+
+```text
+http://localhost:8080/q/dev
+```
+
+---
+
+# Reset Local Database
+
+To remove containers and volumes:
+
+```bash
+docker compose down --volumes
+```
+
+---
+
+# Native Executable
+
+Build a native executable using GraalVM:
+
+```bash
+./mvnw clean package -Pnative
+```
+
+Or build inside a container:
+
+```bash
+./mvnw clean package -Pnative -Dquarkus.native.container-build=true
+```
+
+Run the native executable:
+
+```bash
+./target/pcc-api-1.0.0-SNAPSHOT-runner
+```
+
+Learn more about Quarkus native builds: https://quarkus.io/guides/maven-tooling
+
+---
+
+# Code Formatting
+
+This project uses:
+
+- Google Java Format
+- Spotless Maven Plugin
+
+Format the codebase:
+
+```bash
+./mvnw spotless:apply
+```
+
+Verify formatting:
+
+```bash
+./mvnw spotless:check
+```
+
+---
+
+# HRLS Service Configuration
+
+To communicate with the HRLS service, configure the following environment variables:
+
+```bash
+export HRLS_USERNAME=user
+export HRLS_PASSWORD=pass
+```
