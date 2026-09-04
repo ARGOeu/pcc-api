@@ -9,6 +9,7 @@ import gr.grnet.pccapi.dto.StatisticsDto;
 import gr.grnet.pccapi.dto.StatisticsRequestDto;
 import gr.grnet.pccapi.service.PrefixService;
 import gr.grnet.pccapi.service.StatisticsService;
+import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -31,15 +32,24 @@ import jakarta.ws.rs.core.UriInfo;
 import java.text.ParseException;
 import java.util.List;
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
+import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeIn;
+import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeType;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 @Tag(name = "Prefix")
 @Path("/prefixes")
-@Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
+@Authenticated
+@SecurityScheme(securitySchemeName = "Authentication",
+        description = "JWT token",
+        type = SecuritySchemeType.HTTP,
+        scheme = "bearer",
+        bearerFormat = "JWT",
+        in = SecuritySchemeIn.HEADER)
 public class PrefixEndpoint {
 
   @Inject PrefixService prefixService;
@@ -53,9 +63,17 @@ public class PrefixEndpoint {
       description = "Prefix created",
       content = @Content(schema = @Schema(implementation = PrefixResponseDto.class)))
   @APIResponse(
-      responseCode = "401",
-      description = "Unauthorized",
-      content = @Content(schema = @Schema(implementation = APIResponseMsg.class)))
+          responseCode = "401",
+          description = "User has not been authenticated.",
+          content = @Content(schema = @Schema(
+                  type = SchemaType.OBJECT,
+                  implementation = APIResponseMsg.class)))
+  @APIResponse(
+          responseCode = "403",
+          description = "Not permitted.",
+          content = @Content(schema = @Schema(
+                  type = SchemaType.OBJECT,
+                  implementation = APIResponseMsg.class)))
   @APIResponse(
       responseCode = "404",
       description = "Resource not found",
@@ -81,9 +99,17 @@ public class PrefixEndpoint {
       description = "Prefix updated",
       content = @Content(schema = @Schema(implementation = PrefixDto.class)))
   @APIResponse(
-      responseCode = "401",
-      description = "Unauthorized",
-      content = @Content(schema = @Schema(implementation = APIResponseMsg.class)))
+          responseCode = "401",
+          description = "User has not been authenticated.",
+          content = @Content(schema = @Schema(
+                  type = SchemaType.OBJECT,
+                  implementation = APIResponseMsg.class)))
+  @APIResponse(
+          responseCode = "403",
+          description = "Not permitted.",
+          content = @Content(schema = @Schema(
+                  type = SchemaType.OBJECT,
+                  implementation = APIResponseMsg.class)))
   @APIResponse(
       responseCode = "404",
       description = "Prefix not found",
@@ -104,9 +130,17 @@ public class PrefixEndpoint {
       description = "Prefixes found",
       content = @Content(schema = @Schema(implementation = PageableObjects.class)))
   @APIResponse(
-      responseCode = "401",
-      description = "Unauthorized",
-      content = @Content(schema = @Schema(implementation = APIResponseMsg.class)))
+          responseCode = "401",
+          description = "User has not been authenticated.",
+          content = @Content(schema = @Schema(
+                  type = SchemaType.OBJECT,
+                  implementation = APIResponseMsg.class)))
+  @APIResponse(
+          responseCode = "403",
+          description = "Not permitted.",
+          content = @Content(schema = @Schema(
+                  type = SchemaType.OBJECT,
+                  implementation = APIResponseMsg.class)))
   @APIResponse(
       responseCode = "500",
       description = "Internal Server Error",
@@ -127,9 +161,17 @@ public class PrefixEndpoint {
       description = "Prefix updated",
       content = @Content(schema = @Schema(implementation = PrefixResponseDto.class)))
   @APIResponse(
-      responseCode = "401",
-      description = "Unauthorized",
-      content = @Content(schema = @Schema(implementation = APIResponseMsg.class)))
+          responseCode = "401",
+          description = "User has not been authenticated.",
+          content = @Content(schema = @Schema(
+                  type = SchemaType.OBJECT,
+                  implementation = APIResponseMsg.class)))
+  @APIResponse(
+          responseCode = "403",
+          description = "Not permitted.",
+          content = @Content(schema = @Schema(
+                  type = SchemaType.OBJECT,
+                  implementation = APIResponseMsg.class)))
   @APIResponse(
       responseCode = "404",
       description = "Prefix not found",
@@ -151,9 +193,17 @@ public class PrefixEndpoint {
       description = "Prefix deleted",
       content = @Content(schema = @Schema(implementation = APIResponseMsg.class)))
   @APIResponse(
-      responseCode = "401",
-      description = "Unauthorized",
-      content = @Content(schema = @Schema(implementation = APIResponseMsg.class)))
+          responseCode = "401",
+          description = "User has not been authenticated.",
+          content = @Content(schema = @Schema(
+                  type = SchemaType.OBJECT,
+                  implementation = APIResponseMsg.class)))
+  @APIResponse(
+          responseCode = "403",
+          description = "Not permitted.",
+          content = @Content(schema = @Schema(
+                  type = SchemaType.OBJECT,
+                  implementation = APIResponseMsg.class)))
   @APIResponse(
       responseCode = "404",
       description = "Prefix not found",
@@ -177,9 +227,17 @@ public class PrefixEndpoint {
       description = "Prefix found",
       content = @Content(schema = @Schema(implementation = PrefixResponseDto.class)))
   @APIResponse(
-      responseCode = "401",
-      description = "Unauthorized",
-      content = @Content(schema = @Schema(implementation = APIResponseMsg.class)))
+          responseCode = "401",
+          description = "User has not been authenticated.",
+          content = @Content(schema = @Schema(
+                  type = SchemaType.OBJECT,
+                  implementation = APIResponseMsg.class)))
+  @APIResponse(
+          responseCode = "403",
+          description = "Not permitted.",
+          content = @Content(schema = @Schema(
+                  type = SchemaType.OBJECT,
+                  implementation = APIResponseMsg.class)))
   @APIResponse(
       responseCode = "404",
       description = "Prefix not found",
@@ -197,7 +255,18 @@ public class PrefixEndpoint {
   @Path("/{id}/count")
   @Operation(summary = "Get PID count")
   @APIResponse(responseCode = "200", description = "Count retrieved")
-  @APIResponse(responseCode = "401", description = "Unauthorized")
+  @APIResponse(
+          responseCode = "401",
+          description = "User has not been authenticated.",
+          content = @Content(schema = @Schema(
+                  type = SchemaType.OBJECT,
+                  implementation = APIResponseMsg.class)))
+  @APIResponse(
+          responseCode = "403",
+          description = "Not permitted.",
+          content = @Content(schema = @Schema(
+                  type = SchemaType.OBJECT,
+                  implementation = APIResponseMsg.class)))
   @APIResponse(responseCode = "404", description = "Prefix not found")
   @APIResponse(responseCode = "500", description = "Internal Server Error")
   public Response getPIDCountByPrefix(@PathParam("id") String id) {
@@ -209,7 +278,18 @@ public class PrefixEndpoint {
   @Path("/{id}/resolvable")
   @Operation(summary = "Get resolvable PID count")
   @APIResponse(responseCode = "200", description = "Count retrieved")
-  @APIResponse(responseCode = "401", description = "Unauthorized")
+  @APIResponse(
+          responseCode = "401",
+          description = "User has not been authenticated.",
+          content = @Content(schema = @Schema(
+                  type = SchemaType.OBJECT,
+                  implementation = APIResponseMsg.class)))
+  @APIResponse(
+          responseCode = "403",
+          description = "Not permitted.",
+          content = @Content(schema = @Schema(
+                  type = SchemaType.OBJECT,
+                  implementation = APIResponseMsg.class)))
   @APIResponse(responseCode = "404", description = "Prefix not found")
   @APIResponse(responseCode = "500", description = "Internal Server Error")
   public Response getResolvablePIDCountByPrefix(@PathParam("id") String id) {
@@ -224,7 +304,18 @@ public class PrefixEndpoint {
       responseCode = "200",
       description = "Statistics retrieved",
       content = @Content(schema = @Schema(implementation = StatisticsDto.class)))
-  @APIResponse(responseCode = "401", description = "Unauthorized")
+  @APIResponse(
+          responseCode = "401",
+          description = "User has not been authenticated.",
+          content = @Content(schema = @Schema(
+                  type = SchemaType.OBJECT,
+                  implementation = APIResponseMsg.class)))
+  @APIResponse(
+          responseCode = "403",
+          description = "Not permitted.",
+          content = @Content(schema = @Schema(
+                  type = SchemaType.OBJECT,
+                  implementation = APIResponseMsg.class)))
   @APIResponse(responseCode = "404", description = "Prefix not found")
   @APIResponse(responseCode = "500", description = "Internal Server Error")
   public Response getStatisticsByPrefix(@PathParam("id") String id) {
@@ -239,7 +330,18 @@ public class PrefixEndpoint {
       responseCode = "200",
       description = "Statistics saved",
       content = @Content(schema = @Schema(implementation = StatisticsDto.class)))
-  @APIResponse(responseCode = "401", description = "Unauthorized")
+  @APIResponse(
+          responseCode = "401",
+          description = "User has not been authenticated.",
+          content = @Content(schema = @Schema(
+                  type = SchemaType.OBJECT,
+                  implementation = APIResponseMsg.class)))
+  @APIResponse(
+          responseCode = "403",
+          description = "Not permitted.",
+          content = @Content(schema = @Schema(
+                  type = SchemaType.OBJECT,
+                  implementation = APIResponseMsg.class)))
   @APIResponse(responseCode = "404", description = "Prefix not found")
   @APIResponse(responseCode = "500", description = "Internal Server Error")
   public Response setStatisticsByPrefix(

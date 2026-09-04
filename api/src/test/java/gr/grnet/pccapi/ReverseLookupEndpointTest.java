@@ -22,7 +22,11 @@ import org.junit.jupiter.api.TestInstance;
 @TestProfile(PCCApiTestProfile.class)
 @TestHTTPEndpoint(ReverseLookUpEndpoint.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@QuarkusTestResource(KeycloakComposeResource.class)
 public class ReverseLookupEndpointTest {
+
+  @KeycloakToken(username = "admin", password = "admin")
+  String adminToken;
 
   @Test
   public void reverseLookUpSuccessFull() {
@@ -35,7 +39,8 @@ public class ReverseLookupEndpointTest {
             "RETRIEVE_RECORDS", "true"));
 
     var response =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .queryParams(
                 Map.of(
                     "page", "1",
@@ -76,7 +81,8 @@ public class ReverseLookupEndpointTest {
             "RETRIEVE_RECORDS", "true"));
 
     var response =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
             .body(filters)
             .post()
@@ -107,7 +113,8 @@ public class ReverseLookupEndpointTest {
             "RETRIEVE_RECORDS", "true"));
 
     var response =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
             .body(filters)
             .post()
@@ -139,7 +146,8 @@ public class ReverseLookupEndpointTest {
             "RETRIEVE_RECORDS", "true"));
 
     var response =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
             .body(filters)
             .post()
@@ -171,7 +179,8 @@ public class ReverseLookupEndpointTest {
             "RETRIEVE_RECORDS", "false"));
 
     var response =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
             .body(filters)
             .post()
@@ -200,7 +209,8 @@ public class ReverseLookupEndpointTest {
             "Invalid", "invalid"));
 
     var response =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
             .body(filters)
             .post()
@@ -223,7 +233,8 @@ public class ReverseLookupEndpointTest {
             "RETRIEVE_RECORDS", "false"));
 
     var response =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
             .body(filters)
             .post()
@@ -239,7 +250,8 @@ public class ReverseLookupEndpointTest {
   @Test
   public void testFiltersSuccess() {
     var response =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
             .get("/filters")
             .then()
@@ -260,7 +272,8 @@ public class ReverseLookupEndpointTest {
   @Test
   public void testTypesSuccess() {
     var response =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
             .get("/types")
             .then()

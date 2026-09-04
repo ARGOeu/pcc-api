@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import gr.grnet.pccapi.dto.APIResponseMsg;
 import gr.grnet.pccapi.dto.ProviderResponseDTO;
 import gr.grnet.pccapi.endpoint.ProviderEndpoint;
+import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
@@ -17,13 +18,19 @@ import org.junit.jupiter.api.TestInstance;
 @TestHTTPEndpoint(ProviderEndpoint.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestProfile(PCCApiTestProfile.class)
+@QuarkusTestResource(KeycloakComposeResource.class)
 public class ProviderEndpointTest {
+
+  @KeycloakToken(username = "admin", password = "admin")
+  String adminToken;
+
 
   /** Test the /providers/{id} endpoint */
   @Test
   public void getById() {
     var response =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
             .get("1")
             .then()
@@ -40,7 +47,8 @@ public class ProviderEndpointTest {
   @Test
   public void getList() {
     var response =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
             .get()
             .then()
@@ -67,7 +75,8 @@ public class ProviderEndpointTest {
   @Test
   public void getByIdNotfound() {
     var response =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
             .get("/{id}", 999)
             .then()

@@ -1,0 +1,3 @@
+CREATE DATABASE IF NOT EXISTS quarkus_auth;
+GRANT ALL PRIVILEGES ON quarkus_auth.* TO 'pcc'@'%';
+FLUSH PRIVILEGES;

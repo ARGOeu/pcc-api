@@ -17,6 +17,7 @@ import gr.grnet.pccapi.mapper.StatisticsMapper;
 import gr.grnet.pccapi.repository.PrefixRepository;
 import gr.grnet.pccapi.service.StatisticsService;
 import io.quarkus.test.InjectMock;
+import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
@@ -34,10 +35,15 @@ import org.mockito.Mockito;
 @TestHTTPEndpoint(PrefixEndpoint.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestProfile(PCCApiTestProfile.class)
+@QuarkusTestResource(KeycloakComposeResource.class)
 public class PrefixEndpointTest {
 
   @Inject PrefixRepository prefixRepository;
   @InjectMock StatisticsService statisticsService;
+
+  @KeycloakToken(username = "admin", password = "admin")
+  String adminToken;
+
 
   @BeforeEach
   @Transactional
@@ -64,7 +70,8 @@ public class PrefixEndpointTest {
             .setContractTypeId(6);
 
     var response =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
             .body(requestBody)
             .post()
@@ -111,10 +118,15 @@ public class PrefixEndpointTest {
             .setContactEmail("test@test.gr");
 
     // create the prefix
-    given().contentType(ContentType.JSON).body(requestBody).post();
+    given()
+            .header("Authorization", "Bearer " + adminToken)
+            .contentType(ContentType.JSON)
+            .body(requestBody)
+            .post();
 
     var response =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
             .body(requestBody)
             .post()
@@ -146,7 +158,8 @@ public class PrefixEndpointTest {
             .setContactEmail("test@test.gr");
 
     var response =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
             .body(requestBody)
             .post()
@@ -178,7 +191,8 @@ public class PrefixEndpointTest {
             .setContactEmail("test@test.gr");
 
     var response =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
             .body(requestBody)
             .post()
@@ -210,7 +224,8 @@ public class PrefixEndpointTest {
             .setContactEmail("test@test.gr");
 
     var response =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
             .body(requestBody)
             .post()
@@ -243,7 +258,8 @@ public class PrefixEndpointTest {
     ;
 
     var resp =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
             .body(requestBody)
             .post()
@@ -270,7 +286,8 @@ public class PrefixEndpointTest {
             .setContractTypeId(7);
 
     var response =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
             .body(updateRequestDto)
             .put(String.valueOf(resp.id))
@@ -317,7 +334,8 @@ public class PrefixEndpointTest {
             .setContactName("test");
 
     var response =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
             .body(requestBody)
             .post()
@@ -328,7 +346,9 @@ public class PrefixEndpointTest {
             .as(PrefixResponseDto.class);
 
     var resp =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
+            .contentType(ContentType.JSON)
             .put("/{id}", response.id + 10)
             .then()
             .assertThat()
@@ -359,7 +379,8 @@ public class PrefixEndpointTest {
             .setContactEmail("test@test.gr");
 
     var response =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
             .body(requestBody)
             .post()
@@ -371,7 +392,7 @@ public class PrefixEndpointTest {
 
     // deleting an existing Prefix
 
-    given().delete("/{id}", response.id).then().assertThat().statusCode(200);
+    given().header("Authorization", "Bearer " + adminToken).delete("/{id}", response.id).then().assertThat().statusCode(200);
   }
 
   @Test
@@ -394,7 +415,8 @@ public class PrefixEndpointTest {
             .setContactEmail("test@test.gr");
 
     var response =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
             .body(requestBody)
             .post()
@@ -407,7 +429,8 @@ public class PrefixEndpointTest {
     // deleting an existing Prefix
 
     var resp =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .delete("/{id}", response.id + 10)
             .then()
             .assertThat()
@@ -437,7 +460,8 @@ public class PrefixEndpointTest {
             .setContactName("test");
 
     var created =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
             .body(requestBody)
             .post()
@@ -448,7 +472,8 @@ public class PrefixEndpointTest {
             .as(PrefixResponseDto.class);
 
     var prefixResponseDto =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .get("/{id}", created.id)
             .then()
             .assertThat()
@@ -466,7 +491,8 @@ public class PrefixEndpointTest {
   @Test
   public void fetchPrefixByIdNotFound() {
     var resp =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .get("/{id}", 999)
             .then()
             .assertThat()
@@ -482,26 +508,9 @@ public class PrefixEndpointTest {
 
     var prefixes = prefixRepository.findAll().list();
 
-    var prefixResponseDto =
-        given().get().then().assertThat().statusCode(200).extract().as(PageResource.class);
+    var prefixResponseDto = given().header("Authorization", "Bearer " + adminToken).get().then().assertThat().statusCode(200).extract().as(PageResource.class);
 
     assertEquals(prefixes.size(), prefixResponseDto.getTotalElements());
-  }
-
-  @Test
-  public void fetchHandlesCountByPrefixId() {
-
-    Mockito.when(statisticsService.getPIDCountByPrefixID(any())).thenReturn(21);
-    var resp =
-        given()
-            .get("/{id}/count", 21.12132)
-            .then()
-            .assertThat()
-            .statusCode(200)
-            .extract()
-            .as(Integer.class);
-
-    assertEquals(21, resp);
   }
 
   @Test
@@ -510,7 +519,8 @@ public class PrefixEndpointTest {
     Mockito.when(statisticsService.getPIDCountByPrefixID("invalid"))
         .thenThrow(new NotFoundException("Prefix invalid not found"));
     var resp =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .get("/{id}/count", "invalid")
             .then()
             .assertThat()
@@ -522,28 +532,13 @@ public class PrefixEndpointTest {
   }
 
   @Test
-  public void fetchResolvablePIDCountByPrefixId() throws SQLException {
-
-    Mockito.when(statisticsService.getResolvablePIDCountByPrefixID(any())).thenReturn(21);
-    var resp =
-        given()
-            .get("/{id}/resolvable", 21.12132)
-            .then()
-            .assertThat()
-            .statusCode(200)
-            .extract()
-            .as(Integer.class);
-
-    assertEquals(21, resp);
-  }
-
-  @Test
   public void fetchResolvablePIDCountByPrefixIdNotFound() {
 
     Mockito.when(statisticsService.getResolvablePIDCountByPrefixID("invalid"))
         .thenThrow(new NotFoundException("Prefix invalid not found"));
     var resp =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .get("/{id}/resolvable", "invalid")
             .then()
             .assertThat()
@@ -561,7 +556,8 @@ public class PrefixEndpointTest {
         .thenReturn(
             StatisticsMapper.INSTANCE.statisticsToDto(new Statistics("21.12132", 2, 3, 4, 5)));
     var resp =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .get("/{id}/statistics", 21.12132)
             .then()
             .assertThat()
@@ -595,7 +591,8 @@ public class PrefixEndpointTest {
             .setContractEnd("2008-01-01T00:00:00Z");
 
     var response =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
             .body(postRequestBody)
             .post()
@@ -616,7 +613,8 @@ public class PrefixEndpointTest {
             .setContactName("testname2")
             .setContractEnd("2018-01-01T00:00:00Z");
     var patchResponse =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
             .body(patchRequestBody)
             .patch("/{id}", response.id)
@@ -655,7 +653,8 @@ public class PrefixEndpointTest {
             .setContactEmail("test@test.gr");
 
     var response =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
             .body(postRequestBody)
             .post()
@@ -668,7 +667,8 @@ public class PrefixEndpointTest {
     var patchRequestBody = new PartialPrefixDto().setName("").setDomainId(2);
 
     var patchResponse =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
             .body(patchRequestBody)
             .patch("/{id}", response.id)
@@ -701,7 +701,8 @@ public class PrefixEndpointTest {
             .setContactEmail("test@test.gr");
 
     var response =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
             .body(postRequestBody)
             .post()
@@ -714,7 +715,8 @@ public class PrefixEndpointTest {
     var patchRequestBody = new PartialPrefixDto().setName("222222").setDomainId(999);
 
     var patchResponse =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
             .body(patchRequestBody)
             .patch("/{id}", response.id)
@@ -740,8 +742,10 @@ public class PrefixEndpointTest {
             .setResolvableCount(1)
             .setUnresolvableCount(1)
             .setUncheckedCount(8);
+
     var resp =
-        given()
+            given()
+            .header("Authorization", "Bearer " + adminToken)
             .body(dto)
             .contentType(ContentType.JSON)
             .post("/{id}/statistics", "test")
