@@ -1,14 +1,11 @@
 package gr.grnet.pccapi.service;
 
-import gr.grnet.pccapi.client.eoscportal.EOSCPortalDomain;
 import gr.grnet.pccapi.dto.DomainDto;
 import gr.grnet.pccapi.mapper.DomainMapper;
 import gr.grnet.pccapi.repository.DomainRepository;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
 import java.util.List;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import org.jboss.logging.Logger;
 
@@ -20,37 +17,6 @@ public class DomainService {
 
   Logger logger;
 
-  /**
-   * It accepts the EOSC-Portal domains, turns them into {@link gr.grnet.pccapi.entity.Domain
-   * domains} and then stores the transformed Domains into the database. If the EOSC-Portal domain
-   * exists in the database, then updates its attributes.
-   *
-   * @param eoscPortalDomains The {@link EOSCPortalDomain eoscPortalDomains} collected by
-   *     EOSC-Portal
-   */
-  @Transactional
-  public void saveEoscPortalDomains(Set<EOSCPortalDomain> eoscPortalDomains) {
-
-    for (EOSCPortalDomain eoscPortalDomain : eoscPortalDomains) {
-
-      var domain = domainRepository.findByDomainId(eoscPortalDomain.domainId);
-
-      var eoscToDomain = DomainMapper.INSTANCE.eoscPortalDomainToDomain(eoscPortalDomain);
-
-      if (domain.isPresent()) {
-
-        if (!domain.get().equals(eoscToDomain)) {
-
-          domainRepository.updateByDomainId(
-              eoscToDomain.name, eoscToDomain.description, eoscToDomain.domainId);
-        }
-      } else {
-        domainRepository.persistAndFlush(eoscToDomain);
-      }
-    }
-
-    logger.info("EOSC-Portal domains have been successfully stored into the database.");
-  }
 
   /**
    * Returns a Domain by the given ID

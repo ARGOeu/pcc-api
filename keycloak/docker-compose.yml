@@ -1,0 +1,79 @@
+services:
+  postgres:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: postgres2
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres2"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  keycloak:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: test1_keycloak
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: tempadmin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: tempadmin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/postgres2
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: postgres
+      KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+    command:
+      - start-dev
+      - --http-port=8080
+      - --import-realm
+    ports:
+      - "58080:8080"
+    volumes:
+      - ./realms:/opt/keycloak/data/import
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fsS http://localhost:9000/health/ready > /dev/null || exit 1"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  run-entitlements:
+    image: test1_keycloak
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/postgres2
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: postgres
+      API_AUTH_ENTITLEMENTS_PARENT_GROUP: pcc-api
+      API_AUTH_ENTITLEMENTS_SUPER_ADMIN_ROLE: super_admin
+    volumes:
+      - ./init.sh:/tmp/init.sh
+    entrypoint: ["sh", "/tmp/init.sh"]
+    restart: "no"
+    healthcheck:
+      test: [ "CMD", "test", "-f", "/tmp/entitlements-done" ]
+      interval: 2s
+      timeout: 2s
+      retries: 60
+      start_period: 2s
+volumes:
+  postgres_data:

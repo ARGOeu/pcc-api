@@ -1,0 +1,150 @@
+{
+  "realm" : "rciam",
+  "users" : [ {
+    "id" : "16c8388f-0b33-46c6-81f9-40c3a309272b",
+    "username" : "user1",
+    "firstName" : "First1",
+    "lastName" : "Last1",
+    "email" : "user1@example.com",
+    "emailVerified" : true,
+    "attributes" : {
+      "voperson_id" : [ "user1" ]
+    },
+    "enabled" : true,
+    "createdTimestamp" : 1781012630576,
+    "totp" : false,
+    "credentials" : [ {
+      "id" : "16082a60-0c66-474b-9201-e59abd91bb19",
+      "type" : "password",
+      "userLabel" : "My password",
+      "createdDate" : 1781077813883,
+      "secretData" : "{\"value\":\"TtJwZFr/F/wlSDrt1fe2vvUTgKvh+ZR+PqmnNoybzGE=\",\"salt\":\"jJSJ71r2/ATzpG8bCTNtdw==\",\"additionalParameters\":{}}",
+      "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+    } ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-rciam" ],
+    "clientRoles" : {
+      "account" : [ "manage-groups" ]
+    },
+    "notBefore" : 0,
+    "groups" : [ ]
+  }, {
+    "id" : "72e611cc-52d2-4312-9a90-2ae13ce685f7",
+    "username" : "user2",
+    "firstName" : "First2",
+    "lastName" : "Last2",
+    "email" : "user2@example.com",
+    "emailVerified" : true,
+    "enabled" : true,
+    "createdTimestamp" : 1781012671984,
+    "attributes" : {
+      "voperson_id" : [ "user2" ]
+    },
+    "totp" : false,
+    "credentials" : [ {
+      "id" : "cdd17a51-2782-4943-b8ae-75ed408949a4",
+      "type" : "password",
+      "userLabel" : "My password",
+      "createdDate" : 1781077974510,
+      "secretData" : "{\"value\":\"s0Z8+JSbtnI1yh5MzVulCVaZQ4WmBlVFQJ73VEX145w=\",\"salt\":\"miorlKtbY/Mzw52zeoBcMQ==\",\"additionalParameters\":{}}",
+      "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+    } ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-rciam" ],
+    "notBefore" : 0,
+    "groups" : [ ]
+  }, {
+    "id" : "629de131-07f8-420a-ad51-e2f977303d74",
+    "username" : "user3",
+    "firstName" : "First3",
+    "lastName" : "Last3",
+    "email" : "user3@example.com",
+    "emailVerified" : true,
+    "enabled" : true,
+    "attributes" : {
+      "voperson_id" : [ "user3" ]
+    },
+    "createdTimestamp" : 1781012694030,
+    "totp" : false,
+    "credentials" : [ {
+      "id" : "84bc306f-2ab1-4f5c-92f1-a7572a80daeb",
+      "type" : "password",
+      "userLabel" : "My password",
+      "createdDate" : 1781077942394,
+      "secretData" : "{\"value\":\"StPkeOZ9jipm83GJDoY2wuHACWSzoNhy3ciiEA6MBs8=\",\"salt\":\"Cx53354zTn/mIbZWE2v65w==\",\"additionalParameters\":{}}",
+      "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+    } ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-rciam" ],
+    "notBefore" : 0,
+    "groups" : [ ]
+  },
+    {
+      "id" : "2d8b37a0-ce00-4676-8478-15456feab357",
+      "username" : "service-account-status.page.manage.groups",
+      "emailVerified" : false,
+      "enabled" : true,
+      "createdTimestamp" : 1775468737812,
+      "totp" : false,
+      "serviceAccountClientId" : "status.page.manage.groups",
+      "credentials" : [ ],
+      "disableableCredentialTypes" : [ ],
+      "requiredActions" : [ "TERMS_AND_CONDITIONS" ],
+      "realmRoles" : [ "default-roles-einfra" ],
+      "clientRoles" : {
+        "realm-management" : [ "query-groups" ],
+        "account" : [ "manage-groups", "manage-groups-extended", "view-groups" ]
+      },
+      "notBefore" : 0,
+      "groups" : [ ]
+    },
+    {
+      "id" : "0f32ed28-6cba-4502-9bcf-65c2d2f21fe1",
+      "username" : "service-account-backend-service",
+      "emailVerified" : false,
+      "enabled" : true,
+      "createdTimestamp" : 1775592310730,
+      "totp" : false,
+      "serviceAccountClientId" : "backend-service",
+      "credentials" : [ ],
+      "disableableCredentialTypes" : [ ],
+      "requiredActions" : [ ],
+      "realmRoles" : [ "default-roles-quarkus" ],
+      "clientRoles" : {
+        "backend-service" : [ "uma_protection" ]
+      },
+      "notBefore" : 0,
+      "groups" : [ ]
+    },
+    {
+      "id" : "af134cab-f41c-4675-b141-205f975db679",
+      "username" : "admin",
+      "firstName" : "admin",
+      "lastName" : "admin",
+      "email" : "admin@example.gr",
+      "emailVerified" : false,
+      "attributes" : {
+        "localEntitlements" : [ "urn:rciam.example.org:group:pcc-api:role=super_admin" ],
+        "voperson_id" : [ "admin" ]
+      },
+      "enabled" : true,
+      "createdTimestamp" : 1775168075477,
+      "totp" : false,
+      "credentials" : [ {
+        "id" : "a171010a-b03b-42eb-8175-7a87bcaa295a",
+        "type" : "password",
+        "createdDate" : 1554245879354,
+        "secretData" : "{\"value\":\"VAfa58o0mTIU4395gqRS02mSgPVwniAHMlx5e2vSU4A=\",\"salt\":\"c6rtTmh7aQorMYZqxPURGw==\",\"additionalParameters\":{}}",
+        "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+      } ],
+      "disableableCredentialTypes" : [ ],
+      "requiredActions" : [ ],
+      "realmRoles" : [ "default-roles-rciam" ],
+      "notBefore" : 0,
+      "groups" : [ ]
+    }
+  ]
+}

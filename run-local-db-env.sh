@@ -29,11 +29,11 @@ echo "Waiting 5 seconds for DB to initialise . . ."
 sleep 5
 export PCC_API_PROFILE=dev
 export HRLS_DATABASE_IP=localhost
-export HRLS_DATABASE_PORT=3307
+export HRLS_DATABASE_PORT=3307F
 export HRLS_DATABASE_NAME=hrlsdb
 export HRLS_DATABASE_USERNAME=hrls
 export HRLS_DATABASE_PASSWORD=hrls
 echo "Starting quarkus pcc-api . .. "
-mvn clean install
-mvn quarkus:dev -Dquarkus.profile=local-db -DskipTests=true
+mvn clean install -DskipTests=true
+mvn quarkus:dev -DskipTests=true
 
