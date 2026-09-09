@@ -1,12 +1,12 @@
 package gr.grnet.pccapi.endpoint;
 
 import gr.grnet.pccapi.dto.APIResponseMsg;
-import gr.grnet.pccapi.dto.PageResource;
-import gr.grnet.pccapi.dto.PartialPrefixDto;
-import gr.grnet.pccapi.dto.PrefixDto;
-import gr.grnet.pccapi.dto.PrefixResponseDto;
-import gr.grnet.pccapi.dto.StatisticsDto;
-import gr.grnet.pccapi.dto.StatisticsRequestDto;
+import gr.grnet.pccapi.dto.pagination.PageResource;
+import gr.grnet.pccapi.dto.prefix.PartialPrefixDto;
+import gr.grnet.pccapi.dto.prefix.PrefixRequestDto;
+import gr.grnet.pccapi.dto.prefix.PrefixResponseDto;
+import gr.grnet.pccapi.dto.statistic.StatisticsDto;
+import gr.grnet.pccapi.dto.statistic.StatisticsRequestDto;
 import gr.grnet.pccapi.service.PrefixService;
 import gr.grnet.pccapi.service.StatisticsService;
 import io.quarkus.security.Authenticated;
@@ -14,17 +14,7 @@ import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.DefaultValue;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.PATCH;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -50,11 +40,15 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
         scheme = "bearer",
         bearerFormat = "JWT",
         in = SecuritySchemeIn.HEADER)
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public class PrefixEndpoint {
 
-  @Inject PrefixService prefixService;
+  @Inject
+  PrefixService prefixService;
 
-  @Inject StatisticsService statisticsService;
+  @Inject
+  StatisticsService statisticsService;
 
   @POST
   @Operation(summary = "Create prefix")
@@ -86,9 +80,11 @@ public class PrefixEndpoint {
       responseCode = "500",
       description = "Internal Server Error",
       content = @Content(schema = @Schema(implementation = APIResponseMsg.class)))
-  public Response create(@Valid PrefixDto prefixDto) throws ParseException {
+  public Response create(@Valid PrefixRequestDto prefixRequestDto) {
 
-    return Response.status(Response.Status.CREATED).entity(prefixService.create(prefixDto)).build();
+    var response = prefixService.create(prefixRequestDto);
+
+    return Response.status(Response.Status.CREATED).entity(response).build();
   }
 
   @PUT
@@ -97,7 +93,7 @@ public class PrefixEndpoint {
   @APIResponse(
       responseCode = "200",
       description = "Prefix updated",
-      content = @Content(schema = @Schema(implementation = PrefixDto.class)))
+      content = @Content(schema = @Schema(implementation = PrefixRequestDto.class)))
   @APIResponse(
           responseCode = "401",
           description = "User has not been authenticated.",
@@ -118,9 +114,9 @@ public class PrefixEndpoint {
       responseCode = "500",
       description = "Internal Server Error",
       content = @Content(schema = @Schema(implementation = APIResponseMsg.class)))
-  public Response update(@PathParam("id") int id, @Valid PrefixDto prefixDto) {
+  public Response update(@PathParam("id") int id, @Valid PrefixRequestDto prefixRequestDto) {
 
-    return Response.ok(prefixService.update(prefixDto, id)).build();
+    return Response.ok(prefixService.update(prefixRequestDto, id)).build();
   }
 
   @GET
@@ -298,8 +294,8 @@ public class PrefixEndpoint {
   }
 
   @GET
-  @Path("/{id}/statistics")
-  @Operation(summary = "Get prefix statistics")
+  @Path("/{id}/statistic")
+  @Operation(summary = "Get prefix statistic")
   @APIResponse(
       responseCode = "200",
       description = "Statistics retrieved",
@@ -324,8 +320,8 @@ public class PrefixEndpoint {
   }
 
   @POST
-  @Path("/{id}/statistics")
-  @Operation(summary = "Set prefix statistics")
+  @Path("/{id}/statistic")
+  @Operation(summary = "Set prefix statistic")
   @APIResponse(
       responseCode = "200",
       description = "Statistics saved",

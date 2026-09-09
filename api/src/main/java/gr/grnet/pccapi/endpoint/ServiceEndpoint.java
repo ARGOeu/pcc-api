@@ -5,10 +5,7 @@ import gr.grnet.pccapi.dto.ServiceDto;
 import gr.grnet.pccapi.service.ServiceService;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -30,9 +27,12 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
         scheme = "bearer",
         bearerFormat = "JWT",
         in = SecuritySchemeIn.HEADER)
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public class ServiceEndpoint {
 
-  @Inject ServiceService service;
+  @Inject
+  ServiceService service;
 
   @GET
   @Operation(summary = "Get all services")

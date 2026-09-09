@@ -1,6 +1,6 @@
 package gr.grnet.pccapi.mapper;
 
-import gr.grnet.pccapi.dto.DomainDto;
+import gr.grnet.pccapi.dto.domain.DomainDto;
 import gr.grnet.pccapi.entity.Domain;
 import java.util.List;
 import org.mapstruct.Mapper;

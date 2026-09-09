@@ -1,6 +1,6 @@
 package gr.grnet.pccapi.service;
 
-import gr.grnet.pccapi.dto.DomainDto;
+import gr.grnet.pccapi.dto.domain.DomainDto;
 import gr.grnet.pccapi.mapper.DomainMapper;
 import gr.grnet.pccapi.repository.DomainRepository;
 import jakarta.enterprise.context.ApplicationScoped;

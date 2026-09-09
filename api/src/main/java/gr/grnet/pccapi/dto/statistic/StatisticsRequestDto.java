@@ -1,15 +1,16 @@
-package gr.grnet.pccapi.dto;
+package gr.grnet.pccapi.dto.statistic;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
-public class StatisticsDto {
-
-  @Schema(type = SchemaType.STRING, implementation = String.class, description = "The prefix name")
-  @JsonProperty("prefix")
-  public String prefix;
-
+@Getter
+@Setter
+@Accessors(chain = true)
+public class StatisticsRequestDto {
   @Schema(
       type = SchemaType.INTEGER,
       implementation = Integer.class,

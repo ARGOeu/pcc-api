@@ -2,6 +2,8 @@ version: '3.8'
 services:
   hrls-db:
     image: mysql:8.0
+    labels:
+      io.quarkus.devservices.compose.ignore: true
     environment:
       - MYSQL_DATABASE=hrlsdb
       - MYSQL_USER=hrls
@@ -11,7 +13,7 @@ services:
       - "3307:3306"
     volumes:
       - hrls-mysql-data:/var/lib/mysql
-      - ./api/src/main/resources/db/hrls:/docker-entrypoint-initdb.d
+      - ../api/src/main/resources/db/hrls:/docker-entrypoint-initdb.d
 
 volumes:
   hrls-mysql-data:

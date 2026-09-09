@@ -5,12 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 
 import gr.grnet.pccapi.dto.APIResponseMsg;
-import gr.grnet.pccapi.dto.PageResource;
-import gr.grnet.pccapi.dto.PartialPrefixDto;
-import gr.grnet.pccapi.dto.PrefixDto;
-import gr.grnet.pccapi.dto.PrefixResponseDto;
-import gr.grnet.pccapi.dto.StatisticsDto;
-import gr.grnet.pccapi.dto.StatisticsRequestDto;
+import gr.grnet.pccapi.dto.pagination.PageResource;
+import gr.grnet.pccapi.dto.prefix.PartialPrefixDto;
+import gr.grnet.pccapi.dto.prefix.PrefixRequestDto;
+import gr.grnet.pccapi.dto.prefix.PrefixResponseDto;
+import gr.grnet.pccapi.dto.statistic.StatisticsDto;
+import gr.grnet.pccapi.dto.statistic.StatisticsRequestDto;
 import gr.grnet.pccapi.endpoint.PrefixEndpoint;
 import gr.grnet.pccapi.entity.Statistics;
 import gr.grnet.pccapi.mapper.StatisticsMapper;
@@ -25,7 +25,6 @@ import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
-import java.sql.SQLException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -55,7 +54,7 @@ public class PrefixEndpointTest {
   public void createPrefix() {
 
     var requestBody =
-        new PrefixDto()
+        new PrefixRequestDto()
             .setName("11523")
             .setOwner("someone")
             .setStatus(2)
@@ -66,7 +65,7 @@ public class PrefixEndpointTest {
             .setProviderId(1)
             .setContactEmail("test@test.com")
             .setContactName("testname")
-            .setContractEnd("2008-01-01T00:00:00Z")
+            .setContractEnd("2008-01-01")
             .setContractTypeId(6);
 
     var response =
@@ -103,7 +102,7 @@ public class PrefixEndpointTest {
   public void createPrefixWithNameAlreadyExists() {
 
     var requestBody =
-        new PrefixDto()
+        new PrefixRequestDto()
             .setName("11527")
             .setOwner("someone")
             .setStatus(2)
@@ -113,7 +112,7 @@ public class PrefixEndpointTest {
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1)
-            .setContractEnd("2008-01-01T00:00:00Z")
+            .setContractEnd("2008-01-01")
             .setContactName("test")
             .setContactEmail("test@test.gr");
 
@@ -143,7 +142,7 @@ public class PrefixEndpointTest {
   public void createPrefixWithInvalidService() {
 
     var requestBody =
-        new PrefixDto()
+        new PrefixRequestDto()
             .setName("11524")
             .setOwner("someone")
             .setStatus(2)
@@ -153,7 +152,7 @@ public class PrefixEndpointTest {
             .setProviderId(1)
             .setLookUpServiceTypeId(2)
             .setContractTypeId(5)
-            .setContractEnd("2008-01-01T00:00:00Z")
+            .setContractEnd("2008-01-01")
             .setContactName("test")
             .setContactEmail("test@test.gr");
 
@@ -176,7 +175,7 @@ public class PrefixEndpointTest {
   public void createPrefixWithInvalidDomain() {
 
     var requestBody =
-        new PrefixDto()
+        new PrefixRequestDto()
             .setName("11524")
             .setOwner("someone")
             .setStatus(2)
@@ -186,7 +185,7 @@ public class PrefixEndpointTest {
             .setProviderId(1)
             .setLookUpServiceTypeId(2)
             .setContractTypeId(5)
-            .setContractEnd("2008-01-01T00:00:00Z")
+            .setContractEnd("2008-01-01")
             .setContactName("test")
             .setContactEmail("test@test.gr");
 
@@ -209,7 +208,7 @@ public class PrefixEndpointTest {
   public void createPrefixWithInvalidProvider() {
 
     var requestBody =
-        new PrefixDto()
+        new PrefixRequestDto()
             .setName("11524")
             .setOwner("someone")
             .setStatus(2)
@@ -219,7 +218,7 @@ public class PrefixEndpointTest {
             .setProviderId(999)
             .setLookUpServiceTypeId(1)
             .setContractTypeId(5)
-            .setContractEnd("2008-01-01T00:00:00Z")
+            .setContractEnd("2008-01-01")
             .setContactName("test")
             .setContactEmail("test@test.gr");
 
@@ -241,7 +240,7 @@ public class PrefixEndpointTest {
   @Test
   public void testUpdate() {
     var requestBody =
-        new PrefixDto()
+        new PrefixRequestDto()
             .setName("666666")
             .setOwner("someone")
             .setStatus(2)
@@ -251,7 +250,7 @@ public class PrefixEndpointTest {
             .setServiceId(1)
             .setProviderId(1)
             .setResolvable(Boolean.TRUE)
-            .setContractEnd("2008-01-01T00:00:00Z")
+            .setContractEnd("2008-01-01")
             .setContractTypeId(5)
             .setContactEmail("test@test.gr")
             .setContactName("test");
@@ -270,7 +269,7 @@ public class PrefixEndpointTest {
             .as(PrefixResponseDto.class);
 
     var updateRequestDto =
-        new PrefixDto()
+        new PrefixRequestDto()
             .setName("77777")
             .setOwner("someone1")
             .setStatus(3)
@@ -282,7 +281,7 @@ public class PrefixEndpointTest {
             .setResolvable(Boolean.FALSE)
             .setContactEmail("test2@test.com")
             .setContactName("testname2")
-            .setContractEnd("2018-01-01T00:00:00Z")
+            .setContractEnd("2018-01-01")
             .setContractTypeId(7);
 
     var response =
@@ -319,7 +318,7 @@ public class PrefixEndpointTest {
 
     // creating a new Prefix
     var requestBody =
-        new PrefixDto()
+        new PrefixRequestDto()
             .setName("11545")
             .setOwner("someone")
             .setStatus(2)
@@ -329,7 +328,7 @@ public class PrefixEndpointTest {
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1)
-            .setContractEnd("2008-01-01T00:00:00Z")
+            .setContractEnd("2008-01-01")
             .setContactEmail("test@test.gr")
             .setContactName("test");
 
@@ -364,7 +363,7 @@ public class PrefixEndpointTest {
 
     // creating a new Prefix
     var requestBody =
-        new PrefixDto()
+        new PrefixRequestDto()
             .setName("11545")
             .setOwner("someone")
             .setStatus(2)
@@ -374,7 +373,7 @@ public class PrefixEndpointTest {
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1)
-            .setContractEnd("2008-01-01T00:00:00Z")
+            .setContractEnd("2008-01-01")
             .setContactName("test")
             .setContactEmail("test@test.gr");
 
@@ -400,7 +399,7 @@ public class PrefixEndpointTest {
 
     // creating a new Prefix
     var requestBody =
-        new PrefixDto()
+        new PrefixRequestDto()
             .setName("11545")
             .setOwner("someone")
             .setStatus(2)
@@ -410,7 +409,7 @@ public class PrefixEndpointTest {
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1)
-            .setContractEnd("2008-01-01T00:00:00Z")
+            .setContractEnd("2008-01-01")
             .setContactName("test")
             .setContactEmail("test@test.gr");
 
@@ -445,7 +444,7 @@ public class PrefixEndpointTest {
   public void fetchPrefixById() {
 
     var requestBody =
-        new PrefixDto()
+        new PrefixRequestDto()
             .setName("12345")
             .setOwner("someone")
             .setStatus(2)
@@ -455,7 +454,7 @@ public class PrefixEndpointTest {
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1)
-            .setContractEnd("2008-01-01T00:00:00Z")
+            .setContractEnd("2008-01-01")
             .setContactEmail("test@test.gr")
             .setContactName("test");
 
@@ -558,7 +557,7 @@ public class PrefixEndpointTest {
     var resp =
             given()
             .header("Authorization", "Bearer " + adminToken)
-            .get("/{id}/statistics", 21.12132)
+            .get("/{id}/statistic", 21.12132)
             .then()
             .assertThat()
             .statusCode(200)
@@ -575,7 +574,7 @@ public class PrefixEndpointTest {
   public void testPartiallyUpdatePrefix() {
 
     var postRequestBody =
-        new PrefixDto()
+        new PrefixRequestDto()
             .setName("212121")
             .setOwner("someone")
             .setStatus(2)
@@ -588,7 +587,7 @@ public class PrefixEndpointTest {
             .setResolvable(Boolean.TRUE)
             .setContactName("testname")
             .setContactEmail("test@test.com")
-            .setContractEnd("2008-01-01T00:00:00Z");
+            .setContractEnd("2008-01-01");
 
     var response =
             given()
@@ -611,7 +610,7 @@ public class PrefixEndpointTest {
             .setResolvable(Boolean.FALSE)
             .setContactEmail("test2@test.com")
             .setContactName("testname2")
-            .setContractEnd("2018-01-01T00:00:00Z");
+            .setContractEnd("2018-01-01");
     var patchResponse =
             given()
             .header("Authorization", "Bearer " + adminToken)
@@ -630,7 +629,7 @@ public class PrefixEndpointTest {
     assertEquals(patchRequestBody.resolvable, patchResponse.resolvable);
     assertEquals(patchRequestBody.contactEmail, patchResponse.contactEmail);
     assertEquals(patchRequestBody.contactName, patchResponse.contactName);
-    assertEquals(patchRequestBody.contractEnd, patchResponse.contractEnd);
+    assertEquals("2018-01-01T00:00:00Z", patchResponse.contractEnd);
     assertEquals(5, patchResponse.getContractTypeId());
   }
 
@@ -638,7 +637,7 @@ public class PrefixEndpointTest {
   public void testPartiallyUpdatePrefixEmptyField() {
 
     var postRequestBody =
-        new PrefixDto()
+        new PrefixRequestDto()
             .setName("212121")
             .setOwner("someone")
             .setStatus(2)
@@ -648,7 +647,7 @@ public class PrefixEndpointTest {
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1)
-            .setContractEnd("2018-01-01T00:00:00Z")
+            .setContractEnd("2018-01-01")
             .setContactName("test")
             .setContactEmail("test@test.gr");
 
@@ -686,7 +685,7 @@ public class PrefixEndpointTest {
   public void testPartiallyUpdatePrefixIncorrectDomain() {
 
     var postRequestBody =
-        new PrefixDto()
+        new PrefixRequestDto()
             .setName("232323")
             .setOwner("someone")
             .setStatus(2)
@@ -696,7 +695,7 @@ public class PrefixEndpointTest {
             .setDomainId(1)
             .setServiceId(1)
             .setProviderId(1)
-            .setContractEnd("2018-01-01T00:00:00Z")
+            .setContractEnd("2018-01-01")
             .setContactName("test")
             .setContactEmail("test@test.gr");
 
@@ -748,7 +747,7 @@ public class PrefixEndpointTest {
             .header("Authorization", "Bearer " + adminToken)
             .body(dto)
             .contentType(ContentType.JSON)
-            .post("/{id}/statistics", "test")
+            .post("/{id}/statistic", "test")
             .then()
             .assertThat()
             .statusCode(200)

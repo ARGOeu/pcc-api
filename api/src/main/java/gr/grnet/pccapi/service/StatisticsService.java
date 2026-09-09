@@ -1,7 +1,7 @@
 package gr.grnet.pccapi.service;
 
-import gr.grnet.pccapi.dto.StatisticsDto;
-import gr.grnet.pccapi.dto.StatisticsRequestDto;
+import gr.grnet.pccapi.dto.statistic.StatisticsDto;
+import gr.grnet.pccapi.dto.statistic.StatisticsRequestDto;
 import gr.grnet.pccapi.entity.Statistics;
 import gr.grnet.pccapi.mapper.StatisticsMapper;
 import gr.grnet.pccapi.repository.PrefixRepository;
@@ -84,7 +84,7 @@ public class StatisticsService {
 
       return StatisticsMapper.INSTANCE.statisticsToDto(
           statistics.orElseThrow(
-              () -> new SQLException("Can not handle prefix statistics in hrls database.")));
+              () -> new SQLException("Can not handle prefix statistic in hrls database.")));
 
     } catch (IllegalArgumentException e) {
       throw new NotFoundException(e.getMessage());

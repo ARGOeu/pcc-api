@@ -1,6 +1,6 @@
 package gr.grnet.pccapi.service;
 
-import gr.grnet.pccapi.dto.ProviderResponseDTO;
+import gr.grnet.pccapi.dto.provider.ProviderResponseDTO;
 import gr.grnet.pccapi.mapper.ProviderMapper;
 import gr.grnet.pccapi.repository.ProviderRepository;
 import jakarta.enterprise.context.ApplicationScoped;

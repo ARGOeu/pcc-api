@@ -1,14 +1,11 @@
 package gr.grnet.pccapi.endpoint;
 
 import gr.grnet.pccapi.dto.APIResponseMsg;
-import gr.grnet.pccapi.dto.ProviderResponseDTO;
+import gr.grnet.pccapi.dto.provider.ProviderResponseDTO;
 import gr.grnet.pccapi.service.ProviderService;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -30,9 +27,12 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
         scheme = "bearer",
         bearerFormat = "JWT",
         in = SecuritySchemeIn.HEADER)
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public class ProviderEndpoint {
 
-  @Inject ProviderService providerService;
+  @Inject
+  ProviderService providerService;
 
   @GET
   @Operation(summary = "Get all providers")

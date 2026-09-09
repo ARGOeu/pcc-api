@@ -3,7 +3,7 @@ package gr.grnet.pccapi.service;
 import gr.grnet.pccapi.client.hrls.HRLSClient;
 import gr.grnet.pccapi.client.hrls.HRLSHandle;
 import gr.grnet.pccapi.dto.FiltersDto;
-import gr.grnet.pccapi.dto.HandleDto;
+import gr.grnet.pccapi.dto.handle.HandleResponseDto;
 import gr.grnet.pccapi.enums.Filter;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -26,18 +26,18 @@ public class ReverseLookUpService {
   /**
    * search uses the {@link HRLSClient} to perform a lookup based on the provided filters. It will
    * always provide a value for the query parameter retrieverecords with a default value being
-   * false. Yt will always transform the response to a {@link HandleDto} list hiding the different
+   * false. Yt will always transform the response to a {@link HandleResponseDto} list hiding the different
    * approach of the HRLS service derived from retrieverecords query parameter.
    *
    * @param filtersDto The filters that will be provided to the HRLS service
    * @param page the page number, defaults to 0
    * @param limit the limit size, defaults to 10
-   * @return list of {@link HandleDto}
+   * @return list of {@link HandleResponseDto}
    */
-  public List<HandleDto> search(FiltersDto filtersDto, Long page, Long limit) {
+  public List<HandleResponseDto> search(FiltersDto filtersDto, Long page, Long limit) {
 
     boolean fullrecords = false;
-    List<HandleDto> responseDto = new ArrayList<>();
+    List<HandleResponseDto> responseDto = new ArrayList<>();
     var params =
         new HashMap<String, String>(
             Map.of(
@@ -70,7 +70,7 @@ public class ReverseLookUpService {
       if (fullrecords) {
         var result = hrlsClient.getHandles(params);
         for (Map.Entry<String, List<HRLSHandle>> handle : result.entrySet()) {
-          var handleDto = new HandleDto();
+          var handleDto = new HandleResponseDto();
           handleDto.setHandle(handle.getKey());
           handle.getValue().stream()
               .filter(v -> !v.getType().equals("HS_ADMIN"))
@@ -80,7 +80,7 @@ public class ReverseLookUpService {
       } else {
         hrlsClient
             .getHandlesFlat(params)
-            .forEach(v -> responseDto.add(new HandleDto().setHandle(v)));
+            .forEach(v -> responseDto.add(new HandleResponseDto().setHandle(v)));
       }
     } catch (Exception ex) {
       logger.error("Failed to communicate with HRLS.", ex);
