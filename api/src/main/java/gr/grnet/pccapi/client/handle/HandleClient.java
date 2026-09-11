@@ -38,5 +38,13 @@ public interface HandleClient {
             @HeaderParam("Authorization") String authorization,
             @QueryParam("prefix") String prefix,
             @QueryParam("page") int page,
-            @QueryParam("pageSize") int pageSize);;
+            @QueryParam("pageSize") int pageSize);
+
+    @GET
+    @Path("/api/handles/{prefix}/{suffix}")
+    HandleClientResponse getHandle(
+            @HeaderParam("Authorization") String authorization,
+            @PathParam("prefix") String prefix,
+            @PathParam("suffix") String suffix);
+
 }

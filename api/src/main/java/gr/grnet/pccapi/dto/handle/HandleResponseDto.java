@@ -10,7 +10,7 @@ import lombok.experimental.Accessors;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
-@Schema(description = "Represents a single handle with its corresponding values and types.")
+@Schema(description = "Represents a single Handle with its corresponding values.")
 @Setter
 @Getter
 @Accessors(chain = true)
@@ -20,19 +20,20 @@ public class HandleResponseDto {
   @Schema(
           type = SchemaType.STRING,
           implementation = String.class,
-          description = "The name of the handle.",
-          example = "21.T15999/NI4OS-EUROPE")
+          description = "The name of the Handle.",
+          example = "21.T15999/NI4OS-EURO")
   @JsonProperty("handle")
-  public String handle;
+  private String handle;
 
   @Schema(
           type = SchemaType.ARRAY,
-          implementation = HandleTypeValue.class,
-          description = "A list of type and value pairs.")
+          implementation = gr.grnet.pccapi.dto.handle.HandleValueResponseDto.class,
+          description = "A list of values registered under the Handle.")
   @JsonProperty("values")
-  public List<HandleTypeValue> values = new ArrayList<>();
+  private List<HandleValueResponseDto> values = new ArrayList<>();
 
   public void addType(String type, String value) {
-    this.values.add(new HandleTypeValue(type, value));
+    values.add(new HandleValueResponseDto(null, type, new HandleDataResponseDto("string", value), null, null));
   }
+
 }
