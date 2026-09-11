@@ -5,7 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import gr.grnet.pccapi.dto.APIResponseMsg;
 import gr.grnet.pccapi.dto.FiltersDto;
-import gr.grnet.pccapi.dto.HandleDto;
+import gr.grnet.pccapi.dto.InformativeResponse;
+import gr.grnet.pccapi.dto.handle.HandleResponseDto;
 import gr.grnet.pccapi.endpoint.ReverseLookUpEndpoint;
 import gr.grnet.pccapi.wiremock.HRLSWiremockServer;
 import io.quarkus.test.common.QuarkusTestResource;
@@ -52,15 +53,15 @@ public class ReverseLookupEndpointTest {
             .assertThat()
             .statusCode(200)
             .extract()
-            .as(HandleDto[].class);
+            .as(HandleResponseDto[].class);
 
-    var h1 = new HandleDto().setHandle("11098/EUDAT-JMD_001B3286-527B-5225-B68D-FBF2C775D49D");
+    var h1 = new HandleResponseDto().setHandle("11098/EUDAT-JMD_001B3286-527B-5225-B68D-FBF2C775D49D");
     h1.addType("URL", "http://b2find.eudat.eu/dataset/001b3286-527b-5225-b68d-fbf2c775d49d");
     h1.addType("CHECKSUM", "f7b24993990ba4fc2104b09b63e7f975");
     h1.addType(
         "EUDAT/ROR", "http://eudatmd1.dkrz.de:8080/dataset/001b3286-527b-5225-b68d-fbf2c775d49d");
 
-    var h2 = new HandleDto().setHandle("11098/EUDAT-JMD_00504D2A-EF64-51EB-AC5D-8A91485E35B4");
+    var h2 = new HandleResponseDto().setHandle("11098/EUDAT-JMD_00504D2A-EF64-51EB-AC5D-8A91485E35B4");
     h2.addType("URL", "http://b2find.eudat.eu/dataset/00504d2a-ef64-51eb-ac5d-8a91485e35b4");
     h2.addType("CHECKSUM", "ba23d43ae049c86db3e8cc284683e08c");
     h2.addType("EUDAT/METADATATYPE", "http://www.openarchives.org/OAI/2.0/oai_dc.xsd");
@@ -90,9 +91,9 @@ public class ReverseLookupEndpointTest {
             .assertThat()
             .statusCode(200)
             .extract()
-            .as(HandleDto[].class);
+            .as(HandleResponseDto[].class);
 
-    var h1 = new HandleDto().setHandle("11098/EUDAT-JMD_001B3286-527B-5225-B68D-FBF2C775D49D");
+    var h1 = new HandleResponseDto().setHandle("11098/EUDAT-JMD_001B3286-527B-5225-B68D-FBF2C775D49D");
     h1.addType("URL", "http://b2find.eudat.eu/dataset/001b3286-527b-5225-b68d-fbf2c775d49d");
     h1.addType("CHECKSUM", "f7b24993990ba4fc2104b09b63e7f975");
     h1.addType(
@@ -122,9 +123,9 @@ public class ReverseLookupEndpointTest {
             .assertThat()
             .statusCode(200)
             .extract()
-            .as(HandleDto[].class);
+            .as(HandleResponseDto[].class);
 
-    var h1 = new HandleDto().setHandle("11098/EUDAT-JMD_001B3286-527B-5225-B68D-FBF2C775D49D");
+    var h1 = new HandleResponseDto().setHandle("11098/EUDAT-JMD_001B3286-527B-5225-B68D-FBF2C775D49D");
     h1.addType("URL", "http://b2find.eudat.eu/dataset/001b3286-527b-5225-b68d-fbf2c775d49d");
     h1.addType("EUDAT/CHECKSUM", "sha2:3UGI6sWL/dGhINcuH2AaxravBuiMq30ZAcc1rs1yNZI=");
     h1.addType(
@@ -155,9 +156,9 @@ public class ReverseLookupEndpointTest {
             .assertThat()
             .statusCode(200)
             .extract()
-            .as(HandleDto[].class);
+            .as(HandleResponseDto[].class);
 
-    var h1 = new HandleDto().setHandle("11098/EUDAT-JMD_001B3286-527B-5225-B68D-FBF2C775D49D");
+    var h1 = new HandleResponseDto().setHandle("11098/EUDAT-JMD_001B3286-527B-5225-B68D-FBF2C775D49D");
     h1.addType("URL", "http://b2find.eudat.eu/dataset/001b3286-527b-5225-b68d-fbf2c775d49d");
     h1.addType(
         "10320/LOC",
@@ -188,10 +189,10 @@ public class ReverseLookupEndpointTest {
             .assertThat()
             .statusCode(200)
             .extract()
-            .as(HandleDto[].class);
+            .as(HandleResponseDto[].class);
 
-    var h1 = new HandleDto().setHandle("11098/EUDAT-JMD_001B3286-527B-5225-B68D-FBF2C775D49D");
-    var h2 = new HandleDto().setHandle("11098/EUDAT-JMD_00504D2A-EF64-51EB-AC5D-8A91485E35B4");
+    var h1 = new HandleResponseDto().setHandle("11098/EUDAT-JMD_001B3286-527B-5225-B68D-FBF2C775D49D");
+    var h2 = new HandleResponseDto().setHandle("11098/EUDAT-JMD_00504D2A-EF64-51EB-AC5D-8A91485E35B4");
 
     assertEquals(h1, response[0]);
     assertEquals(h2, response[1]);
@@ -242,10 +243,10 @@ public class ReverseLookupEndpointTest {
             .assertThat()
             .statusCode(500)
             .extract()
-            .as(APIResponseMsg.class);
+            .as(InformativeResponse.class);
 
-    assertEquals("INTERNAL_SERVER_ERROR", response.getMessage());
-  }
+    assertEquals(500, response.code);
+    assertEquals("An internal server error occurred.", response.message);  }
 
   @Test
   public void testFiltersSuccess() {

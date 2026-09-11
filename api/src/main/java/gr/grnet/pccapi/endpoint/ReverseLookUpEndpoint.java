@@ -2,20 +2,14 @@ package gr.grnet.pccapi.endpoint;
 
 import gr.grnet.pccapi.dto.APIResponseMsg;
 import gr.grnet.pccapi.dto.FiltersDto;
-import gr.grnet.pccapi.dto.HandleDto;
+import gr.grnet.pccapi.dto.handle.HandleResponseDto;
 import gr.grnet.pccapi.enums.Filter;
 import gr.grnet.pccapi.enums.LookUpServiceType;
 import gr.grnet.pccapi.service.ReverseLookUpService;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.DefaultValue;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.EnumSet;
@@ -38,9 +32,12 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
         scheme = "bearer",
         bearerFormat = "JWT",
         in = SecuritySchemeIn.HEADER)
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public class ReverseLookUpEndpoint {
 
-  @Inject ReverseLookUpService reverseLookUpService;
+  @Inject
+  ReverseLookUpService reverseLookUpService;
 
   @POST
   @Operation(summary = "Search handles")
@@ -48,7 +45,7 @@ public class ReverseLookUpEndpoint {
       responseCode = "200",
       description = "Handles retrieved.",
       content =
-          @Content(schema = @Schema(type = SchemaType.ARRAY, implementation = HandleDto.class)))
+          @Content(schema = @Schema(type = SchemaType.ARRAY, implementation = HandleResponseDto.class)))
   @APIResponse(
       responseCode = "400",
       description = "Unsupported filters.",

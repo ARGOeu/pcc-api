@@ -4,7 +4,7 @@ import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import gr.grnet.pccapi.dto.APIResponseMsg;
-import gr.grnet.pccapi.dto.ProviderResponseDTO;
+import gr.grnet.pccapi.dto.provider.ProviderResponseDTO;
 import gr.grnet.pccapi.endpoint.ProviderEndpoint;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.common.http.TestHTTPEndpoint;

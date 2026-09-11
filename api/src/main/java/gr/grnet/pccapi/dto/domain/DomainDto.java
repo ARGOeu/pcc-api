@@ -1,4 +1,4 @@
-package gr.grnet.pccapi.dto;
+package gr.grnet.pccapi.dto.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;

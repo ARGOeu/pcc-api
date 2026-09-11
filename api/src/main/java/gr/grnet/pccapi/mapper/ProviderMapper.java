@@ -1,6 +1,6 @@
 package gr.grnet.pccapi.mapper;
 
-import gr.grnet.pccapi.dto.ProviderResponseDTO;
+import gr.grnet.pccapi.dto.provider.ProviderResponseDTO;
 import gr.grnet.pccapi.entity.Provider;
 import java.util.List;
 import org.mapstruct.Mapper;

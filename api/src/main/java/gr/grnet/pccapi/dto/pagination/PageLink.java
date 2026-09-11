@@ -1,4 +1,4 @@
-package gr.grnet.pccapi.dto;
+package gr.grnet.pccapi.dto.pagination;
 
 import lombok.Builder;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;

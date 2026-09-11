@@ -1,6 +1,6 @@
 package gr.grnet.pccapi.mapper;
 
-import gr.grnet.pccapi.dto.StatisticsDto;
+import gr.grnet.pccapi.dto.statistic.StatisticsDto;
 import gr.grnet.pccapi.entity.Statistics;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;

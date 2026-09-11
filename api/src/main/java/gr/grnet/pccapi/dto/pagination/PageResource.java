@@ -1,4 +1,4 @@
-package gr.grnet.pccapi.dto;
+package gr.grnet.pccapi.dto.pagination;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import gr.grnet.pccapi.entity.PageQuery;
