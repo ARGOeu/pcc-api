@@ -24,4 +24,10 @@ public interface HandleClient {
             @PathParam("prefix") String prefix,
             @PathParam("suffix") String suffix,
             HandleClientRequest request);
+
+    @GET
+    @Path("/api/handles")
+    HandleClientListResponse getAll(
+            @HeaderParam("Authorization") String authorization,
+            @QueryParam("prefix") String prefix);
 }
