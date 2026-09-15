@@ -27,7 +27,7 @@ public class HandleResponseDto {
 
   @Schema(
           type = SchemaType.ARRAY,
-          implementation = gr.grnet.pccapi.dto.handle.HandleValueResponseDto.class,
+          implementation = HandleValueResponseDto.class,
           description = "A list of values registered under the Handle.")
   @JsonProperty("values")
   private List<HandleValueResponseDto> values = new ArrayList<>();

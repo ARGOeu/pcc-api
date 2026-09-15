@@ -47,4 +47,13 @@ public interface HandleClient {
             @PathParam("prefix") String prefix,
             @PathParam("suffix") String suffix);
 
+
+    @PUT
+    @Path("/api/handles/{prefix}/{suffix}")
+    HandleClientResponse updateHandle(
+            @HeaderParam("Authorization") String authorization,
+            @PathParam("prefix") String prefix,
+            @PathParam("suffix") String suffix,
+            HandleClientRequest request);
+
 }
