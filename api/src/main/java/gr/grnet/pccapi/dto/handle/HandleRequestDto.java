@@ -15,8 +15,6 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
         example = """
         {
           "suffix": "doe-test-1",
-          "serviceUrl": "https://hdl.grnet.gr:8001",
-          "token": "TOKEN",
           "values": [
             {
               "type": "URL",
@@ -41,17 +39,6 @@ public class HandleRequestDto {
             example = "doe-test-24")
     private String suffix;
 
-    @NotBlank
-    @Schema(
-            description = "The URL of the Handle service.",
-            example = "https://hdl.grnet.gr:8001")
-    private String serviceUrl;
-
-    @NotBlank
-    @Schema(
-            description = "The authentication token for the Handle service.",
-            example = "TOKEN")
-    private String token;
 
     @NotEmpty
     @Valid

@@ -16,7 +16,7 @@ Before running the project, make sure the following tools are installed:
 
 - Java 17+
 - Apache Maven 3.8.1+
-- Docker & Docker Compose
+- Docker
 
 Verify installation:
 
@@ -24,7 +24,6 @@ Verify installation:
 java -version
 mvn -version
 docker --version
-docker compose version
 ```
 
 ---
@@ -69,32 +68,26 @@ java -jar target/*-runner.jar
 
 # Development Mode
 
-Start the local database environment:
+Make sure Docker is running, as Quarkus Dev Services use Docker to start the required local services.
+
+Run the application in development mode:
 
 ```bash
-./run-local-db-env.sh
+./mvnw clean quarkus:dev
 ```
 
-Then run Quarkus in development mode:
+Quarkus automatically starts the required development services.
 
-```bash
-./mvnw quarkus:dev
+The PCC API is available at:
+
+```text
+http://localhost:8080
 ```
 
 The Quarkus Dev UI is available at:
 
 ```text
 http://localhost:8080/q/dev
-```
-
----
-
-# Reset Local Database
-
-To remove containers and volumes:
-
-```bash
-docker compose down --volumes
 ```
 
 ---
