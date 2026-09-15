@@ -7,6 +7,7 @@ import gr.grnet.pccapi.dto.handle.HandleRequestDto;
 import gr.grnet.pccapi.dto.handle.HandleResponseDto;
 import gr.grnet.pccapi.dto.pagination.PageResource;
 import gr.grnet.pccapi.exception.HandleServiceException;
+import gr.grnet.pccapi.mapper.HandleMapper;
 import gr.grnet.pccapi.repository.PrefixRepository;
 import io.quarkus.rest.client.reactive.QuarkusRestClientBuilder;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -73,9 +74,7 @@ public class HandleService {
                     clientResponse.getResponseCode(),
                     clientResponse.getHandle());
 
-            return new HandleResponseDto()
-                    .setHandle(clientResponse.getHandle())
-                    .setValues(request.getValues());
+            return HandleMapper.INSTANCE.createToResponseDto(clientResponse, request);
 
         } catch (ClientWebApplicationException e) {
             throw handleClientException(e);
@@ -134,6 +133,43 @@ public class HandleService {
         }
     }
 
+    public HandleResponseDto getHandle(Integer prefixId, String suffixName, String serviceUrl, String handleUsername, String token) {
+
+        LOG.infof("Retrieving Handle under Prefix with ID: %s", prefixId);
+
+        var prefix = prefixRepository
+                .findByIdOptional(prefixId)
+                .orElseThrow(() -> new NotFoundException("Prefix not found"));
+
+        var prefixName = prefix.name;
+
+        LOG.infof("Getting Handle: %s/%s", prefixName, suffixName);
+
+        var adminHandle = prefixName + "/" + handleUsername;
+        var basicUsername = "301%3A" + adminHandle;
+
+        LOG.info("Calling Handle service...");
+
+        try {
+            var handleClient = buildHandleClient(serviceUrl);
+
+            var clientResponse = handleClient.getHandle(
+                    buildBasicAuthorization(basicUsername, token),
+                    prefixName,
+                    suffixName);
+
+            LOG.infof(
+                    "Handle service response: responseCode=%s, handle=%s",
+                    clientResponse.getResponseCode(),
+                    clientResponse.getHandle());
+
+            return HandleMapper.INSTANCE.getToResponseDto(clientResponse);
+
+        } catch (ClientWebApplicationException e) {
+            throw handleClientException(e);
+        }
+    }
+
     // --------------------------------------------------------------------------------------------------------------------------
     // HELPER METHODS
     // --------------------------------------------------------------------------------------------------------------------------
@@ -157,9 +193,7 @@ public class HandleService {
      * @param adminHandle the admin Handle administrator
      * @return the request payload expected by the Handle service
      */
-    private HandleClientRequest buildClientRequest(
-            HandleRequestDto request,
-            String adminHandle) {
+    private HandleClientRequest buildClientRequest(HandleRequestDto request, String adminHandle) {
 
         List<HandleClientRequest.Value> values = new ArrayList<>();
 
