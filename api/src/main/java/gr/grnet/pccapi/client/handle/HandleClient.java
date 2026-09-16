@@ -56,4 +56,11 @@ public interface HandleClient {
             @PathParam("suffix") String suffix,
             HandleClientRequest request);
 
+    @DELETE
+    @Path("/api/handles/{prefix}/{suffix}")
+    HandleClientResponse deleteHandle(
+            @HeaderParam("Authorization") String authorization,
+            @PathParam("prefix") String prefix,
+            @PathParam("suffix") String suffix);
+
 }

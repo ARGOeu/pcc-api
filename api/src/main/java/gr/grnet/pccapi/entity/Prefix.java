@@ -40,10 +40,6 @@ public class Prefix extends PanacheEntityBase {
 
   public Integer status;
 
-  //  @Enumerated(EnumType.STRING)
-  //  @Column(name = "contract_type", columnDefinition = "enum")
-  //  public ContractType contractType;
-
   @ManyToOne()
   @JoinColumn(name = "domain_id")
   public Domain domain;
@@ -57,15 +53,6 @@ public class Prefix extends PanacheEntityBase {
   public Provider provider;
 
   public Boolean resolvable;
-
-  //
-  //  @Enumerated(EnumType.STRING)
-  //  @Column(name = "lookup_service_type", columnDefinition = "enum")
-  //  public LookUpServiceType lookUpServiceType;
-  //
-  //  @ManyToOne()
-  //  @JoinColumn(name = "lookup_service_type")
-  //  public Codelist lookupServiceType;
 
   @ManyToOne()
   @JoinColumn(name = "contract_type_id")
