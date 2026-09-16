@@ -5,6 +5,7 @@ import gr.grnet.pccapi.client.handle.HandleClientRequest;
 import gr.grnet.pccapi.client.handle.HandleClientResponse;
 import gr.grnet.pccapi.dto.handle.HandleRequestDto;
 import gr.grnet.pccapi.dto.handle.HandleResponseDto;
+import gr.grnet.pccapi.dto.handle.HandleUpdateRequestDto;
 import gr.grnet.pccapi.dto.pagination.PageResource;
 import gr.grnet.pccapi.exception.HandleServiceException;
 import gr.grnet.pccapi.mapper.HandleMapper;
@@ -164,6 +165,45 @@ public class HandleService {
                     clientResponse.getHandle());
 
             return HandleMapper.INSTANCE.getToResponseDto(clientResponse);
+
+        } catch (ClientWebApplicationException e) {
+            throw handleClientException(e);
+        }
+    }
+
+    public HandleResponseDto updateHandle(Integer prefixId, String suffix, String serviceUrl, String handleUsername, String token, HandleUpdateRequestDto request) {
+
+        LOG.infof("Retrieving Handle under Prefix with ID: %s", prefixId);
+
+        var prefix = prefixRepository
+                .findByIdOptional(prefixId)
+                .orElseThrow(() -> new NotFoundException("Prefix not found"));
+
+        var prefixName = prefix.name;
+
+        LOG.infof("Updating Handle: %s/%s", prefixName, suffix);
+
+        var adminHandle = prefixName + "/" + handleUsername;
+        var basicUsername = "301%3A" + adminHandle;
+        var authorization = buildBasicAuthorization(basicUsername, token);
+
+        try {
+            var handleClient = buildHandleClient(serviceUrl);
+
+            var existingHandle = handleClient.getHandle(authorization, prefixName, suffix);
+
+            var clientRequest = HandleMapper.INSTANCE.updateToClientRequest(request, existingHandle);
+
+            var clientResponse = handleClient.updateHandle(authorization, prefixName, suffix, clientRequest);
+
+            LOG.infof(
+                    "Handle service response: responseCode=%s, handle=%s",
+                    clientResponse.getResponseCode(),
+                    clientResponse.getHandle());
+
+            var updatedHandle = handleClient.getHandle(authorization, prefixName, suffix);
+
+            return HandleMapper.INSTANCE.getToResponseDto(updatedHandle);
 
         } catch (ClientWebApplicationException e) {
             throw handleClientException(e);

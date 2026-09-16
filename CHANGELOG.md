@@ -64,6 +64,7 @@ According to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), the `Unre
 - [#89](https://github.com/ARGOeu/pcc-api/pull/89) PCC-144 Implement Keycloak authentication for API security
 - [#90](https://github.com/ARGOeu/pcc-api/pull/90) PCC-174 [API] Create a Handle
 - [#92](https://github.com/ARGOeu/pcc-api/pull/92) PCC-176 [API] Retrieve a Handle
+- [#93](https://github.com/ARGOeu/pcc-api/pull/93) PCC-177 [API] Update a Handle
 
 
 ### Changed
