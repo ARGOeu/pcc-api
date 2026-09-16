@@ -210,6 +210,36 @@ public class HandleService {
         }
     }
 
+    public void deleteHandle(Integer prefixId, String suffix, String serviceUrl, String handleUsername, String token) {
+
+        LOG.infof("Retrieving Handle under Prefix with ID: %s", prefixId);
+
+        var prefix = prefixRepository
+                .findByIdOptional(prefixId)
+                .orElseThrow(() -> new NotFoundException("Prefix not found"));
+
+        var prefixName = prefix.name;
+
+        var adminHandle = prefixName + "/" + handleUsername;
+        var basicUsername = "301%3A" + adminHandle;
+        var authorization = buildBasicAuthorization(basicUsername, token);
+
+        try {
+            var handleClient = buildHandleClient(serviceUrl);
+
+            var clientResponse = handleClient.deleteHandle(authorization, prefixName, suffix);
+
+            LOG.infof(
+                    "Handle service response: responseCode=%s, handle=%s",
+                    clientResponse.getResponseCode(),
+                    clientResponse.getHandle());
+
+        } catch (ClientWebApplicationException e) {
+            throw handleClientException(e);
+        }
+    }
+
+
     // --------------------------------------------------------------------------------------------------------------------------
     // HELPER METHODS
     // --------------------------------------------------------------------------------------------------------------------------
