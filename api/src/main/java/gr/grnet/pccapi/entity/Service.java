@@ -7,11 +7,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 
 /** The entity class that represents a Service */
 @Entity(name = "service")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Getter
+@Setter
 public class Service extends PanacheEntityBase {
 
   @EqualsAndHashCode.Include
@@ -19,5 +21,6 @@ public class Service extends PanacheEntityBase {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   public Integer id;
 
-  @EqualsAndHashCode.Include public String name;
+  @EqualsAndHashCode.Include
+  public String name;
 }

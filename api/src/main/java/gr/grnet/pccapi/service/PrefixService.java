@@ -44,8 +44,7 @@ public class PrefixService {
   @Inject
   CodelistRepository codelistRepository;
 
-  private static final Logger LOG = Logger.getLogger(HandleService.class);
-
+  private static final Logger LOG = Logger.getLogger(PrefixService.class);
   /**
    * Creates a new prefix based on the provided arguments, runs validation checks and returns the
    * appropriate response dto
@@ -60,8 +59,7 @@ public class PrefixService {
       throw new ConflictException("Prefix name already exists");
     }
     // check the existence of the provided provider
-    Provider provider =
-        providerRepository
+    var provider = providerRepository
             .findByIdOptional(prefixRequestDto.getProviderId())
             .orElseThrow(() -> new NotFoundException("Provider not found"));
 
@@ -69,8 +67,7 @@ public class PrefixService {
 
     if (prefixRequestDto.contractTypeId != null) {
 
-      var contractType =
-          codelistRepository
+      var contractType = codelistRepository
               .findByIdAndCategory(prefixRequestDto.contractTypeId, CodelistCategory.CONTRACT_TYPE.getText())
               .orElseThrow(() -> new NotFoundException("Contract Type not found"));
 
@@ -79,22 +76,18 @@ public class PrefixService {
 
     if (prefixRequestDto.lookUpServiceTypeId != null) {
 
-      var lookUpServiceType =
-          codelistRepository
+      var lookUpServiceType = codelistRepository
               .findByIdAndCategory(prefixRequestDto.lookUpServiceTypeId, CodelistCategory.LOOKUP_SERVICE_TYPE.getText())
               .orElseThrow(() -> new NotFoundException("LookUp Service Type not found"));
 
       prefix.setLookUpServiceType(lookUpServiceType);
     }
 
-    if (prefixRequestDto.serviceId != null) {
-      // check the existence of the provided service
-      var service =
-          serviceRepository
-              .findByIdOptional(prefixRequestDto.getServiceId())
-              .orElseThrow(() -> new NotFoundException("Service not found"));
-      prefix.setService(service);
+    if (prefixRequestDto.getServiceName() != null && !prefixRequestDto.getServiceName().isBlank()) {
+
+      prefix.setService(findOrCreateService(prefixRequestDto.getServiceName()));
     }
+
     // check the existence of the provided domain
     if (prefixRequestDto.domainId != null) {
       var domain =
@@ -115,11 +108,11 @@ public class PrefixService {
     return PrefixMapper.INSTANCE.prefixesToResponseDto(prefixes);
   }
 
-  public PageResource<PrefixResponseDto> fetchByPageAndSize(int page, int size, UriInfo uriInfo) {
+  public PageResource<PrefixResponseDto> fetchByPageAndSize(String search, String provider, String domain, String contractType, int page, int size, UriInfo uriInfo) {
 
-    var prefixes = prefixRepository.fetchPrefixesByPage(page, size);
-    return new PageResource<>(
-        prefixes, PrefixMapper.INSTANCE.prefixesToResponseDto(prefixes.list()), uriInfo);
+    var prefixes = prefixRepository.fetchPrefixesByPage(search, provider, domain, contractType, page, size);
+
+    return new PageResource<>(prefixes, PrefixMapper.INSTANCE.prefixesToResponseDto(prefixes.list()), uriInfo);
   }
 
   /**
@@ -172,13 +165,9 @@ public class PrefixService {
 
     // check the existence of the provided service and update entity on success
 
-    if (prefixDto.getServiceId() != null) {
-      var service =
-          serviceRepository
-              .findByIdOptional(prefixDto.getServiceId())
-              .orElseThrow(() -> new NotFoundException("Service not found"));
+    if (prefixDto.getServiceName() != null && !prefixDto.getServiceName().isBlank()) {
 
-      prefix.setService(service);
+      prefix.setService(findOrCreateService(prefixDto.getServiceName()));
     }
 
     // check the existence of the provided domain and update entity on success
@@ -286,13 +275,8 @@ public class PrefixService {
     }
     prefix.setLookUpServiceType(lookUpServiceType);
 
-    Service service = null;
-    if (prefixRequestDto.serviceId != null) {
-      service =
-          serviceRepository
-              .findByIdOptional(prefixRequestDto.getServiceId())
-              .orElseThrow(() -> new NotFoundException("Service not found"));
-    }
+    var service = findOrCreateService(prefixRequestDto.getServiceName());
+
     prefix.setService(service);
 
     // check the existence of the provided domain
@@ -310,5 +294,27 @@ public class PrefixService {
     prefix.setProvider(provider);
 
     return PrefixMapper.INSTANCE.prefixToResponseDto(prefix);
+  }
+
+  private Service findOrCreateService(String serviceName) {
+
+    if (serviceName == null || serviceName.isBlank()) {
+      return null;
+    }
+
+    var normalizedName = serviceName.trim();
+
+    var service = serviceRepository.findByName(normalizedName);
+
+    if (service != null) {
+      return service;
+    }
+
+    service = new Service();
+    service.setName(normalizedName);
+
+    serviceRepository.persist(service);
+
+    return service;
   }
 }

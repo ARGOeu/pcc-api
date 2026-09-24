@@ -60,12 +60,12 @@ public class PrefixRequestDto {
   public Integer status;
 
   @Schema(
-          type = SchemaType.INTEGER,
-          implementation = Integer.class,
-          description = "The unique service ID to be linked with the prefix.",
-          example = "1")
-  @JsonProperty("service_id")
-  public Integer serviceId;
+          type = SchemaType.STRING,
+          implementation = String.class,
+          description = "The service name to be linked with the prefix.",
+          example = "B2HANDLE")
+  @JsonProperty("service_name")
+  public String serviceName;
 
   @Schema(
           type = SchemaType.INTEGER,

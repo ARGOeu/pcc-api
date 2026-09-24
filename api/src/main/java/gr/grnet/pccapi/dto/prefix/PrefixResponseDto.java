@@ -17,12 +17,12 @@ public class PrefixResponseDto extends PrefixRequestDto {
   public Integer id;
 
   @Schema(
-          type = SchemaType.STRING,
-          implementation = String.class,
-          description = "The name of the linked service.",
-          example = "B2HANDLE")
-  @JsonProperty("service_name")
-  public String serviceName;
+          type = SchemaType.INTEGER,
+          implementation = Integer.class,
+          description = "The unique ID of the linked service.",
+          example = "1")
+  @JsonProperty("service_id")
+  public Integer serviceId;
 
   @Schema(
           type = SchemaType.STRING,

@@ -60,6 +60,11 @@ public interface PrefixMapper {
   void updatePrefixFromDto(PartialPrefixDto prefixDto, @MappingTarget Prefix prefix);
 
   @Mapping(target = "contractEnd", expression = "java(prefixRequestDto.contractEnd != null && StringUtils.isNotEmpty(prefixRequestDto.contractEnd) ? convertToMillis(prefixRequestDto.contractEnd) : null)")
+  @Mapping(target = "provider", ignore = true)
+  @Mapping(target = "service", ignore = true)
+  @Mapping(target = "domain", ignore = true)
+  @Mapping(target = "contractType", ignore = true)
+  @Mapping(target = "lookUpServiceType", ignore = true)
   Prefix requestToPrefix(PrefixRequestDto prefixRequestDto);
 
   @Mapping(target = "contractEnd", expression = "java(prefixRequestDto.contractEnd != null && StringUtils.isNotEmpty(prefixRequestDto.contractEnd) ? convertToMillis(prefixRequestDto.contractEnd) : null)")

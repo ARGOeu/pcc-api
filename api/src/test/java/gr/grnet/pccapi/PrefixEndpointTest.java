@@ -2,6 +2,8 @@ package gr.grnet.pccapi;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 
 import gr.grnet.pccapi.dto.APIResponseMsg;
@@ -15,6 +17,7 @@ import gr.grnet.pccapi.endpoint.PrefixEndpoint;
 import gr.grnet.pccapi.entity.Statistics;
 import gr.grnet.pccapi.mapper.StatisticsMapper;
 import gr.grnet.pccapi.repository.PrefixRepository;
+import gr.grnet.pccapi.repository.ServiceRepository;
 import gr.grnet.pccapi.service.StatisticsService;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.QuarkusTestResource;
@@ -22,6 +25,7 @@ import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import io.restassured.http.ContentType;
+import io.restassured.specification.RequestSpecification;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
@@ -38,11 +42,11 @@ import org.mockito.Mockito;
 public class PrefixEndpointTest {
 
   @Inject PrefixRepository prefixRepository;
+  @Inject ServiceRepository serviceRepository;
   @InjectMock StatisticsService statisticsService;
 
   @KeycloakToken(username = "admin", password = "admin")
   String adminToken;
-
 
   @BeforeEach
   @Transactional
@@ -50,36 +54,22 @@ public class PrefixEndpointTest {
     prefixRepository.deleteAll();
   }
 
+  // ---------------------------------------------------------------------------
+  // CREATE
+  // ---------------------------------------------------------------------------
+
   @Test
   public void createPrefix() {
 
-    var requestBody =
-        new PrefixRequestDto()
-            .setName("11523")
-            .setOwner("someone")
-            .setStatus(2)
-            .setUsedBy("someone else")
-            .setLookUpServiceTypeId(2)
-            .setDomainId(1)
-            .setServiceId(1)
-            .setProviderId(1)
-            .setContactEmail("test@test.com")
-            .setContactName("testname")
-            .setContractEnd("2008-01-01")
+    var requestBody = validPrefixRequest("11523")
             .setContractTypeId(6);
 
-    var response =
-            given()
-            .header("Authorization", "Bearer " + adminToken)
-            .contentType(ContentType.JSON)
-            .body(requestBody)
-            .post()
-            .then()
-            .assertThat()
-            .statusCode(201)
-            .extract()
-            .as(PrefixResponseDto.class);
+    var response = createPrefix(requestBody);
 
+    var service = serviceRepository.findByName("NEWSERVICE");
+
+    assertNotNull(service);
+    assertEquals(service.id, response.getServiceId());
     assertEquals(prefixRepository.find("name", "11523").firstResult().id, response.getId());
     assertEquals("11523", response.getName());
     assertEquals("someone", response.getOwner());
@@ -87,8 +77,7 @@ public class PrefixEndpointTest {
     assertEquals(2, response.getLookUpServiceTypeId());
     assertEquals(2, response.getStatus());
     assertEquals(1, response.getDomainId());
-    assertEquals("B2HANDLE", response.getServiceName());
-    assertEquals(1, response.getServiceId());
+    assertEquals("NEWSERVICE", response.getServiceName());
     assertEquals("GRNET", response.getProviderName());
     assertEquals(1, response.getProviderId());
     assertEquals(Boolean.TRUE, response.getResolvable());
@@ -99,38 +88,60 @@ public class PrefixEndpointTest {
   }
 
   @Test
+  public void createPrefixCreatesNewService() {
+
+    var requestBody = validPrefixRequest("new-service-prefix")
+            .setServiceName("MY NEW SERVICE");
+
+    var response = createPrefix(requestBody);
+
+    var service = serviceRepository.findByName("MY NEW SERVICE");
+
+    assertNotNull(service);
+    assertEquals(service.id, response.getServiceId());
+    assertEquals("MY NEW SERVICE", response.getServiceName());
+  }
+
+  @Test
+  public void createPrefixReusesExistingServiceCaseInsensitive() {
+
+    var first = createPrefix(validPrefixRequest("prefix-one")
+            .setServiceName("My Service"));
+
+    var second = createPrefix(validPrefixRequest("prefix-two")
+            .setServiceName("my service"));
+
+    assertEquals(first.getServiceId(), second.getServiceId());
+
+    var service = serviceRepository.findByName("MY SERVICE");
+
+    assertNotNull(service);
+    assertEquals(first.getServiceId(), service.id);
+  }
+
+  @Test
+  public void createPrefixWithoutService() {
+
+    var response = createPrefix(
+            validPrefixRequest("without-service")
+                    .setServiceName(null));
+
+    assertNull(response.getServiceId());
+    assertNull(response.getServiceName());
+  }
+
+  @Test
   public void createPrefixWithNameAlreadyExists() {
 
-    var requestBody =
-        new PrefixRequestDto()
-            .setName("11527")
-            .setOwner("someone")
-            .setStatus(2)
-            .setUsedBy("someone else")
-            .setLookUpServiceTypeId(2)
-            .setContractTypeId(5)
-            .setDomainId(1)
-            .setServiceId(1)
-            .setProviderId(1)
-            .setContractEnd("2008-01-01")
-            .setContactName("test")
-            .setContactEmail("test@test.gr");
+    var requestBody = validPrefixRequest("11527");
 
-    // create the prefix
-    given()
-            .header("Authorization", "Bearer " + adminToken)
-            .contentType(ContentType.JSON)
-            .body(requestBody)
-            .post();
+    createPrefix(requestBody);
 
-    var response =
-            given()
-            .header("Authorization", "Bearer " + adminToken)
+    var response = authenticatedRequest()
             .contentType(ContentType.JSON)
             .body(requestBody)
             .post()
             .then()
-            .assertThat()
             .statusCode(409)
             .extract()
             .as(APIResponseMsg.class);
@@ -139,64 +150,16 @@ public class PrefixEndpointTest {
   }
 
   @Test
-  public void createPrefixWithInvalidService() {
-
-    var requestBody =
-        new PrefixRequestDto()
-            .setName("11524")
-            .setOwner("someone")
-            .setStatus(2)
-            .setUsedBy("someone else")
-            .setDomainId(1)
-            .setServiceId(999)
-            .setProviderId(1)
-            .setLookUpServiceTypeId(2)
-            .setContractTypeId(5)
-            .setContractEnd("2008-01-01")
-            .setContactName("test")
-            .setContactEmail("test@test.gr");
-
-    var response =
-            given()
-            .header("Authorization", "Bearer " + adminToken)
-            .contentType(ContentType.JSON)
-            .body(requestBody)
-            .post()
-            .then()
-            .assertThat()
-            .statusCode(404)
-            .extract()
-            .as(APIResponseMsg.class);
-
-    assertEquals("Service not found", response.getMessage());
-  }
-
-  @Test
   public void createPrefixWithInvalidDomain() {
 
-    var requestBody =
-        new PrefixRequestDto()
-            .setName("11524")
-            .setOwner("someone")
-            .setStatus(2)
-            .setUsedBy("someone else")
-            .setDomainId(999)
-            .setServiceId(1)
-            .setProviderId(1)
-            .setLookUpServiceTypeId(2)
-            .setContractTypeId(5)
-            .setContractEnd("2008-01-01")
-            .setContactName("test")
-            .setContactEmail("test@test.gr");
+    var requestBody = validPrefixRequest("invalid-domain")
+            .setDomainId(999);
 
-    var response =
-            given()
-            .header("Authorization", "Bearer " + adminToken)
+    var response = authenticatedRequest()
             .contentType(ContentType.JSON)
             .body(requestBody)
             .post()
             .then()
-            .assertThat()
             .statusCode(404)
             .extract()
             .as(APIResponseMsg.class);
@@ -207,29 +170,14 @@ public class PrefixEndpointTest {
   @Test
   public void createPrefixWithInvalidProvider() {
 
-    var requestBody =
-        new PrefixRequestDto()
-            .setName("11524")
-            .setOwner("someone")
-            .setStatus(2)
-            .setUsedBy("someone else")
-            .setDomainId(1)
-            .setServiceId(1)
-            .setProviderId(999)
-            .setLookUpServiceTypeId(1)
-            .setContractTypeId(5)
-            .setContractEnd("2008-01-01")
-            .setContactName("test")
-            .setContactEmail("test@test.gr");
+    var requestBody = validPrefixRequest("invalid-provider")
+            .setProviderId(999);
 
-    var response =
-            given()
-            .header("Authorization", "Bearer " + adminToken)
+    var response = authenticatedRequest()
             .contentType(ContentType.JSON)
             .body(requestBody)
             .post()
             .then()
-            .assertThat()
             .statusCode(404)
             .extract()
             .as(APIResponseMsg.class);
@@ -237,73 +185,49 @@ public class PrefixEndpointTest {
     assertEquals("Provider not found", response.getMessage());
   }
 
+  // ---------------------------------------------------------------------------
+  // PUT
+  // ---------------------------------------------------------------------------
+
   @Test
   public void testUpdate() {
-    var requestBody =
-        new PrefixRequestDto()
-            .setName("666666")
-            .setOwner("someone")
-            .setStatus(2)
-            .setUsedBy("someone else")
-            .setLookUpServiceTypeId(2)
-            .setDomainId(1)
-            .setServiceId(1)
-            .setProviderId(1)
-            .setResolvable(Boolean.TRUE)
-            .setContractEnd("2008-01-01")
-            .setContractTypeId(5)
-            .setContactEmail("test@test.gr")
-            .setContactName("test");
-    ;
 
-    var resp =
-            given()
-            .header("Authorization", "Bearer " + adminToken)
-            .contentType(ContentType.JSON)
-            .body(requestBody)
-            .post()
-            .then()
-            .assertThat()
-            .statusCode(201)
-            .extract()
-            .as(PrefixResponseDto.class);
+    var created = createPrefix(
+            validPrefixRequest("666666")
+                    .setResolvable(Boolean.TRUE));
 
-    var updateRequestDto =
-        new PrefixRequestDto()
-            .setName("77777")
+    var updateRequestDto = validPrefixRequest("77777")
             .setOwner("someone1")
             .setStatus(3)
             .setUsedBy("someone else1")
-            .setLookUpServiceTypeId(2)
             .setDomainId(2)
-            .setServiceId(2)
-            .setProviderId(2)
+            .setServiceName("UPDATEDSERVICE")
+            .setProviderId(3)
             .setResolvable(Boolean.FALSE)
             .setContactEmail("test2@test.com")
             .setContactName("testname2")
             .setContractEnd("2018-01-01")
             .setContractTypeId(7);
 
-    var response =
-            given()
-            .header("Authorization", "Bearer " + adminToken)
+    var response = authenticatedRequest()
             .contentType(ContentType.JSON)
             .body(updateRequestDto)
-            .put(String.valueOf(resp.id))
+            .put("/{id}", created.getId())
             .then()
-            .assertThat()
             .statusCode(200)
             .extract()
             .as(PrefixResponseDto.class);
 
-    assertEquals(2, response.getDomainId());
-    assertEquals(2, response.getProviderId());
-    assertEquals(2, response.getServiceId());
+    var service = serviceRepository.findByName("UPDATEDSERVICE");
 
+    assertNotNull(service);
+    assertEquals(2, response.getDomainId());
+    assertEquals(3, response.getProviderId());
+    assertEquals(service.id, response.getServiceId());
+    assertEquals("UPDATEDSERVICE", response.getServiceName());
     assertEquals("someone1", response.getOwner());
     assertEquals("someone else1", response.getUsedBy());
     assertEquals(2, response.getLookUpServiceTypeId());
-
     assertEquals(3, response.getStatus());
     assertEquals("77777", response.getName());
     assertEquals(Boolean.FALSE, response.getResolvable());
@@ -314,295 +238,62 @@ public class PrefixEndpointTest {
   }
 
   @Test
-  public void updatePrefixNotfound() {
+  public void updatePrefixNotFound() {
 
-    // creating a new Prefix
-    var requestBody =
-        new PrefixRequestDto()
-            .setName("11545")
-            .setOwner("someone")
-            .setStatus(2)
-            .setUsedBy("someone else")
-            .setLookUpServiceTypeId(2)
-            .setContractTypeId(5)
-            .setDomainId(1)
-            .setServiceId(1)
-            .setProviderId(1)
-            .setContractEnd("2008-01-01")
-            .setContactEmail("test@test.gr")
-            .setContactName("test");
-
-    var response =
-            given()
-            .header("Authorization", "Bearer " + adminToken)
+    var response = authenticatedRequest()
             .contentType(ContentType.JSON)
-            .body(requestBody)
-            .post()
+            .body(validPrefixRequest("not-found"))
+            .put("/{id}", 999)
             .then()
-            .assertThat()
-            .statusCode(201)
-            .extract()
-            .as(PrefixResponseDto.class);
-
-    var resp =
-            given()
-            .header("Authorization", "Bearer " + adminToken)
-            .contentType(ContentType.JSON)
-            .put("/{id}", response.id + 10)
-            .then()
-            .assertThat()
             .statusCode(404)
             .extract()
             .as(APIResponseMsg.class);
 
-    assertEquals("Prefix not found", resp.getMessage());
+    assertEquals("Prefix not found", response.getMessage());
   }
 
   @Test
-  public void deletePrefix() {
+  public void updatePrefixWithoutStatusAndOptionalTypes() {
 
-    // creating a new Prefix
-    var requestBody =
-        new PrefixRequestDto()
-            .setName("11545")
-            .setOwner("someone")
-            .setStatus(2)
-            .setUsedBy("someone else")
-            .setLookUpServiceTypeId(2)
-            .setContractTypeId(5)
+    var created = createPrefix(
+            validPrefixRequest("put-optional"));
+
+    var updateRequestBody = new PrefixRequestDto()
+            .setName("put-optional-updated")
+            .setOwner("someone updated")
             .setDomainId(1)
-            .setServiceId(1)
+            .setServiceName("NEWSERVICE")
             .setProviderId(1)
-            .setContractEnd("2008-01-01")
-            .setContactName("test")
-            .setContactEmail("test@test.gr");
+            .setContactEmail("updated@test.com")
+            .setContactName("updated");
 
-    var response =
-            given()
-            .header("Authorization", "Bearer " + adminToken)
+    var response = authenticatedRequest()
             .contentType(ContentType.JSON)
-            .body(requestBody)
-            .post()
+            .body(updateRequestBody)
+            .put("/{id}", created.getId())
             .then()
-            .assertThat()
-            .statusCode(201)
-            .extract()
-            .as(PrefixResponseDto.class);
-
-    // deleting an existing Prefix
-
-    given().header("Authorization", "Bearer " + adminToken).delete("/{id}", response.id).then().assertThat().statusCode(200);
-  }
-
-  @Test
-  public void deletePrefixNotfound() {
-
-    // creating a new Prefix
-    var requestBody =
-        new PrefixRequestDto()
-            .setName("11545")
-            .setOwner("someone")
-            .setStatus(2)
-            .setUsedBy("someone else")
-            .setLookUpServiceTypeId(2)
-            .setContractTypeId(5)
-            .setDomainId(1)
-            .setServiceId(1)
-            .setProviderId(1)
-            .setContractEnd("2008-01-01")
-            .setContactName("test")
-            .setContactEmail("test@test.gr");
-
-    var response =
-            given()
-            .header("Authorization", "Bearer " + adminToken)
-            .contentType(ContentType.JSON)
-            .body(requestBody)
-            .post()
-            .then()
-            .assertThat()
-            .statusCode(201)
-            .extract()
-            .as(PrefixResponseDto.class);
-
-    // deleting an existing Prefix
-
-    var resp =
-            given()
-            .header("Authorization", "Bearer " + adminToken)
-            .delete("/{id}", response.id + 10)
-            .then()
-            .assertThat()
-            .statusCode(404)
-            .extract()
-            .as(APIResponseMsg.class);
-
-    assertEquals("Prefix not found", resp.getMessage());
-  }
-
-  @Test
-  public void fetchPrefixById() {
-
-    var requestBody =
-        new PrefixRequestDto()
-            .setName("12345")
-            .setOwner("someone")
-            .setStatus(2)
-            .setUsedBy("someone else")
-            .setLookUpServiceTypeId(2)
-            .setContractTypeId(5)
-            .setDomainId(1)
-            .setServiceId(1)
-            .setProviderId(1)
-            .setContractEnd("2008-01-01")
-            .setContactEmail("test@test.gr")
-            .setContactName("test");
-
-    var created =
-            given()
-            .header("Authorization", "Bearer " + adminToken)
-            .contentType(ContentType.JSON)
-            .body(requestBody)
-            .post()
-            .then()
-            .assertThat()
-            .statusCode(201)
-            .extract()
-            .as(PrefixResponseDto.class);
-
-    var prefixResponseDto =
-            given()
-            .header("Authorization", "Bearer " + adminToken)
-            .get("/{id}", created.id)
-            .then()
-            .assertThat()
             .statusCode(200)
             .extract()
             .as(PrefixResponseDto.class);
 
-    assertEquals(created.name, prefixResponseDto.name);
-    assertEquals(created.domainId, prefixResponseDto.domainId);
-    assertEquals(created.id, prefixResponseDto.id);
-    assertEquals(created.lookUpServiceTypeId, prefixResponseDto.lookUpServiceTypeId);
-    assertEquals("2008-01-01T00:00:00Z", prefixResponseDto.contractEnd);
+    assertEquals("put-optional-updated", response.getName());
+    assertNull(response.getStatus());
+    assertNull(response.getContractTypeId());
+    assertNull(response.getLookUpServiceTypeId());
   }
 
-  @Test
-  public void fetchPrefixByIdNotFound() {
-    var resp =
-            given()
-            .header("Authorization", "Bearer " + adminToken)
-            .get("/{id}", 999)
-            .then()
-            .assertThat()
-            .statusCode(404)
-            .extract()
-            .as(APIResponseMsg.class);
-
-    assertEquals("Prefix not found", resp.getMessage());
-  }
-
-  @Test
-  public void testFetchPrefixesByPage() {
-
-    var prefixes = prefixRepository.findAll().list();
-
-    var prefixResponseDto = given().header("Authorization", "Bearer " + adminToken).get().then().assertThat().statusCode(200).extract().as(PageResource.class);
-
-    assertEquals(prefixes.size(), prefixResponseDto.getTotalElements());
-  }
-
-  @Test
-  public void fetchHandlesCountByPrefixIdNotFound() {
-
-    Mockito.when(statisticsService.getPIDCountByPrefixID("invalid"))
-        .thenThrow(new NotFoundException("Prefix invalid not found"));
-    var resp =
-            given()
-            .header("Authorization", "Bearer " + adminToken)
-            .get("/{id}/count", "invalid")
-            .then()
-            .assertThat()
-            .statusCode(404)
-            .extract()
-            .as(APIResponseMsg.class);
-
-    assertEquals("Prefix invalid not found", resp.getMessage());
-  }
-
-  @Test
-  public void fetchResolvablePIDCountByPrefixIdNotFound() {
-
-    Mockito.when(statisticsService.getResolvablePIDCountByPrefixID("invalid"))
-        .thenThrow(new NotFoundException("Prefix invalid not found"));
-    var resp =
-            given()
-            .header("Authorization", "Bearer " + adminToken)
-            .get("/{id}/resolvable", "invalid")
-            .then()
-            .assertThat()
-            .statusCode(404)
-            .extract()
-            .as(APIResponseMsg.class);
-
-    assertEquals("Prefix invalid not found", resp.getMessage());
-  }
-
-  @Test
-  public void fetchStatisticsByPrefixId() {
-
-    Mockito.when(statisticsService.getPrefixStatisticsByID(any()))
-        .thenReturn(
-            StatisticsMapper.INSTANCE.statisticsToDto(new Statistics("21.12132", 2, 3, 4, 5)));
-    var resp =
-            given()
-            .header("Authorization", "Bearer " + adminToken)
-            .get("/{id}/statistic", 21.12132)
-            .then()
-            .assertThat()
-            .statusCode(200)
-            .extract()
-            .as(StatisticsDto.class);
-    assertEquals(resp.prefix, "21.12132");
-    assertEquals(resp.handlesCount, 2);
-    assertEquals(resp.resolvableCount, 3);
-    assertEquals(resp.unresolvableCount, 4);
-    assertEquals(resp.uncheckedCount, 5);
-  }
+  // ---------------------------------------------------------------------------
+  // PATCH
+  // ---------------------------------------------------------------------------
 
   @Test
   public void testPartiallyUpdatePrefix() {
 
-    var postRequestBody =
-        new PrefixRequestDto()
-            .setName("212121")
-            .setOwner("someone")
-            .setStatus(2)
-            .setUsedBy("someone else")
-            .setLookUpServiceTypeId(2)
-            .setContractTypeId(5)
-            .setDomainId(1)
-            .setServiceId(1)
-            .setProviderId(1)
-            .setResolvable(Boolean.TRUE)
-            .setContactName("testname")
-            .setContactEmail("test@test.com")
-            .setContractEnd("2008-01-01");
+    var created = createPrefix(
+            validPrefixRequest("212121")
+                    .setServiceName("ORIGINALSERVICE"));
 
-    var response =
-            given()
-            .header("Authorization", "Bearer " + adminToken)
-            .contentType(ContentType.JSON)
-            .body(postRequestBody)
-            .post()
-            .then()
-            .assertThat()
-            .statusCode(201)
-            .extract()
-            .as(PrefixResponseDto.class);
-
-    var patchRequestBody =
-        new PartialPrefixDto()
+    var patchRequestBody = new PartialPrefixDto()
             .setName("222222")
             .setLookUpServiceTypeId(2)
             .setContractTypeId(5)
@@ -611,121 +302,447 @@ public class PrefixEndpointTest {
             .setContactEmail("test2@test.com")
             .setContactName("testname2")
             .setContractEnd("2018-01-01");
-    var patchResponse =
-            given()
-            .header("Authorization", "Bearer " + adminToken)
+
+    var patchResponse = authenticatedRequest()
             .contentType(ContentType.JSON)
             .body(patchRequestBody)
-            .patch("/{id}", response.id)
+            .patch("/{id}", created.getId())
             .then()
-            .assertThat()
             .statusCode(200)
             .extract()
             .as(PrefixResponseDto.class);
 
-    assertEquals(patchRequestBody.name, patchResponse.name);
-    assertEquals(patchRequestBody.domainId, patchResponse.domainId);
-    assertEquals(patchRequestBody.lookUpServiceTypeId, patchResponse.lookUpServiceTypeId);
-    assertEquals(patchRequestBody.resolvable, patchResponse.resolvable);
-    assertEquals(patchRequestBody.contactEmail, patchResponse.contactEmail);
-    assertEquals(patchRequestBody.contactName, patchResponse.contactName);
-    assertEquals("2018-01-01T00:00:00Z", patchResponse.contractEnd);
+    assertEquals(patchRequestBody.getName(), patchResponse.getName());
+    assertEquals(patchRequestBody.getDomainId(), patchResponse.getDomainId());
+    assertEquals(patchRequestBody.getLookUpServiceTypeId(), patchResponse.getLookUpServiceTypeId());
+    assertEquals(patchRequestBody.getResolvable(), patchResponse.getResolvable());
+    assertEquals(patchRequestBody.getContactEmail(), patchResponse.getContactEmail());
+    assertEquals(patchRequestBody.getContactName(), patchResponse.getContactName());
+    assertEquals("2018-01-01T00:00:00Z", patchResponse.getContractEnd());
     assertEquals(5, patchResponse.getContractTypeId());
+    assertEquals(created.getServiceId(), patchResponse.getServiceId());
+    assertEquals("ORIGINALSERVICE", patchResponse.getServiceName());
+  }
+
+  @Test
+  public void patchPrefixUpdatesService() {
+
+    var created = createPrefix(
+            validPrefixRequest("patch-service")
+                    .setServiceName("OLD SERVICE"));
+
+    var patchRequestBody = new PartialPrefixDto()
+            .setServiceName("NEW SERVICE");
+
+    var response = authenticatedRequest()
+            .contentType(ContentType.JSON)
+            .body(patchRequestBody)
+            .patch("/{id}", created.getId())
+            .then()
+            .statusCode(200)
+            .extract()
+            .as(PrefixResponseDto.class);
+
+    var service = serviceRepository.findByName("NEW SERVICE");
+
+    assertNotNull(service);
+    assertEquals(service.id, response.getServiceId());
+    assertEquals("NEW SERVICE", response.getServiceName());
+  }
+
+  @Test
+  public void patchPrefixKeepsServiceWhenServiceNotProvided() {
+
+    var created = createPrefix(
+            validPrefixRequest("keep-service")
+                    .setServiceName("KEEP THIS SERVICE"));
+
+    var patchRequestBody = new PartialPrefixDto()
+            .setOwner("updated owner");
+
+    var response = authenticatedRequest()
+            .contentType(ContentType.JSON)
+            .body(patchRequestBody)
+            .patch("/{id}", created.getId())
+            .then()
+            .statusCode(200)
+            .extract()
+            .as(PrefixResponseDto.class);
+
+    assertEquals("updated owner", response.getOwner());
+    assertEquals(created.getServiceId(), response.getServiceId());
+    assertEquals("KEEP THIS SERVICE", response.getServiceName());
   }
 
   @Test
   public void testPartiallyUpdatePrefixEmptyField() {
 
-    var postRequestBody =
-        new PrefixRequestDto()
-            .setName("212121")
-            .setOwner("someone")
-            .setStatus(2)
-            .setUsedBy("someone else")
-            .setLookUpServiceTypeId(2)
-            .setContractTypeId(5)
-            .setDomainId(1)
-            .setServiceId(1)
-            .setProviderId(1)
-            .setContractEnd("2018-01-01")
-            .setContactName("test")
-            .setContactEmail("test@test.gr");
+    var created = createPrefix(
+            validPrefixRequest("212121")
+                    .setServiceName("SERVICETESTNAME"));
 
-    var response =
-            given()
-            .header("Authorization", "Bearer " + adminToken)
-            .contentType(ContentType.JSON)
-            .body(postRequestBody)
-            .post()
-            .then()
-            .assertThat()
-            .statusCode(201)
-            .extract()
-            .as(PrefixResponseDto.class);
+    var patchRequestBody = new PartialPrefixDto()
+            .setName("")
+            .setDomainId(2);
 
-    var patchRequestBody = new PartialPrefixDto().setName("").setDomainId(2);
-
-    var patchResponse =
-            given()
-            .header("Authorization", "Bearer " + adminToken)
+    var response = authenticatedRequest()
             .contentType(ContentType.JSON)
             .body(patchRequestBody)
-            .patch("/{id}", response.id)
+            .patch("/{id}", created.getId())
             .then()
-            .assertThat()
             .statusCode(200)
             .extract()
             .as(PrefixResponseDto.class);
 
-    assertEquals(postRequestBody.name, patchResponse.name);
-    assertEquals(patchRequestBody.domainId, patchResponse.domainId);
+    assertEquals("212121", response.getName());
+    assertEquals(2, response.getDomainId());
+    assertEquals(created.getServiceId(), response.getServiceId());
+    assertEquals("SERVICETESTNAME", response.getServiceName());
   }
 
   @Test
   public void testPartiallyUpdatePrefixIncorrectDomain() {
 
-    var postRequestBody =
-        new PrefixRequestDto()
-            .setName("232323")
-            .setOwner("someone")
-            .setStatus(2)
-            .setUsedBy("someone else")
-            .setLookUpServiceTypeId(2)
-            .setContractTypeId(5)
-            .setDomainId(1)
-            .setServiceId(1)
-            .setProviderId(1)
-            .setContractEnd("2018-01-01")
-            .setContactName("test")
-            .setContactEmail("test@test.gr");
+    var created = createPrefix(validPrefixRequest("232323"));
 
-    var response =
-            given()
-            .header("Authorization", "Bearer " + adminToken)
+    var patchRequestBody = new PartialPrefixDto()
+            .setName("222222")
+            .setDomainId(999);
+
+    authenticatedRequest()
             .contentType(ContentType.JSON)
-            .body(postRequestBody)
-            .post()
+            .body(patchRequestBody)
+            .patch("/{id}", created.getId())
             .then()
-            .assertThat()
-            .statusCode(201)
+            .statusCode(404);
+  }
+
+  // ---------------------------------------------------------------------------
+  // FETCH
+  // ---------------------------------------------------------------------------
+
+  @Test
+  public void fetchPrefixById() {
+
+    var created = createPrefix(validPrefixRequest("12345"));
+
+    var response = authenticatedRequest()
+            .get("/{id}", created.getId())
+            .then()
+            .statusCode(200)
             .extract()
             .as(PrefixResponseDto.class);
 
-    var patchRequestBody = new PartialPrefixDto().setName("222222").setDomainId(999);
+    assertEquals(created.getName(), response.getName());
+    assertEquals(created.getDomainId(), response.getDomainId());
+    assertEquals(created.getId(), response.getId());
+    assertEquals(created.getLookUpServiceTypeId(), response.getLookUpServiceTypeId());
+    assertEquals(created.getServiceId(), response.getServiceId());
+    assertEquals(created.getServiceName(), response.getServiceName());
+    assertEquals("2008-01-01T00:00:00Z", response.getContractEnd());
+  }
 
-    var patchResponse =
-            given()
-            .header("Authorization", "Bearer " + adminToken)
-            .contentType(ContentType.JSON)
-            .body(patchRequestBody)
-            .patch("/{id}", response.id)
+  @Test
+  public void fetchPrefixByIdNotFound() {
+
+    var response = authenticatedRequest()
+            .get("/{id}", 999)
             .then()
-            .assertThat()
-            .statusCode(404);
+            .statusCode(404)
+            .extract()
+            .as(APIResponseMsg.class);
+
+    assertEquals("Prefix not found", response.getMessage());
+  }
+
+  @Test
+  public void testFetchPrefixesByPage() {
+
+    createPrefix(validPrefixRequest("prefix-one"));
+    createPrefix(validPrefixRequest("prefix-two"));
+
+    var response = authenticatedRequest()
+            .get()
+            .then()
+            .statusCode(200)
+            .extract()
+            .as(PageResource.class);
+
+    assertEquals(2, response.getTotalElements());
+  }
+
+  // ---------------------------------------------------------------------------
+  // SEARCH / FILTERING
+  // ---------------------------------------------------------------------------
+
+  @Test
+  public void fetchPrefixesBySearch() {
+
+    createPrefix(
+            validPrefixRequest("21.SEARCH-ME")
+                    .setServiceName("SERVICE-A"));
+
+    createPrefix(
+            validPrefixRequest("21.OTHER")
+                    .setServiceName("SERVICE-B"));
+
+    var response = authenticatedRequest()
+            .queryParam("search", "SEARCH-ME")
+            .get()
+            .then()
+            .statusCode(200)
+            .extract()
+            .jsonPath();
+
+    assertEquals(1, response.getInt("total_elements"));
+    assertEquals("21.SEARCH-ME", response.getString("content[0].name"));
+  }
+
+  @Test
+  public void fetchPrefixesFilteredByProvider() {
+
+    var grnet = createPrefix(
+            validPrefixRequest("provider-grnet")
+                    .setProviderId(1)
+                    .setServiceName("SERVICE-A"));
+
+    createPrefix(
+            validPrefixRequest("provider-surf")
+                    .setProviderId(3)
+                    .setServiceName("SERVICE-B"));
+
+    var response = authenticatedRequest()
+            .queryParam("provider", grnet.getProviderName())
+            .get()
+            .then()
+            .statusCode(200)
+            .extract()
+            .jsonPath();
+
+    assertEquals(1, response.getInt("total_elements"));
+    assertEquals("provider-grnet", response.getString("content[0].name"));
+    assertEquals(grnet.getProviderName(), response.getString("content[0].provider_name"));
+  }
+
+  @Test
+  public void fetchPrefixesFilteredByDomain() {
+
+    var lifeSciences = createPrefix(
+            validPrefixRequest("domain-life")
+                    .setDomainId(1)
+                    .setServiceName("SERVICE-A"));
+
+    createPrefix(
+            validPrefixRequest("domain-physical")
+                    .setDomainId(2)
+                    .setServiceName("SERVICE-B"));
+
+    var response = authenticatedRequest()
+            .queryParam("domain", lifeSciences.getDomainName())
+            .get()
+            .then()
+            .statusCode(200)
+            .extract()
+            .jsonPath();
+
+    assertEquals(1, response.getInt("total_elements"));
+    assertEquals("domain-life", response.getString("content[0].name"));
+    assertEquals(lifeSciences.getDomainName(), response.getString("content[0].domain_name"));
+  }
+
+  @Test
+  public void fetchPrefixesFilteredByContractType() {
+
+    var first = createPrefix(
+            validPrefixRequest("contract-one")
+                    .setContractTypeId(5)
+                    .setServiceName("SERVICE-A"));
+
+    createPrefix(
+            validPrefixRequest("contract-two")
+                    .setContractTypeId(6)
+                    .setServiceName("SERVICE-B"));
+
+    var response = authenticatedRequest()
+            .queryParam("contract_type", first.getContractTypeName())
+            .get()
+            .then()
+            .statusCode(200)
+            .extract()
+            .jsonPath();
+
+    assertEquals(1, response.getInt("total_elements"));
+    assertEquals("contract-one", response.getString("content[0].name"));
+    assertEquals(first.getContractTypeName(), response.getString("content[0].contract_type_name"));
+  }
+
+  @Test
+  public void fetchPrefixesFilteredByProviderDomainAndContractType() {
+
+    var target = createPrefix(
+            validPrefixRequest("target-prefix")
+                    .setProviderId(1)
+                    .setDomainId(1)
+                    .setContractTypeId(5)
+                    .setServiceName("TARGET-SERVICE"));
+
+    createPrefix(
+            validPrefixRequest("different-provider")
+                    .setProviderId(3)
+                    .setDomainId(1)
+                    .setContractTypeId(5)
+                    .setServiceName("SERVICE-A"));
+
+    createPrefix(
+            validPrefixRequest("different-domain")
+                    .setProviderId(1)
+                    .setDomainId(2)
+                    .setContractTypeId(5)
+                    .setServiceName("SERVICE-B"));
+
+    createPrefix(
+            validPrefixRequest("different-contract")
+                    .setProviderId(1)
+                    .setDomainId(1)
+                    .setContractTypeId(6)
+                    .setServiceName("SERVICE-C"));
+
+    var response = authenticatedRequest()
+            .queryParam("provider", target.getProviderName())
+            .queryParam("domain", target.getDomainName())
+            .queryParam("contract_type", target.getContractTypeName())
+            .get()
+            .then()
+            .statusCode(200)
+            .extract()
+            .jsonPath();
+
+    assertEquals(1, response.getInt("total_elements"));
+    assertEquals("target-prefix", response.getString("content[0].name"));
+  }
+
+  @Test
+  public void fetchPrefixesWithSearchAndFilters() {
+
+    var target = createPrefix(
+            validPrefixRequest("21.MATCH")
+                    .setProviderId(1)
+                    .setDomainId(1)
+                    .setContractTypeId(5)
+                    .setServiceName("MATCH-SERVICE"));
+
+    createPrefix(
+            validPrefixRequest("21.OTHER")
+                    .setProviderId(3)
+                    .setDomainId(2)
+                    .setContractTypeId(6)
+                    .setServiceName("OTHER-SERVICE"));
+
+    var response = authenticatedRequest()
+            .queryParam("search", "21.MATCH")
+            .queryParam("provider", target.getProviderName())
+            .queryParam("domain", target.getDomainName())
+            .queryParam("contract_type", target.getContractTypeName())
+            .get()
+            .then()
+            .statusCode(200)
+            .extract()
+            .jsonPath();
+
+    assertEquals(1, response.getInt("total_elements"));
+    assertEquals("21.MATCH", response.getString("content[0].name"));
+  }
+
+  // ---------------------------------------------------------------------------
+  // DELETE
+  // ---------------------------------------------------------------------------
+
+  @Test
+  public void deletePrefix() {
+
+    var created = createPrefix(validPrefixRequest("delete-prefix"));
+
+    authenticatedRequest()
+            .delete("/{id}", created.getId())
+            .then()
+            .statusCode(200);
+
+    assertNull(prefixRepository.findById(created.getId()));
+  }
+
+  @Test
+  public void deletePrefixNotFound() {
+
+    var response = authenticatedRequest()
+            .delete("/{id}", 999)
+            .then()
+            .statusCode(404)
+            .extract()
+            .as(APIResponseMsg.class);
+
+    assertEquals("Prefix not found", response.getMessage());
+  }
+
+  // ---------------------------------------------------------------------------
+  // STATISTICS
+  // ---------------------------------------------------------------------------
+
+  @Test
+  public void fetchHandlesCountByPrefixIdNotFound() {
+
+    Mockito.when(statisticsService.getPIDCountByPrefixID("invalid"))
+            .thenThrow(new NotFoundException("Prefix invalid not found"));
+
+    var response = authenticatedRequest()
+            .get("/{id}/count", "invalid")
+            .then()
+            .statusCode(404)
+            .extract()
+            .as(APIResponseMsg.class);
+
+    assertEquals("Prefix invalid not found", response.getMessage());
+  }
+
+  @Test
+  public void fetchResolvablePIDCountByPrefixIdNotFound() {
+
+    Mockito.when(statisticsService.getResolvablePIDCountByPrefixID("invalid"))
+            .thenThrow(new NotFoundException("Prefix invalid not found"));
+
+    var response = authenticatedRequest()
+            .get("/{id}/resolvable", "invalid")
+            .then()
+            .statusCode(404)
+            .extract()
+            .as(APIResponseMsg.class);
+
+    assertEquals("Prefix invalid not found", response.getMessage());
+  }
+
+  @Test
+  public void fetchStatisticsByPrefixId() {
+
+    Mockito.when(statisticsService.getPrefixStatisticsByID(any()))
+            .thenReturn(StatisticsMapper.INSTANCE.statisticsToDto(
+                    new Statistics("21.12132", 2, 3, 4, 5)));
+
+    var response = authenticatedRequest()
+            .get("/{id}/statistic", "21.12132")
+            .then()
+            .statusCode(200)
+            .extract()
+            .as(StatisticsDto.class);
+
+    assertEquals("21.12132", response.prefix);
+    assertEquals(2, response.handlesCount);
+    assertEquals(3, response.resolvableCount);
+    assertEquals(4, response.unresolvableCount);
+    assertEquals(5, response.uncheckedCount);
   }
 
   @Test
   public void testPrefixStatistics() {
+
     var statisticsDto = new StatisticsDto();
     statisticsDto.prefix = "test";
     statisticsDto.handlesCount = 10;
@@ -733,86 +750,68 @@ public class PrefixEndpointTest {
     statisticsDto.unresolvableCount = 1;
     statisticsDto.uncheckedCount = 8;
 
-    Mockito.when(statisticsService.setPrefixStatistics(any(), any())).thenReturn(statisticsDto);
+    Mockito.when(statisticsService.setPrefixStatistics(any(), any()))
+            .thenReturn(statisticsDto);
 
-    var dto =
-        new StatisticsRequestDto()
+    var request = new StatisticsRequestDto()
             .setHandlesCount(10)
             .setResolvableCount(1)
             .setUnresolvableCount(1)
             .setUncheckedCount(8);
 
-    var resp =
-            given()
-            .header("Authorization", "Bearer " + adminToken)
-            .body(dto)
+    var response = authenticatedRequest()
+            .body(request)
             .contentType(ContentType.JSON)
             .post("/{id}/statistic", "test")
             .then()
-            .assertThat()
             .statusCode(200)
             .extract()
             .as(StatisticsDto.class);
 
-    assertEquals(resp.handlesCount, dto.handlesCount);
-    assertEquals(statisticsDto.prefix, statisticsDto.prefix);
-    assertEquals(resp.resolvableCount, dto.resolvableCount);
-    assertEquals(resp.uncheckedCount, dto.uncheckedCount);
+    assertEquals("test", response.prefix);
+    assertEquals(request.handlesCount, response.handlesCount);
+    assertEquals(request.resolvableCount, response.resolvableCount);
+    assertEquals(request.unresolvableCount, response.unresolvableCount);
+    assertEquals(request.uncheckedCount, response.uncheckedCount);
   }
 
-  @Test
-  public void updatePrefixWithoutStatusAndOptionalTypes() {
+  // ---------------------------------------------------------------------------
+  // HELPERS
+  // ---------------------------------------------------------------------------
 
-    var requestBody =
-            new PrefixRequestDto()
-                    .setName("put-optional")
-                    .setOwner("someone")
-                    .setStatus(2)
-                    .setLookUpServiceTypeId(2)
-                    .setContractTypeId(5)
-                    .setDomainId(1)
-                    .setServiceId(1)
-                    .setProviderId(1)
-                    .setContactEmail("test@test.com")
-                    .setContactName("test");
+  private PrefixRequestDto validPrefixRequest(String name) {
 
-    var created =
-            given()
-                    .header("Authorization", "Bearer " + adminToken)
-                    .contentType(ContentType.JSON)
-                    .body(requestBody)
-                    .post()
-                    .then()
-                    .assertThat()
-                    .statusCode(201)
-                    .extract()
-                    .as(PrefixResponseDto.class);
+    return new PrefixRequestDto()
+            .setName(name)
+            .setOwner("someone")
+            .setStatus(2)
+            .setUsedBy("someone else")
+            .setLookUpServiceTypeId(2)
+            .setContractTypeId(5)
+            .setDomainId(1)
+            .setServiceName("NEWSERVICE")
+            .setProviderId(1)
+            .setResolvable(Boolean.TRUE)
+            .setContactName("testname")
+            .setContactEmail("test@test.com")
+            .setContractEnd("2008-01-01");
+  }
 
-    var updateRequestBody =
-            new PrefixRequestDto()
-                    .setName("put-optional-updated")
-                    .setOwner("someone updated")
-                    .setDomainId(1)
-                    .setServiceId(1)
-                    .setProviderId(1)
-                    .setContactEmail("updated@test.com")
-                    .setContactName("updated");
+  private PrefixResponseDto createPrefix(PrefixRequestDto requestBody) {
 
-    var response =
-            given()
-                    .header("Authorization", "Bearer " + adminToken)
-                    .contentType(ContentType.JSON)
-                    .body(updateRequestBody)
-                    .put("/{id}", created.id)
-                    .then()
-                    .assertThat()
-                    .statusCode(200)
-                    .extract()
-                    .as(PrefixResponseDto.class);
+    return authenticatedRequest()
+            .contentType(ContentType.JSON)
+            .body(requestBody)
+            .post()
+            .then()
+            .statusCode(201)
+            .extract()
+            .as(PrefixResponseDto.class);
+  }
 
-    assertEquals("put-optional-updated", response.getName());
-    assertEquals(null, response.getStatus());
-    assertEquals(null, response.getContractTypeId());
-    assertEquals(null, response.getLookUpServiceTypeId());
+  private RequestSpecification authenticatedRequest() {
+
+    return given()
+            .header("Authorization", "Bearer " + adminToken);
   }
 }
