@@ -18,6 +18,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.grnet.endpoint.scanner.runtime.SecuredEndpoint;
 
 @Tag(name = "Domain")
 @Path("/domains")
@@ -67,6 +68,7 @@ public class DomainEndpoint {
               schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class)))
   @GET
   @Path("/{id}")
+  @SecuredEndpoint
   public Response getById(@PathParam("id") Integer id) {
 
     DomainDto domain = domainService.fetchById(id);
@@ -100,6 +102,7 @@ public class DomainEndpoint {
               schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class)))
   @GET
   @Path("/")
+  @SecuredEndpoint
   public Response getAll() {
 
     List<DomainDto> domains = domainService.fetchAll();

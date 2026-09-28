@@ -2,6 +2,7 @@ package gr.grnet.pccapi.endpoint;
 
 import gr.grnet.pccapi.dto.APIResponseMsg;
 import gr.grnet.pccapi.dto.provider.ProviderResponseDTO;
+import gr.grnet.pccapi.resources.ProviderResource;
 import gr.grnet.pccapi.service.ProviderService;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
@@ -17,6 +18,9 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.grnet.endpoint.scanner.runtime.ParamRef;
+import org.grnet.endpoint.scanner.runtime.ParamType;
+import org.grnet.endpoint.scanner.runtime.SecuredEndpoint;
 
 @Tag(name = "Provider", description = "Provider is an organisation that hosts the handle service")
 @Path("/providers")
@@ -60,7 +64,9 @@ public class ProviderEndpoint {
       description = "Internal Server Error.",
       content =
           @Content(
-              schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class)))
+              schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class))
+  )
+  @SecuredEndpoint
   public Response getAll() {
 
     return Response.ok(providerService.fetchAll()).build();
@@ -99,7 +105,17 @@ public class ProviderEndpoint {
       description = "Internal Server Error.",
       content =
           @Content(
-              schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class)))
+              schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class))
+  )
+  @SecuredEndpoint(
+          params = {
+                  @ParamRef(
+                          param = "id",
+                          type = ParamType.PATH,
+                          referTo = ProviderResource.class
+                  )
+          }
+  )
   public Response getById(@PathParam("id") int id) {
 
     return Response.ok(providerService.fetchById(id)).build();

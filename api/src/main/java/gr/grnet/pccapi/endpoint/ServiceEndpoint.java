@@ -17,6 +17,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.grnet.endpoint.scanner.runtime.SecuredEndpoint;
 
 @Tag(name = "Service")
 @Path("/services")
@@ -58,7 +59,9 @@ public class ServiceEndpoint {
       description = "Internal Server Error.",
       content =
           @Content(
-              schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class)))
+              schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class))
+  )
+  @SecuredEndpoint
   public Response getAll() {
 
     return Response.ok(service.fetchAll()).build();
@@ -95,7 +98,9 @@ public class ServiceEndpoint {
       description = "Internal Server Error.",
       content =
           @Content(
-              schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class)))
+              schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class))
+  )
+  @SecuredEndpoint
   public Response getById(@PathParam("id") int id) {
 
     return Response.ok(service.fetchById(id)).build();

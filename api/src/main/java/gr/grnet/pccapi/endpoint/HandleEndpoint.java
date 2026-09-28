@@ -5,6 +5,7 @@ import gr.grnet.pccapi.dto.handle.HandleListResponseDto;
 import gr.grnet.pccapi.dto.handle.HandleRequestDto;
 import gr.grnet.pccapi.dto.handle.HandleResponseDto;
 import gr.grnet.pccapi.dto.handle.HandleUpdateRequestDto;
+import gr.grnet.pccapi.resources.PrefixResource;
 import gr.grnet.pccapi.service.HandleService;
 import gr.grnet.pccapi.service.Utility;
 import io.quarkus.security.Authenticated;
@@ -27,6 +28,9 @@ import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.grnet.endpoint.scanner.runtime.ParamRef;
+import org.grnet.endpoint.scanner.runtime.ParamType;
+import org.grnet.endpoint.scanner.runtime.SecuredEndpoint;
 import org.hibernate.validator.constraints.URL;
 
 import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.QUERY;
@@ -100,6 +104,15 @@ public class HandleEndpoint {
             content = @Content(schema = @Schema(
                     type = SchemaType.OBJECT,
                     implementation = InformativeResponse.class)))
+    @SecuredEndpoint(
+            params = {
+                    @ParamRef(
+                            param = "id",
+                            type = ParamType.PATH,
+                            referTo = PrefixResource.class
+                    )
+            }
+    )
     public Response create(
             @Parameter(
                     name = "id",
@@ -180,6 +193,15 @@ public class HandleEndpoint {
             content = @Content(schema = @Schema(
                     type = SchemaType.OBJECT,
                     implementation = InformativeResponse.class)))
+    @SecuredEndpoint(
+            params = {
+                    @ParamRef(
+                            param = "id",
+                            type = ParamType.PATH,
+                            referTo = PrefixResource.class
+                    )
+            }
+    )
     public Response getAll(
             @Parameter(
                     name = "id",
@@ -235,18 +257,12 @@ public class HandleEndpoint {
     }
 
     @GET
-    @Operation(summary = "Create handle")
+    @Operation(summary = "Get a handle.")
     @APIResponse(
-            responseCode = "201",
-            description = "Handle created",
+            responseCode = "200",
+            description = "Get a handle",
             content = @Content(schema = @Schema(
                     implementation = HandleResponseDto.class)))
-    @APIResponse(
-            responseCode = "400",
-            description = "Invalid request",
-            content = @Content(schema = @Schema(
-                    type = SchemaType.OBJECT,
-                    implementation = InformativeResponse.class)))
     @APIResponse(
             responseCode = "401",
             description = "User has not been authenticated.",
@@ -284,6 +300,15 @@ public class HandleEndpoint {
                     type = SchemaType.OBJECT,
                     implementation = InformativeResponse.class)))
     @Path("/{suffix}")
+    @SecuredEndpoint(
+            params = {
+                    @ParamRef(
+                            param = "id",
+                            type = ParamType.PATH,
+                            referTo = PrefixResource.class
+                    )
+            }
+    )
     public Response getHandle(
             @Parameter(
                     name = "id",
@@ -376,6 +401,15 @@ public class HandleEndpoint {
                     type = SchemaType.OBJECT,
                     implementation = InformativeResponse.class)))
     @Path("/{suffix}")
+    @SecuredEndpoint(
+            params = {
+                    @ParamRef(
+                            param = "id",
+                            type = ParamType.PATH,
+                            referTo = PrefixResource.class
+                    )
+            }
+    )
     public Response updateHandle(
             @Parameter(
                     name = "id",
@@ -463,6 +497,15 @@ public class HandleEndpoint {
                     type = SchemaType.OBJECT,
                     implementation = InformativeResponse.class)))
     @Path("/{suffix}")
+    @SecuredEndpoint(
+            params = {
+                    @ParamRef(
+                            param = "id",
+                            type = ParamType.PATH,
+                            referTo = PrefixResource.class
+                    )
+            }
+    )
     public Response deleteHandle(
             @Parameter(
                     name = "id",

@@ -5,6 +5,7 @@ import gr.grnet.pccapi.dto.FiltersDto;
 import gr.grnet.pccapi.dto.handle.HandleResponseDto;
 import gr.grnet.pccapi.enums.Filter;
 import gr.grnet.pccapi.enums.LookUpServiceType;
+import gr.grnet.pccapi.resources.PrefixResource;
 import gr.grnet.pccapi.service.ReverseLookUpService;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
@@ -22,6 +23,9 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.grnet.endpoint.scanner.runtime.ParamRef;
+import org.grnet.endpoint.scanner.runtime.ParamType;
+import org.grnet.endpoint.scanner.runtime.SecuredEndpoint;
 
 @Tag(name = "Reverse LookUp", description = "Provide a proxy endpoint to query the HRLS Service.")
 @Path("/reverse-lookup")
@@ -69,7 +73,9 @@ public class ReverseLookUpEndpoint {
       description = "Internal Server Error.",
       content =
           @Content(
-              schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class)))
+              schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class))
+  )
+  @SecuredEndpoint
   public Response search(
       @Valid FiltersDto filtersDto,
       @QueryParam("page") @DefaultValue("0") Long page,
@@ -102,7 +108,9 @@ public class ReverseLookUpEndpoint {
       description = "Internal Server Error.",
       content =
           @Content(
-              schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class)))
+              schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class))
+  )
+  @SecuredEndpoint
   public Response filters() {
 
     return Response.ok(EnumSet.allOf(Filter.class)).build();
@@ -134,7 +142,9 @@ public class ReverseLookUpEndpoint {
       description = "Internal Server Error.",
       content =
           @Content(
-              schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class)))
+              schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class))
+  )
+  @SecuredEndpoint
   public Response types() {
 
     return Response.ok(EnumSet.allOf(LookUpServiceType.class)).build();
