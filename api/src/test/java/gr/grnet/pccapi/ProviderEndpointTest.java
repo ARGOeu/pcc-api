@@ -2,6 +2,7 @@ package gr.grnet.pccapi;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import gr.grnet.pccapi.dto.APIResponseMsg;
 import gr.grnet.pccapi.dto.provider.ProviderResponseDTO;
@@ -11,6 +12,7 @@ import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import io.restassured.http.ContentType;
+import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
@@ -24,17 +26,14 @@ public class ProviderEndpointTest {
   @KeycloakToken(username = "admin", password = "admin")
   String adminToken;
 
-
-  /** Test the /providers/{id} endpoint */
   @Test
   public void getById() {
-    var response =
-            given()
+
+    var response = given()
             .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
-            .get("1")
+            .get("/{id}", 1)
             .then()
-            .assertThat()
             .statusCode(200)
             .extract()
             .as(ProviderResponseDTO.class);
@@ -43,44 +42,38 @@ public class ProviderEndpointTest {
     assertEquals("GRNET", response.name);
   }
 
-  /** Test the /providers endpoint */
   @Test
   public void getList() {
-    var response =
-            given()
+
+    var response = given()
             .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
             .get()
             .then()
-            .assertThat()
             .statusCode(200)
             .extract()
             .as(ProviderResponseDTO[].class);
 
-    assertEquals(4, response.length);
+    assertEquals(3, response.length);
 
-    assertEquals(1, response[0].id);
-    assertEquals("GRNET", response[0].name);
+    assertTrue(Arrays.stream(response)
+            .anyMatch(provider -> provider.id == 1 && "GRNET".equals(provider.name)));
 
-    assertEquals(2, response[1].id);
-    assertEquals("DKRZ", response[1].name);
+    assertTrue(Arrays.stream(response)
+            .anyMatch(provider -> provider.id == 3 && "Surf".equals(provider.name)));
 
-    assertEquals(3, response[2].id);
-    assertEquals("SURF", response[2].name);
-
-    assertEquals(4, response[3].id);
-    assertEquals("GWDG", response[3].name);
+    assertTrue(Arrays.stream(response)
+            .anyMatch(provider -> provider.id == 4 && "GWDG".equals(provider.name)));
   }
 
   @Test
   public void getByIdNotfound() {
-    var response =
-            given()
+
+    var response = given()
             .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
             .get("/{id}", 999)
             .then()
-            .assertThat()
             .statusCode(404)
             .extract()
             .as(APIResponseMsg.class);

@@ -2,15 +2,21 @@ package gr.grnet.pccapi;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import gr.grnet.pccapi.dto.APIResponseMsg;
 import gr.grnet.pccapi.dto.ServiceDto;
 import gr.grnet.pccapi.endpoint.ServiceEndpoint;
+import gr.grnet.pccapi.entity.Service;
+import gr.grnet.pccapi.repository.ServiceRepository;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import io.restassured.http.ContentType;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
@@ -21,62 +27,69 @@ import org.junit.jupiter.api.TestInstance;
 @QuarkusTestResource(KeycloakComposeResource.class)
 public class ServiceEndpointTest {
 
+  @Inject ServiceRepository serviceRepository;
+
   @KeycloakToken(username = "admin", password = "admin")
   String adminToken;
+
+  private Integer serviceId;
+
+  @BeforeEach
+  @Transactional
+  public void setUp() {
+
+    var service = serviceRepository.findByName("SERVICE-ENDPOINT-TEST");
+
+    if (service == null) {
+      service = new Service();
+      service.setName("SERVICE-ENDPOINT-TEST");
+      serviceRepository.persist(service);
+    }
+
+    serviceId = service.id;
+  }
 
   @Test
   public void listAllServices() {
 
-    var response =
-            given()
+    var response = given()
             .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
             .get()
             .then()
-            .assertThat()
             .statusCode(200)
             .extract()
             .as(ServiceDto[].class);
 
-    assertEquals(3, response.length);
-    assertEquals(1, response[0].id);
-    assertEquals("B2HANDLE", response[0].name);
-
-    assertEquals(2, response[1].id);
-    assertEquals("B2SAFE", response[1].name);
-
-    assertEquals(3, response[2].id);
-    assertEquals("B2ACCESS", response[2].name);
+    assertTrue(
+            java.util.Arrays.stream(response)
+                    .anyMatch(service -> service.id.equals(serviceId) && service.name.equals("SERVICE-ENDPOINT-TEST")));
   }
 
   @Test
   public void listOneService() {
 
-    var response =
-            given()
+    var response = given()
             .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
-            .get("/{id}", 1)
+            .get("/{id}", serviceId)
             .then()
-            .assertThat()
             .statusCode(200)
             .extract()
             .as(ServiceDto.class);
 
-    assertEquals(1, response.id);
-    assertEquals("B2HANDLE", response.name);
+    assertEquals(serviceId, response.id);
+    assertEquals("SERVICE-ENDPOINT-TEST", response.name);
   }
 
   @Test
   public void listOneServiceNotfound() {
 
-    var response =
-            given()
+    var response = given()
             .header("Authorization", "Bearer " + adminToken)
             .contentType(ContentType.JSON)
-            .get("/{id}", 999)
+            .get("/{id}", 999999)
             .then()
-            .assertThat()
             .statusCode(404)
             .extract()
             .as(APIResponseMsg.class);

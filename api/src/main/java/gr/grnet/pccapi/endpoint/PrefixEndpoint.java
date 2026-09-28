@@ -27,9 +27,12 @@ import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeIn;
 import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeType;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+
+import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.QUERY;
 
 @Tag(name = "Prefix")
 @Path("/prefixes")
@@ -153,15 +156,42 @@ public class PrefixEndpoint {
       content = @Content(schema = @Schema(
               implementation = APIResponseMsg.class)))
   public Response getAllByPageAndSize(
-      @DefaultValue("1") @Min(1)
-      @QueryParam("page")
-      int page,
-      @DefaultValue("10") @Min(1) @Max(100)
-      @QueryParam("size")
-      int size,
-      @Context UriInfo uriInfo) {
+          @Parameter(name = "search", in = QUERY,
+                  description = "Search prefixes by text.",
+                  example = "21.T")
+          @QueryParam("search")
+          String search,
+          @Parameter(name = "provider", in = QUERY,
+                  description = "Filter prefixes by provider name.",
+                  example = "GRNET")
+          @QueryParam("provider")
+          String provider,
+          @Parameter(name = "domain", in = QUERY,
+                  description = "Filter prefixes by domain name.",
+                  example = "Life Sciences")
+          @QueryParam("domain")
+          String domain,
+          @Parameter(name = "contract_type", in = QUERY,
+                  description = "Filter prefixes by contract type name.",
+                  example = "PROJECT")
+          @QueryParam("contract_type")
+          String contractType,
+          @Parameter(name = "page", in = QUERY,
+                  description = "Page number. Must be >= 1.")
+          @DefaultValue("1")
+          @Min(value = 1, message = "Page number must be >= 1.")
+          @QueryParam("page")
+          int page,
+          @Parameter(name = "size", in = QUERY,
+                  description = "Page size.")
+          @DefaultValue("10")
+          @Min(value = 1, message = "Page size must be between 1 and 100.")
+          @Max(value = 100, message = "Page size must be between 1 and 100.")
+          @QueryParam("size")
+          int size,
+          @Context UriInfo uriInfo) {
 
-    var prefixes = prefixService.fetchByPageAndSize(page - 1, size, uriInfo);
+    var prefixes = prefixService.fetchByPageAndSize(search, provider, domain, contractType,page - 1, size, uriInfo);
 
     return Response.ok(prefixes).build();
   }
