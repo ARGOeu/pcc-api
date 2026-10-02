@@ -7,7 +7,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import java.util.Optional;
 
 @ApplicationScoped
-public class DomainRepository implements PanacheRepositoryBase<Domain, Integer> {
+public class DomainRepository implements Repository<Domain, Integer> {
 
   /**
    * It updates the name and the description of the given domain id.

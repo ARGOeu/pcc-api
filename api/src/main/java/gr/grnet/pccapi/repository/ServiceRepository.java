@@ -6,7 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 /** Repository class for the service entity */
 @ApplicationScoped
-public class ServiceRepository implements PanacheRepositoryBase<Service, Integer> {
+public class ServiceRepository implements Repository<Service, Integer> {
 
     public Service findByName(String name) {
         return find("lower(name) = lower(?1)", name.trim())

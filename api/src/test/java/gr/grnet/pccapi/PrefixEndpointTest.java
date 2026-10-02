@@ -34,25 +34,35 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.mockito.Mockito;
 
+import java.util.List;
+
 @QuarkusTest
 @TestHTTPEndpoint(PrefixEndpoint.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestProfile(PCCApiTestProfile.class)
 @QuarkusTestResource(KeycloakComposeResource.class)
-public class PrefixEndpointTest {
+public class PrefixEndpointTest extends KeycloakTest {
 
-  @Inject PrefixRepository prefixRepository;
-  @Inject ServiceRepository serviceRepository;
-  @InjectMock StatisticsService statisticsService;
+  @Inject
+  PrefixRepository prefixRepository;
 
-  @KeycloakToken(username = "admin", password = "admin")
-  String adminToken;
+  @Inject
+  ServiceRepository serviceRepository;
+
+  @InjectMock
+  StatisticsService statisticsService;
 
   @BeforeEach
   @Transactional
-  public void cleanDB() {
+  void cleanDB() {
     prefixRepository.deleteAll();
   }
+
+  @BeforeEach
+  void setupAuthorization() {
+    mockSuperAdmin();
+  }
+
 
   // ---------------------------------------------------------------------------
   // CREATE
@@ -212,7 +222,7 @@ public class PrefixEndpointTest {
     var response = authenticatedRequest()
             .contentType(ContentType.JSON)
             .body(updateRequestDto)
-            .put("/{id}", created.getId())
+            .put("/{prefix-id}", created.getId())
             .then()
             .statusCode(200)
             .extract()
@@ -243,7 +253,7 @@ public class PrefixEndpointTest {
     var response = authenticatedRequest()
             .contentType(ContentType.JSON)
             .body(validPrefixRequest("not-found"))
-            .put("/{id}", 999)
+            .put("/{prefix-id}", 999)
             .then()
             .statusCode(404)
             .extract()
@@ -270,7 +280,7 @@ public class PrefixEndpointTest {
     var response = authenticatedRequest()
             .contentType(ContentType.JSON)
             .body(updateRequestBody)
-            .put("/{id}", created.getId())
+            .put("/{prefix-id}", created.getId())
             .then()
             .statusCode(200)
             .extract()
@@ -306,7 +316,7 @@ public class PrefixEndpointTest {
     var patchResponse = authenticatedRequest()
             .contentType(ContentType.JSON)
             .body(patchRequestBody)
-            .patch("/{id}", created.getId())
+            .patch("/{prefix-id}", created.getId())
             .then()
             .statusCode(200)
             .extract()
@@ -337,7 +347,7 @@ public class PrefixEndpointTest {
     var response = authenticatedRequest()
             .contentType(ContentType.JSON)
             .body(patchRequestBody)
-            .patch("/{id}", created.getId())
+            .patch("/{prefix-id}", created.getId())
             .then()
             .statusCode(200)
             .extract()
@@ -363,7 +373,7 @@ public class PrefixEndpointTest {
     var response = authenticatedRequest()
             .contentType(ContentType.JSON)
             .body(patchRequestBody)
-            .patch("/{id}", created.getId())
+            .patch("/{prefix-id}", created.getId())
             .then()
             .statusCode(200)
             .extract()
@@ -388,7 +398,7 @@ public class PrefixEndpointTest {
     var response = authenticatedRequest()
             .contentType(ContentType.JSON)
             .body(patchRequestBody)
-            .patch("/{id}", created.getId())
+            .patch("/{prefix-id}", created.getId())
             .then()
             .statusCode(200)
             .extract()
@@ -412,7 +422,7 @@ public class PrefixEndpointTest {
     authenticatedRequest()
             .contentType(ContentType.JSON)
             .body(patchRequestBody)
-            .patch("/{id}", created.getId())
+            .patch("/{prefix-id}", created.getId())
             .then()
             .statusCode(404);
   }
@@ -427,7 +437,7 @@ public class PrefixEndpointTest {
     var created = createPrefix(validPrefixRequest("12345"));
 
     var response = authenticatedRequest()
-            .get("/{id}", created.getId())
+            .get("/{prefix-id}", created.getId())
             .then()
             .statusCode(200)
             .extract()
@@ -446,7 +456,7 @@ public class PrefixEndpointTest {
   public void fetchPrefixByIdNotFound() {
 
     var response = authenticatedRequest()
-            .get("/{id}", 999)
+            .get("/{prefix-id}", 999)
             .then()
             .statusCode(404)
             .extract()
@@ -663,7 +673,7 @@ public class PrefixEndpointTest {
     var created = createPrefix(validPrefixRequest("delete-prefix"));
 
     authenticatedRequest()
-            .delete("/{id}", created.getId())
+            .delete("/{prefix-id}", created.getId())
             .then()
             .statusCode(200);
 
@@ -674,7 +684,7 @@ public class PrefixEndpointTest {
   public void deletePrefixNotFound() {
 
     var response = authenticatedRequest()
-            .delete("/{id}", 999)
+            .delete("/{prefix-id}", 999)
             .then()
             .statusCode(404)
             .extract()
@@ -694,7 +704,7 @@ public class PrefixEndpointTest {
             .thenThrow(new NotFoundException("Prefix invalid not found"));
 
     var response = authenticatedRequest()
-            .get("/{id}/count", "invalid")
+            .get("/{prefix-id}/count", "invalid")
             .then()
             .statusCode(404)
             .extract()
@@ -710,7 +720,7 @@ public class PrefixEndpointTest {
             .thenThrow(new NotFoundException("Prefix invalid not found"));
 
     var response = authenticatedRequest()
-            .get("/{id}/resolvable", "invalid")
+            .get("/{prefix-id}/resolvable", "invalid")
             .then()
             .statusCode(404)
             .extract()
@@ -727,7 +737,7 @@ public class PrefixEndpointTest {
                     new Statistics("21.12132", 2, 3, 4, 5)));
 
     var response = authenticatedRequest()
-            .get("/{id}/statistic", "21.12132")
+            .get("/{prefix-id}/statistic", "21.12132")
             .then()
             .statusCode(200)
             .extract()
@@ -762,7 +772,7 @@ public class PrefixEndpointTest {
     var response = authenticatedRequest()
             .body(request)
             .contentType(ContentType.JSON)
-            .post("/{id}/statistic", "test")
+            .post("/{prefix-id}/statistic", "test")
             .then()
             .statusCode(200)
             .extract()
@@ -812,6 +822,8 @@ public class PrefixEndpointTest {
   private RequestSpecification authenticatedRequest() {
 
     return given()
-            .header("Authorization", "Bearer " + adminToken);
+            .header("Authorization", "Bearer " + providerAdminToken)
+            .pathParam("id", 1);
   }
+
 }

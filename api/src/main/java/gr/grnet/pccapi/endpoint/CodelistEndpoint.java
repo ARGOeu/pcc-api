@@ -19,6 +19,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.grnet.endpoint.scanner.runtime.SecuredEndpoint;
 
 @Tag(name = "Codelist")
 @Path("/codelist")
@@ -71,6 +72,7 @@ public class CodelistEndpoint {
               schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class)))
   @GET
   @Path("/")
+  @SecuredEndpoint
   public Response getByCategory(@QueryParam("category") String category) {
 
     List<CodelistDto> codes = codelistService.fetchByCategory(category);

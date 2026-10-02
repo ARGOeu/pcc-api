@@ -6,6 +6,6 @@ public class PCCApiTestProfile implements QuarkusTestProfile {
 
   @Override
   public boolean disableApplicationLifecycleObservers() {
-    return true;
+    return false;
   }
 }

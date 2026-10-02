@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 @ApplicationScoped
-public class StatisticsRepository implements PanacheRepositoryBase<Statistics, Integer> {
+public class StatisticsRepository implements Repository<Statistics, Integer> {
 
   public int getPIDCountByPrefixID(String prefix) throws SQLException {
     int total = 0;
