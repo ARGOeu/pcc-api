@@ -1,0 +1,125 @@
+<!doctype html>
+
+<html lang="en">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>You have been added</title>
+
+        <style type="text/css">
+            body { margin:0; padding:0; background:#f4f5f6; font-family: Helvetica, Arial, sans-serif; }
+			table { border-collapse: separate; width:100%; }
+			td { font-family: Helvetica, Arial, sans-serif; }
+
+			.container { max-width:600px; margin:0 auto; padding:24px 12px; }
+			.card { background:#ffffff; border:1px solid #eaebed; border-radius:16px; overflow:hidden; }
+
+			.header { padding:18px 24px; background:#ffffff; border-bottom:1px solid #eaebed; }
+			.logo { display:block; height:64px; }
+
+			.content { padding:24px; }
+
+			h2 { margin:0 0 12px 0; font-size:20px; line-height:1.2; color:#111827; }
+
+			p { margin:0 0 14px 0; font-size:16px; line-height:1.45; color:#111827; }
+
+			.muted { color:#6b7280; font-size:14px; }
+
+			.pillbox {
+				margin:14px 0 18px 0;
+				padding:12px 14px;
+				border:1px solid #eaebed;
+				border-radius:12px;
+				background:#fafafa;
+			}
+
+			.btn-wrap { padding:8px 0 0 0; }
+
+			.btn {
+				display:inline-block;
+				background:#0867ec;
+				color:#ffffff !important;
+				text-decoration:none;
+				font-weight:700;
+				padding:12px 18px;
+				border-radius:10px;
+			}
+
+			.footer { text-align:center; padding:18px 24px; color:#9a9ea6; font-size:14px; }
+
+			@media only screen and (max-width: 640px) {
+				.container { padding:12px 8px; }
+				.content { padding:18px; }
+				.btn { display:block; text-align:center; }
+			}
+        </style>
+
+    </head>
+
+    <body>
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td>
+                    <div class="container">
+                        <table role="presentation" class="card" cellpadding="0" cellspacing="0" border="0">
+
+                            <!-- HEADER -->
+                            <tr>
+                                <td class="header">
+                                    <img class="logo" src="{logoUrl}" alt="{title} logo">
+                                </td>
+                            </tr>
+
+                            <!-- BODY -->
+                            <tr>
+                                <td class="content">
+                                    <h2>You have been added</h2>
+
+                                    <p>
+                                        Dear User,<br><br>
+                                        You have been successfully added to the prefix <b>{prefixName}</b>
+                                        under provider <b>{providerName}</b> on <b>{title}</b>.
+                                    </p>
+
+                                    <div class="pillbox">
+                                        <p style="margin:0;">
+                                            Provider: <b>{providerName}</b><br>
+                                            Prefix: <b>{prefixName}</b><br>
+                                            Your role: <b>{role}</b>
+                                        </p>
+                                    </div>
+
+                                    <p>
+                                        You can now access the prefix and its available accounts.
+                                    </p>
+
+                                    <div class="btn-wrap">
+                                        <a class="btn" href="{prefixDetailsUrl}" target="_blank" rel="noopener">
+                                            View Prefix Details
+                                        </a>
+                                    </div>
+
+                                    <p class="muted" style="margin-top:16px;">
+                                        If you believe this was sent by mistake, please contact the platform administrators.
+                                    </p>
+                                </td>
+                            </tr>
+
+                            <!-- FOOTER -->
+                            <tr>
+                                <td class="footer">
+                                    <div><b>{title} Team</b></div>
+                                    <div style="margin-top:6px;">
+                                        Need more information? Contact us at
+                                        <a href="mailto:{replyTo}">{replyTo}</a>
+                                    </div>
+                                </td>
+                            </tr>
+
+                        </table>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </body>
+</html>

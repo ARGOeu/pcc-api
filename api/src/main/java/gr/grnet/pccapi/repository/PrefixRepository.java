@@ -9,10 +9,12 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Optional;
 import java.util.StringJoiner;
 
 @ApplicationScoped
-public class PrefixRepository implements PanacheRepositoryBase<Prefix, Integer> {
+public class PrefixRepository implements Repository<Prefix, Integer> {
 
   /**
    * Checks if the given prefix name has already been used
@@ -89,5 +91,61 @@ public class PrefixRepository implements PanacheRepositoryBase<Prefix, Integer> 
     pageable.page = Page.of(page, size);
 
     return pageable;
+  }
+
+  public PageQuery<Prefix> fetchPrefixesByProviderIdsAndPage(HashSet<Object> providerIds, String search, String provider, String domain, String contractType, int page, int size) {
+
+    var joiner = new StringJoiner(StringUtils.SPACE);
+    joiner.add("from prefix p");
+
+    var conditions = new StringJoiner(" AND ");
+    var map = new HashMap<String, Object>();
+
+    if (providerIds == null || providerIds.isEmpty()) {
+      conditions.add("1 = 0");
+    } else {
+      conditions.add("str(p.provider.id) in :providerIds");
+      map.put("providerIds", providerIds);
+    }
+
+    if (StringUtils.isNotEmpty(search)) {
+      conditions.add("(p.name ilike :search or p.owner ilike :search or p.usedBy ilike :search)");
+      map.put("search", "%" + search + "%");
+    }
+
+    if (StringUtils.isNotEmpty(provider)) {
+      conditions.add("p.provider.name ilike :provider");
+      map.put("provider", provider);
+    }
+
+    if (StringUtils.isNotEmpty(domain)) {
+      conditions.add("p.domain.name ilike :domain");
+      map.put("domain", domain);
+    }
+
+    if (StringUtils.isNotEmpty(contractType)) {
+      conditions.add("p.contractType.name ilike :contractType");
+      map.put("contractType", contractType);
+    }
+
+    joiner.add("WHERE");
+    joiner.add(conditions.toString());
+    joiner.add("order by p.name ASC");
+
+    var panache = find(joiner.toString(), map).page(page, size);
+
+    var pageable = new PageQueryImpl<Prefix>();
+    pageable.list = panache.list();
+    pageable.index = page;
+    pageable.size = size;
+    pageable.count = panache.count();
+    pageable.page = Page.of(page, size);
+
+    return pageable;
+  }
+
+  public Optional<Prefix> findByIdAndProviderId(Integer prefixId, Integer providerId) {
+    return find("id = ?1 and provider.id = ?2", prefixId, providerId).
+            firstResultOptional();
   }
 }

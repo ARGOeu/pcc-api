@@ -6,7 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import java.util.Optional;
 
 @ApplicationScoped
-public class CodelistRepository implements PanacheRepositoryBase<Codelist, Integer> {
+public class CodelistRepository implements Repository<Codelist, Integer> {
 
   public Optional<Codelist> findByIdAndCategory(Integer id, String category) {
     return find("from codelist c where c.id = ?1 and c.category = ?2", id, category)

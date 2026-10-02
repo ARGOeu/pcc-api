@@ -3,15 +3,28 @@ package gr.grnet.pccapi.service;
 import gr.grnet.pccapi.dto.provider.ProviderResponseDTO;
 import gr.grnet.pccapi.mapper.ProviderMapper;
 import gr.grnet.pccapi.repository.ProviderRepository;
+import gr.grnet.pccapi.resources.ProviderResource;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.NotFoundException;
+
+import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import lombok.AllArgsConstructor;
+import org.grnet.endpoint.scanner.runtime.context.RoleEndpointHolder;
+
+import static com.fasterxml.jackson.databind.type.LogicalType.Collection;
 
 @ApplicationScoped
 @AllArgsConstructor
 public class ProviderService {
 
+  @Inject
+  AccessControlService accessControlService;
+
+  @Inject
   ProviderRepository providerRepository;
 
   /**
@@ -35,9 +48,21 @@ public class ProviderService {
    * @return A list of ProviderResponseDTO representations of all available providers
    */
   public List<ProviderResponseDTO> fetchAll() {
-    var providers = providerRepository.findAll().list();
-    // Map the providers retrieved from the database to the equivalent ProviderResponseDTO list and
-    // return
+
+    if (accessControlService.isSuperAdmin()) {
+      var providers = providerRepository.findAll().list();
+      return ProviderMapper.INSTANCE.providersToResponse(providers);
+    }
+
+    var providerIds = RoleEndpointHolder.get().stream()
+            .flatMap(role -> accessControlService
+                    .resolveAccessibleGroupsByName(role.getRoleName(), ProviderResource.PROVIDER.resourceName())
+                    .stream())
+            .map(Integer::valueOf)
+            .collect(Collectors.toSet());
+
+    var providers = providerRepository.fetchProvidersByIds(providerIds);
+
     return ProviderMapper.INSTANCE.providersToResponse(providers);
   }
 }

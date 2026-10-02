@@ -5,8 +5,9 @@ import gr.grnet.pccapi.dto.handle.HandleListResponseDto;
 import gr.grnet.pccapi.dto.handle.HandleRequestDto;
 import gr.grnet.pccapi.dto.handle.HandleResponseDto;
 import gr.grnet.pccapi.dto.handle.HandleUpdateRequestDto;
+import gr.grnet.pccapi.resources.PrefixResource;
+import gr.grnet.pccapi.resources.ProviderResource;
 import gr.grnet.pccapi.service.HandleService;
-import gr.grnet.pccapi.service.Utility;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -27,12 +28,15 @@ import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.grnet.endpoint.scanner.runtime.ParamRef;
+import org.grnet.endpoint.scanner.runtime.ParamType;
+import org.grnet.endpoint.scanner.runtime.SecuredEndpoint;
 import org.hibernate.validator.constraints.URL;
 
 import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.QUERY;
 
-@Tag(name = "Handle")
-@Path("/prefixes/{id}/handles")
+@Tag(name = "Prefix Handle")
+@Path("/providers/{id}/prefixes/{prefix-id}/handles")
 @Authenticated
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -47,9 +51,6 @@ public class HandleEndpoint {
 
     @Inject
     HandleService handleService;
-
-    @Inject
-    Utility utility;
 
     @POST
     @Operation(summary = "Create handle")
@@ -100,12 +101,32 @@ public class HandleEndpoint {
             content = @Content(schema = @Schema(
                     type = SchemaType.OBJECT,
                     implementation = InformativeResponse.class)))
+    @SecuredEndpoint(
+            params = {
+                    @ParamRef(
+                            param = "id",
+                            type = ParamType.PATH,
+                            referTo = ProviderResource.class
+                    ),
+                    @ParamRef(
+                            param = "prefix-id",
+                            type = ParamType.PATH,
+                            referTo = PrefixResource.class
+                    )
+            }
+    )
     public Response create(
             @Parameter(
                     name = "id",
+                    description = "The identifier of the Provider.",
+                    example = "1")
+            @PathParam("id")
+            Integer id,
+            @Parameter(
+                    name = "prefix-id",
                     description = "The identifier of the Prefix.",
                     example = "2")
-            @PathParam("id")
+            @PathParam("prefix-id")
             Integer prefixId,
             @Parameter(
                     name = "x-handle-service-url",
@@ -180,12 +201,32 @@ public class HandleEndpoint {
             content = @Content(schema = @Schema(
                     type = SchemaType.OBJECT,
                     implementation = InformativeResponse.class)))
+    @SecuredEndpoint(
+            params = {
+                    @ParamRef(
+                            param = "id",
+                            type = ParamType.PATH,
+                            referTo = ProviderResource.class
+                    ),
+                    @ParamRef(
+                            param = "prefix-id",
+                            type = ParamType.PATH,
+                            referTo = PrefixResource.class
+                    )
+            }
+    )
     public Response getAll(
             @Parameter(
                     name = "id",
+                    description = "The identifier of the Provider.",
+                    example = "1")
+            @PathParam("id")
+            Integer id,
+            @Parameter(
+                    name = "prefix-id",
                     description = "The identifier of the Prefix.",
                     example = "2")
-            @PathParam("id")
+            @PathParam("prefix-id")
             Integer prefixId,
             @Parameter(
                     name = "x-handle-service-url",
@@ -216,18 +257,32 @@ public class HandleEndpoint {
                     description = "Filters Handles by identifier.")
             @QueryParam("search")
             String search,
-            @Parameter(name = "page", in = QUERY,
+            @Parameter(
+                    name = "page",
+                    in = QUERY,
                     description = "Indicates the page number. Page number must be >= 1.")
             @DefaultValue("1")
-            @Min(value = 1, message = "Page number must be >= 1.")
-            @QueryParam("page") int page,
-            @Parameter(name = "size", in = QUERY,
+            @Min(
+                    value = 1,
+                    message = "Page number must be >= 1.")
+            @QueryParam("page")
+            int page,
+            @Parameter(
+                    name = "size",
+                    in = QUERY,
                     description = "The page size.")
             @DefaultValue("10")
-            @Min(value = 1, message = "Page size must be between 1 and 100.")
-            @Max(value = 100, message = "Page size must be between 1 and 100.")
-            @QueryParam("size") int size,
-            @Context UriInfo uriInfo) {
+            @Min(
+                    value = 1,
+                    message = "Page size must be between 1 and 100.")
+            @Max(
+                    value = 100,
+                    message = "Page size must be between 1 and 100.")
+            @QueryParam("size")
+            int size,
+
+            @Context
+            UriInfo uriInfo) {
 
         var handles = handleService.fetchAllHandlesByPrefixId(prefixId, serviceUrl, handleUsername, token, search, page - 1, size, uriInfo);
 
@@ -284,12 +339,32 @@ public class HandleEndpoint {
                     type = SchemaType.OBJECT,
                     implementation = InformativeResponse.class)))
     @Path("/{suffix}")
+    @SecuredEndpoint(
+            params = {
+                    @ParamRef(
+                            param = "id",
+                            type = ParamType.PATH,
+                            referTo = ProviderResource.class
+                    ),
+                    @ParamRef(
+                            param = "prefix-id",
+                            type = ParamType.PATH,
+                            referTo = PrefixResource.class
+                    )
+            }
+    )
     public Response getHandle(
             @Parameter(
                     name = "id",
+                    description = "The identifier of the Provider.",
+                    example = "1")
+            @PathParam("id")
+            Integer id,
+            @Parameter(
+                    name = "prefix-id",
                     description = "The identifier of the Prefix.",
                     example = "2")
-            @PathParam("id")
+            @PathParam("prefix-id")
             Integer prefixId,
             @Parameter(
                     name = "suffix",
@@ -376,12 +451,32 @@ public class HandleEndpoint {
                     type = SchemaType.OBJECT,
                     implementation = InformativeResponse.class)))
     @Path("/{suffix}")
+    @SecuredEndpoint(
+            params = {
+                    @ParamRef(
+                            param = "id",
+                            type = ParamType.PATH,
+                            referTo = ProviderResource.class
+                    ),
+                    @ParamRef(
+                            param = "prefix-id",
+                            type = ParamType.PATH,
+                            referTo = PrefixResource.class
+                    )
+            }
+    )
     public Response updateHandle(
             @Parameter(
                     name = "id",
+                    description = "The identifier of the Provider.",
+                    example = "1")
+            @PathParam("id")
+            Integer id,
+            @Parameter(
+                    name = "prefix-id",
                     description = "The identifier of the Prefix.",
                     example = "2")
-            @PathParam("id")
+            @PathParam("prefix-id")
             Integer prefixId,
             @Parameter(
                     name = "suffix",
@@ -412,7 +507,8 @@ public class HandleEndpoint {
                     required = true)
             @HeaderParam("x-handle-token")
             String token,
-            @Valid HandleUpdateRequestDto request) {
+            @Valid
+            HandleUpdateRequestDto request) {
 
         var handle = handleService.updateHandle(prefixId, suffix, serviceUrl, handleUsername, token, request);
 
@@ -463,12 +559,32 @@ public class HandleEndpoint {
                     type = SchemaType.OBJECT,
                     implementation = InformativeResponse.class)))
     @Path("/{suffix}")
+    @SecuredEndpoint(
+            params = {
+                    @ParamRef(
+                            param = "id",
+                            type = ParamType.PATH,
+                            referTo = ProviderResource.class
+                    ),
+                    @ParamRef(
+                            param = "prefix-id",
+                            type = ParamType.PATH,
+                            referTo = PrefixResource.class
+                    )
+            }
+    )
     public Response deleteHandle(
             @Parameter(
                     name = "id",
+                    description = "The identifier of the Provider.",
+                    example = "1")
+            @PathParam("id")
+            Integer id,
+            @Parameter(
+                    name = "prefix-id",
                     description = "The identifier of the Prefix.",
                     example = "2")
-            @PathParam("id")
+            @PathParam("prefix-id")
             Integer prefixId,
             @Parameter(
                     name = "suffix",
@@ -504,7 +620,8 @@ public class HandleEndpoint {
 
         var response = new InformativeResponse();
         response.code = 200;
-        response.message = "Handle has been successfully deleted!";
+        response.message =
+                "Handle has been successfully deleted!";
 
         return Response.status(Response.Status.OK).entity(response).build();
     }

@@ -22,6 +22,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.grnet.endpoint.scanner.runtime.SecuredEndpoint;
 
 @Tag(name = "Reverse LookUp", description = "Provide a proxy endpoint to query the HRLS Service.")
 @Path("/reverse-lookup")
@@ -39,7 +40,6 @@ public class ReverseLookUpEndpoint {
   @Inject
   ReverseLookUpService reverseLookUpService;
 
-  @POST
   @Operation(summary = "Search handles")
   @APIResponse(
       responseCode = "200",
@@ -68,8 +68,11 @@ public class ReverseLookUpEndpoint {
       responseCode = "500",
       description = "Internal Server Error.",
       content =
-          @Content(
-              schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class)))
+          @Content(schema = @Schema(
+                      type = SchemaType.OBJECT,
+                      implementation = APIResponseMsg.class)))
+  @POST
+  @SecuredEndpoint
   public Response search(
       @Valid FiltersDto filtersDto,
       @QueryParam("page") @DefaultValue("0") Long page,
@@ -78,8 +81,6 @@ public class ReverseLookUpEndpoint {
     return Response.ok(reverseLookUpService.search(filtersDto, page, limit)).build();
   }
 
-  @GET
-  @Path("/filters")
   @Operation(summary = "Get filters")
   @APIResponse(
       responseCode = "200",
@@ -100,16 +101,17 @@ public class ReverseLookUpEndpoint {
   @APIResponse(
       responseCode = "500",
       description = "Internal Server Error.",
-      content =
-          @Content(
-              schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class)))
+      content = @Content(schema = @Schema(
+              type = SchemaType.OBJECT,
+              implementation = APIResponseMsg.class)))
+  @GET
+  @Path("/filters")
+  @SecuredEndpoint
   public Response filters() {
 
     return Response.ok(EnumSet.allOf(Filter.class)).build();
   }
 
-  @GET
-  @Path("/types")
   @Operation(summary = "Get lookup service types")
   @APIResponse(
       responseCode = "200",
@@ -132,9 +134,12 @@ public class ReverseLookUpEndpoint {
   @APIResponse(
       responseCode = "500",
       description = "Internal Server Error.",
-      content =
-          @Content(
-              schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class)))
+      content = @Content(schema = @Schema(
+              type = SchemaType.OBJECT,
+              implementation = APIResponseMsg.class)))
+  @GET
+  @Path("/types")
+  @SecuredEndpoint
   public Response types() {
 
     return Response.ok(EnumSet.allOf(LookUpServiceType.class)).build();

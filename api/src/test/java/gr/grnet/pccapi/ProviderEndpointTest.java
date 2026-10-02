@@ -12,19 +12,23 @@ import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import io.restassured.http.ContentType;
-import java.util.Arrays;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+
+import java.util.Arrays;
 
 @QuarkusTest
 @TestHTTPEndpoint(ProviderEndpoint.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestProfile(PCCApiTestProfile.class)
 @QuarkusTestResource(KeycloakComposeResource.class)
-public class ProviderEndpointTest {
+public class ProviderEndpointTest extends KeycloakTest {
 
-  @KeycloakToken(username = "admin", password = "admin")
-  String adminToken;
+  @BeforeEach
+  void setupAuthorization() {
+    mockSuperAdmin();
+  }
 
   @Test
   public void getById() {
@@ -57,13 +61,19 @@ public class ProviderEndpointTest {
     assertEquals(3, response.length);
 
     assertTrue(Arrays.stream(response)
-            .anyMatch(provider -> provider.id == 1 && "GRNET".equals(provider.name)));
+            .anyMatch(provider ->
+                    provider.id == 1
+                            && "GRNET".equals(provider.name)));
 
     assertTrue(Arrays.stream(response)
-            .anyMatch(provider -> provider.id == 3 && "Surf".equals(provider.name)));
+            .anyMatch(provider ->
+                    provider.id == 3
+                            && "Surf".equals(provider.name)));
 
     assertTrue(Arrays.stream(response)
-            .anyMatch(provider -> provider.id == 4 && "GWDG".equals(provider.name)));
+            .anyMatch(provider ->
+                    provider.id == 4
+                            && "GWDG".equals(provider.name)));
   }
 
   @Test
