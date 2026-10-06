@@ -95,26 +95,6 @@ public class KeycloakComposeResource implements QuarkusTestResourceLifecycleMana
         return conf;
     }
 
-    @Override
-    public void inject(Object testInstance) {
-        Class<?> current = testInstance.getClass();
-        while (current != null && current != Object.class) {
-            for (Field field : current.getDeclaredFields()) {
-                if (field.isAnnotationPresent(KeycloakToken.class) && field.getType() == String.class) {
-                    KeycloakToken meta = field.getAnnotation(KeycloakToken.class);
-                    String token = KeycloakTestClient.getAccessToken(meta.username(), meta.password());
-                    field.setAccessible(true);
-                    try {
-                        field.set(testInstance, token);
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException("Failed to inject Keycloak token into field " + field.getName(), e);
-                    }
-                }
-            }
-            current = current.getSuperclass();
-        }
-    }
-
     private void runEntitlements() {
 
         GenericContainer<?> entitlements = new GenericContainer<>(KEYCLOAK_IMAGE)

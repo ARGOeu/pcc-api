@@ -6,7 +6,6 @@ import gr.grnet.pccapi.dto.prefix.PrefixRequestDto;
 import gr.grnet.pccapi.dto.prefix.PrefixResponseDto;
 import gr.grnet.pccapi.entity.Codelist;
 import gr.grnet.pccapi.entity.Domain;
-import gr.grnet.pccapi.entity.Provider;
 import gr.grnet.pccapi.entity.Service;
 import gr.grnet.pccapi.enums.CodelistCategory;
 import gr.grnet.pccapi.exception.ConflictException;
@@ -16,14 +15,20 @@ import gr.grnet.pccapi.repository.DomainRepository;
 import gr.grnet.pccapi.repository.PrefixRepository;
 import gr.grnet.pccapi.repository.ProviderRepository;
 import gr.grnet.pccapi.repository.ServiceRepository;
+import gr.grnet.pccapi.resources.ProviderResource;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.UriInfo;
+
+import java.util.HashSet;
 import java.util.List;
+
 import lombok.AllArgsConstructor;
+import org.grnet.endpoint.scanner.runtime.context.RoleEndpointHolder;
 import org.jboss.logging.Logger;
+
 
 @ApplicationScoped
 @AllArgsConstructor
@@ -43,6 +48,9 @@ public class PrefixService {
 
   @Inject
   CodelistRepository codelistRepository;
+
+  @Inject
+  AccessControlService accessControlService;
 
   private static final Logger LOG = Logger.getLogger(PrefixService.class);
   /**
@@ -110,7 +118,19 @@ public class PrefixService {
 
   public PageResource<PrefixResponseDto> fetchByPageAndSize(String search, String provider, String domain, String contractType, int page, int size, UriInfo uriInfo) {
 
-    var prefixes = prefixRepository.fetchPrefixesByPage(search, provider, domain, contractType, page, size);
+    if (accessControlService.isSuperAdmin()) {
+      var prefixes = prefixRepository.fetchPrefixesByPage(search, provider, domain, contractType, page, size);
+      return new PageResource<>(prefixes, PrefixMapper.INSTANCE.prefixesToResponseDto(prefixes.list()), uriInfo);
+    }
+
+    var roles = RoleEndpointHolder.get();
+    var providerIds = new HashSet<Object>();
+
+    for (var role : roles) {
+      providerIds.addAll(accessControlService.resolveAccessibleGroupsByName(role.getRoleName(), ProviderResource.PROVIDER.resourceName()));
+    }
+
+    var prefixes = prefixRepository.fetchPrefixesByProviderIdsAndPage(providerIds, search, provider, domain, contractType, page, size);
 
     return new PageResource<>(prefixes, PrefixMapper.INSTANCE.prefixesToResponseDto(prefixes.list()), uriInfo);
   }
@@ -316,5 +336,10 @@ public class PrefixService {
     serviceRepository.persist(service);
 
     return service;
+  }
+
+  @Transactional
+  public void deleteAll() {
+    prefixRepository.deleteAll();
   }
 }

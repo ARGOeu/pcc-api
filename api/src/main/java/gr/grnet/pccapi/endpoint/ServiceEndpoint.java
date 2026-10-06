@@ -17,6 +17,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.grnet.endpoint.scanner.runtime.SecuredEndpoint;
 
 @Tag(name = "Service")
 @Path("/services")
@@ -34,7 +35,6 @@ public class ServiceEndpoint {
   @Inject
   ServiceService service;
 
-  @GET
   @Operation(summary = "Get all services")
   @APIResponse(
       responseCode = "200",
@@ -56,16 +56,16 @@ public class ServiceEndpoint {
   @APIResponse(
       responseCode = "500",
       description = "Internal Server Error.",
-      content =
-          @Content(
-              schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class)))
+      content = @Content(schema = @Schema(
+              type = SchemaType.OBJECT,
+              implementation = APIResponseMsg.class)))
+  @GET
+  @SecuredEndpoint
   public Response getAll() {
 
     return Response.ok(service.fetchAll()).build();
   }
 
-  @GET
-  @Path("/{id}")
   @Operation(summary = "Get service by id")
   @APIResponse(
       responseCode = "200",
@@ -87,15 +87,18 @@ public class ServiceEndpoint {
   @APIResponse(
       responseCode = "404",
       description = "Service not found.",
-      content =
-          @Content(
-              schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class)))
+      content = @Content(schema = @Schema(
+              type = SchemaType.OBJECT,
+              implementation = APIResponseMsg.class)))
   @APIResponse(
       responseCode = "500",
       description = "Internal Server Error.",
-      content =
-          @Content(
-              schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class)))
+      content = @Content(schema = @Schema(
+                  type = SchemaType.OBJECT, 
+                  implementation = APIResponseMsg.class)))
+  @GET
+  @Path("/{id}")
+  @SecuredEndpoint
   public Response getById(@PathParam("id") int id) {
 
     return Response.ok(service.fetchById(id)).build();

@@ -25,14 +25,17 @@ import org.junit.jupiter.api.TestInstance;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestProfile(PCCApiTestProfile.class)
 @QuarkusTestResource(KeycloakComposeResource.class)
-public class ServiceEndpointTest {
+public class ServiceEndpointTest extends KeycloakTest {
 
-  @Inject ServiceRepository serviceRepository;
-
-  @KeycloakToken(username = "admin", password = "admin")
-  String adminToken;
+  @Inject
+  ServiceRepository serviceRepository;
 
   private Integer serviceId;
+
+  @BeforeEach
+  void setupAuthorization() {
+    mockSuperAdmin();
+  }
 
   @BeforeEach
   @Transactional
@@ -63,7 +66,9 @@ public class ServiceEndpointTest {
 
     assertTrue(
             java.util.Arrays.stream(response)
-                    .anyMatch(service -> service.id.equals(serviceId) && service.name.equals("SERVICE-ENDPOINT-TEST")));
+                    .anyMatch(service ->
+                            service.id.equals(serviceId)
+                                    && service.name.equals("SERVICE-ENDPOINT-TEST")));
   }
 
   @Test
