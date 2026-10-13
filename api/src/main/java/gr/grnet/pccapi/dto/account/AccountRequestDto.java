@@ -20,4 +20,11 @@ public class AccountRequestDto {
             example = "https://example.grnet.gr")
     @JsonProperty("endpoint")
     public String endpoint;
+
+    @NotBlank
+    @Schema(
+            description = "Username used to connect to the Handle service at the account endpoint.",
+            example = "handle_user")
+    @JsonProperty("username")
+    public String username;
 }

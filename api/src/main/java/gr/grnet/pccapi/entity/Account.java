@@ -19,19 +19,23 @@ public class Account {
     public Prefix prefix;
 
     @NotNull
-    @Column
+    @Column(name = "email")
     public String email;
 
     @NotNull
-    @Column
+    @Column(name = "endpoint")
     public String endpoint;
+
+    @NotNull
+    @Column(name = "username")
+    public String username;
 
     @NotNull
     @Column(name = "admin_index")
     public Integer adminIndex;
 
     @NotNull
-    @Column
+    @Column(name = "permissions")
     public String permissions;
 
     @Column(name = "created_at")

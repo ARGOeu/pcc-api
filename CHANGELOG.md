@@ -66,8 +66,9 @@ According to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), the `Unre
 - [#92](https://github.com/ARGOeu/pcc-api/pull/92) PCC-176 [API] Retrieve a Handle
 - [#93](https://github.com/ARGOeu/pcc-api/pull/93) PCC-177 [API] Update a Handle
 - [#97](https://github.com/ARGOeu/pcc-api/pull/97) Update Provider, Service and Domain Field Configuration
-- [#98](https://github.com/ARGOeu/pcc-api/pull/98) PCC-187: [API] Provider Admin Prefix, Member and Account Management
-- [#100](https://github.com/ARGOeu/pcc-api/pull/100) PCC-190: [API] - Add supported role attributes list
+- [#98](https://github.com/ARGOeu/pcc-api/pull/98) PCC-187 [API] Provider Admin Prefix, Member and Account Management
+- [#100](https://github.com/ARGOeu/pcc-api/pull/100) PCC-190 [API] - Add supported role attributes list
+- [#101](https://github.com/ARGOeu/pcc-api/pull/101) PCC-196 [API] - Add username field to the prefix accounts
 
 ### Changed
 

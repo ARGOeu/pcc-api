@@ -32,6 +32,12 @@ public class AccountResponseDto {
     public String endpoint;
 
     @Schema(
+            description = "Username used to connect to the Handle service at the account endpoint.",
+            example = "handle_user")
+    @JsonProperty("username")
+    public String username;
+
+    @Schema(
             description = "Admin index assigned to the account.",
             example = "301")
     @JsonProperty("admin_index")

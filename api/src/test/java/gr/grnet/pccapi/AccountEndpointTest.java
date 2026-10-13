@@ -1,3 +1,4 @@
+
 package gr.grnet.pccapi;
 
 import static io.restassured.RestAssured.given;
@@ -59,7 +60,8 @@ public class AccountEndpointTest extends KeycloakTest {
 
         var request = Map.of(
                 "email", "account@test.com",
-                "endpoint", "https://handle.example.org");
+                "endpoint", "https://handle.example.org",
+                "username", "handle_user");
 
         var response = authenticatedRequest()
                 .contentType(ContentType.JSON)
@@ -73,8 +75,71 @@ public class AccountEndpointTest extends KeycloakTest {
         assertNotNull(response.getString("id"));
         assertEquals("account@test.com", response.getString("email"));
         assertEquals("https://handle.example.org", response.getString("endpoint"));
-
+        assertEquals("handle_user", response.getString("username"));
         assertEquals(301, response.getInt("admin_index"));
+    }
+
+    @Test
+    public void createAccountWithoutUsername() {
+
+        var request = Map.of(
+                "email", "account@test.com",
+                "endpoint", "https://handle.example.org");
+
+        authenticatedRequest()
+                .contentType(ContentType.JSON)
+                .body(request)
+                .post()
+                .then()
+                .statusCode(400);
+    }
+
+    @Test
+    public void createAccountWithEmptyUsername() {
+
+        var request = Map.of(
+                "email", "account@test.com",
+                "endpoint", "https://handle.example.org",
+                "username", "");
+
+        authenticatedRequest()
+                .contentType(ContentType.JSON)
+                .body(request)
+                .post()
+                .then()
+                .statusCode(400);
+    }
+
+    @Test
+    public void createAccountWithBlankUsername() {
+
+        var request = Map.of(
+                "email", "account@test.com",
+                "endpoint", "https://handle.example.org",
+                "username", "   ");
+
+        authenticatedRequest()
+                .contentType(ContentType.JSON)
+                .body(request)
+                .post()
+                .then()
+                .statusCode(400);
+    }
+
+    @Test
+    public void createAccountWithNullUsername() {
+
+        var request = new java.util.HashMap<String, Object>();
+        request.put("email", "account@test.com");
+        request.put("endpoint", "https://handle.example.org");
+        request.put("username", null);
+
+        authenticatedRequest()
+                .contentType(ContentType.JSON)
+                .body(request)
+                .post()
+                .then()
+                .statusCode(400);
     }
 
     @Test
@@ -91,6 +156,7 @@ public class AccountEndpointTest extends KeycloakTest {
 
         assertEquals(1, response.getInt("total_elements"));
         assertEquals(1, response.getList("content").size());
+        assertEquals("handle_user", response.getString("content[0].username"));
     }
 
     @Test
@@ -99,7 +165,7 @@ public class AccountEndpointTest extends KeycloakTest {
         createAccount();
 
         var response = authenticatedRequest()
-                .queryParam("before", "test")
+                .queryParam("search", "test")
                 .get()
                 .then()
                 .statusCode(200)
@@ -108,6 +174,7 @@ public class AccountEndpointTest extends KeycloakTest {
 
         assertEquals(1, response.getInt("total_elements"));
         assertEquals("example@test.com", response.getString("content[0].email"));
+        assertEquals("handle_user", response.getString("content[0].username"));
     }
 
     @Test
@@ -124,9 +191,8 @@ public class AccountEndpointTest extends KeycloakTest {
 
         assertEquals(accountId, response.getString("id"));
         assertEquals("example@test.com", response.getString("email"));
-        assertEquals(
-                "https://example.org",
-                response.getString("endpoint"));
+        assertEquals("https://example.org", response.getString("endpoint"));
+        assertEquals("handle_user", response.getString("username"));
     }
 
     @Test
@@ -136,7 +202,8 @@ public class AccountEndpointTest extends KeycloakTest {
 
         var request = Map.of(
                 "email", "after@test.com",
-                "endpoint", "https://after.example.org");
+                "endpoint", "https://after.example.org",
+                "username", "updated_handle_user");
 
         var response = authenticatedRequest()
                 .contentType(ContentType.JSON)
@@ -149,12 +216,53 @@ public class AccountEndpointTest extends KeycloakTest {
 
         assertEquals(accountId, response.getString("id"));
         assertEquals("after@test.com", response.getString("email"));
-        assertEquals(
-                "https://after.example.org",
-                response.getString("endpoint"));
-
-
+        assertEquals("https://after.example.org", response.getString("endpoint"));
+        assertEquals("updated_handle_user", response.getString("username"));
         assertEquals(301, response.getInt("admin_index"));
+
+        var fetchedAccount = authenticatedRequest()
+                .get("/{account-id}", accountId)
+                .then()
+                .statusCode(200)
+                .extract()
+                .jsonPath();
+
+        assertEquals("updated_handle_user", fetchedAccount.getString("username"));
+    }
+
+    @Test
+    public void updateAccountWithoutUsername() {
+
+        var accountId = createAccount();
+
+        var request = Map.of(
+                "email", "after@test.com",
+                "endpoint", "https://after.example.org");
+
+        authenticatedRequest()
+                .contentType(ContentType.JSON)
+                .body(request)
+                .put("/{account-id}", accountId)
+                .then()
+                .statusCode(400);
+    }
+
+    @Test
+    public void updateAccountWithEmptyUsername() {
+
+        var accountId = createAccount();
+
+        var request = Map.of(
+                "email", "after@test.com",
+                "endpoint", "https://after.example.org",
+                "username", "");
+
+        authenticatedRequest()
+                .contentType(ContentType.JSON)
+                .body(request)
+                .put("/{account-id}", accountId)
+                .then()
+                .statusCode(400);
     }
 
     @Test
@@ -206,7 +314,8 @@ public class AccountEndpointTest extends KeycloakTest {
 
         var request = Map.of(
                 "email", "example@test.com",
-                "endpoint", "https://example.org");
+                "endpoint", "https://example.org",
+                "username", "handle_user");
 
         return authenticatedRequest()
                 .contentType(ContentType.JSON)

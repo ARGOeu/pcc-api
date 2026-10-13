@@ -2,6 +2,7 @@ package gr.grnet.pccapi.service;
 
 import gr.grnet.pccapi.dto.account.AccountRequestDto;
 import gr.grnet.pccapi.dto.account.AccountResponseDto;
+import gr.grnet.pccapi.dto.account.AccountUpdateRequestDto;
 import gr.grnet.pccapi.dto.pagination.PageResource;
 import gr.grnet.pccapi.mapper.AccountMapper;
 import gr.grnet.pccapi.repository.AccountRepository;
@@ -27,10 +28,7 @@ public class AccountService {
     PrefixRepository prefixRepository;
 
     @Transactional
-    public AccountResponseDto createAccount(
-            Integer providerId,
-            Integer prefixId,
-            AccountRequestDto request) {
+    public AccountResponseDto createAccount(Integer providerId,Integer prefixId, AccountRequestDto request) {
 
         var prefix = prefixRepository
                 .findByIdAndProviderId(prefixId, providerId)
@@ -43,6 +41,7 @@ public class AccountService {
 
         account.prefix = prefix;
         account.email = request.email.trim().toLowerCase();
+        account.username = request.username.trim();
         account.adminIndex = ADMIN_INDEX;
         account.permissions = PERMISSIONS;
 
@@ -76,11 +75,7 @@ public class AccountService {
     }
 
     @Transactional
-    public AccountResponseDto updateAccount(
-            Integer providerId,
-            Integer prefixId,
-            String accountId,
-            AccountRequestDto request) {
+    public AccountResponseDto updateAccount(Integer providerId, Integer prefixId, String accountId, AccountUpdateRequestDto request) {
 
         validatePrefix(providerId, prefixId);
 
