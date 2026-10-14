@@ -3,6 +3,7 @@ package gr.grnet.pccapi.mapper;
 import gr.grnet.pccapi.dto.CodelistDto;
 import gr.grnet.pccapi.dto.account.AccountRequestDto;
 import gr.grnet.pccapi.dto.account.AccountResponseDto;
+import gr.grnet.pccapi.dto.account.AccountUpdateRequestDto;
 import gr.grnet.pccapi.entity.Account;
 import gr.grnet.pccapi.entity.Codelist;
 import org.mapstruct.*;
@@ -28,11 +29,10 @@ public interface AccountMapper {
     @Mapping(target = "prefixId", source = "prefix.id")
     AccountResponseDto accountToResponseDto(Account account);
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "prefix", ignore = true)
     @Mapping(target = "adminIndex", ignore = true)
     @Mapping(target = "permissions", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
-    void updateAccountEntityFromDto(AccountRequestDto dto, @MappingTarget Account account);
+    void updateAccountEntityFromDto(AccountUpdateRequestDto dto, @MappingTarget Account account);
 }

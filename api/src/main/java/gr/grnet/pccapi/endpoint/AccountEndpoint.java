@@ -3,6 +3,7 @@ package gr.grnet.pccapi.endpoint;
 import gr.grnet.pccapi.dto.InformativeResponse;
 import gr.grnet.pccapi.dto.account.AccountRequestDto;
 import gr.grnet.pccapi.dto.account.AccountResponseDto;
+import gr.grnet.pccapi.dto.account.AccountUpdateRequestDto;
 import gr.grnet.pccapi.dto.invitation.PrefixInvitationResponse;
 import gr.grnet.pccapi.dto.pagination.PageResource;
 import gr.grnet.pccapi.resources.ProviderResource;
@@ -58,7 +59,7 @@ public class AccountEndpoint {
             responseCode = "201",
             description = "Account created",
             content = @Content(schema = @Schema(
-                    implementation = PageableAccounts.class)))
+                    implementation = AccountResponseDto.class)))
     @APIResponse(
             responseCode = "401",
             description = "User has not been authenticated.",
@@ -99,21 +100,17 @@ public class AccountEndpoint {
                     example = "1",
                     schema = @Schema(type = SchemaType.INTEGER))
             @PathParam("id") Integer id,
-
             @Parameter(
                     description = "Prefix identifier.",
                     required = true,
                     example = "1",
                     schema = @Schema(type = SchemaType.INTEGER))
             @PathParam("prefix-id") Integer prefixId,
-
             @Valid AccountRequestDto request) {
 
         var response = accountService.createAccount(id, prefixId, request);
 
-        return Response.status(Response.Status.CREATED)
-                .entity(response)
-                .build();
+        return Response.status(Response.Status.CREATED).entity(response).build();
     }
 
     @Operation(summary = "Get accounts")
@@ -234,14 +231,12 @@ public class AccountEndpoint {
                     example = "1",
                     schema = @Schema(type = SchemaType.INTEGER))
             @PathParam("id") Integer id,
-
             @Parameter(
                     description = "Prefix identifier.",
                     required = true,
                     example = "1",
                     schema = @Schema(type = SchemaType.INTEGER))
             @PathParam("prefix-id") Integer prefixId,
-
             @Parameter(
                     description = "Account identifier.",
                     required = true,
@@ -301,22 +296,19 @@ public class AccountEndpoint {
                     example = "1",
                     schema = @Schema(type = SchemaType.INTEGER))
             @PathParam("id") Integer id,
-
             @Parameter(
                     description = "Prefix identifier.",
                     required = true,
                     example = "1",
                     schema = @Schema(type = SchemaType.INTEGER))
             @PathParam("prefix-id") Integer prefixId,
-
             @Parameter(
                     description = "Account identifier.",
                     required = true,
                     example = "7d9c82ee-6d39-4d47-a42f-1c91e91777c3",
                     schema = @Schema(type = SchemaType.STRING))
             @PathParam("account-id") String accountId,
-
-            @Valid AccountRequestDto request) {
+            @Valid AccountUpdateRequestDto request) {
 
         var updatedAccount = accountService.updateAccount(id, prefixId, accountId, request);
 
