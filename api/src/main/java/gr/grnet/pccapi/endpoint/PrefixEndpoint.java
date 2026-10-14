@@ -207,45 +207,33 @@ public class PrefixEndpoint {
     )
     public Response getAllByPageAndSize(
             @PathParam("id") int id,
-            @Parameter(
-                    name = "search",
-                    in = QUERY,
+            @Parameter(name = "search", in = QUERY,
                     description = "Search prefixes by text.",
                     example = "21.T")
             @QueryParam("search")
             String search,
-            @Parameter(
-                    name = "provider",
-                    in = QUERY,
+            @Parameter(name = "provider", in = QUERY,
                     description = "Filter prefixes by provider name.",
                     example = "GRNET")
             @QueryParam("provider")
             String provider,
-            @Parameter(
-                    name = "domain",
-                    in = QUERY,
+            @Parameter(name = "domain", in = QUERY,
                     description = "Filter prefixes by domain name.",
                     example = "Life Sciences")
             @QueryParam("domain")
             String domain,
-            @Parameter(
-                    name = "contract_type",
-                    in = QUERY,
+            @Parameter(name = "contract_type", in = QUERY,
                     description = "Filter prefixes by contract type name.",
                     example = "PROJECT")
             @QueryParam("contract_type")
             String contractType,
-            @Parameter(
-                    name = "page",
-                    in = QUERY,
+            @Parameter(name = "page", in = QUERY,
                     description = "Page number. Must be >= 1.")
             @DefaultValue("1")
             @Min(value = 1, message = "Page number must be >= 1.")
             @QueryParam("page")
             int page,
-            @Parameter(
-                    name = "size",
-                    in = QUERY,
+            @Parameter(name = "size", in = QUERY,
                     description = "Page size.")
             @DefaultValue("10")
             @Min(value = 1, message = "Page size must be between 1 and 100.")
@@ -254,7 +242,7 @@ public class PrefixEndpoint {
             int size,
             @Context UriInfo uriInfo) {
 
-    var prefixes = prefixService.fetchByPageAndSize(search, provider, domain, contractType,page - 1, size, uriInfo);
+        var prefixes = prefixService.fetchByProviderByPageAndSize(search, provider, domain, contractType,page - 1, size, uriInfo);
 
         return Response.ok(prefixes).build();
     }
