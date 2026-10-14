@@ -11,6 +11,7 @@ import gr.grnet.pccapi.exception.HandleServiceException;
 import gr.grnet.pccapi.mapper.HandleMapper;
 import gr.grnet.pccapi.repository.PrefixRepository;
 import io.quarkus.rest.client.reactive.QuarkusRestClientBuilder;
+import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.NotFoundException;
@@ -20,9 +21,13 @@ import org.jboss.resteasy.reactive.ClientWebApplicationException;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @ApplicationScoped
 public class HandleService {
@@ -31,6 +36,19 @@ public class HandleService {
 
     @Inject
     PrefixRepository prefixRepository;
+
+
+    @Inject
+    HandleCacheService handleCacheService;
+
+    private static final int MAX_CONCURRENT_REQUESTS = 10;
+
+    private final ExecutorService handleExecutor = Executors.newFixedThreadPool(MAX_CONCURRENT_REQUESTS);
+
+    @PreDestroy
+    void shutdownExecutor() {
+        handleExecutor.shutdown();
+    }
 
     /**
      * Creates a new Handle under the specified Prefix.
@@ -68,7 +86,12 @@ public class HandleService {
         try {
             var handleClient = buildHandleClient(serviceUrl);
 
-            var clientResponse = handleClient.create(buildBasicAuthorization(basicUsername, token), prefixName, suffix, clientRequest);
+            var authorization = buildBasicAuthorization(basicUsername, token);
+            var clientResponse = handleClient.create(authorization, prefixName, suffix, clientRequest);
+
+            var authFingerprint = fingerprint(authorization);
+            handleCacheService.invalidateIdentifiers(serviceUrl, prefixName, authFingerprint);
+            handleCacheService.invalidateDetails(serviceUrl, prefixName + "/" + suffix, authFingerprint);
 
             LOG.infof(
                     "Handle service response: responseCode=%s, handle=%s",
@@ -97,40 +120,95 @@ public class HandleService {
      * @throws NotFoundException if the Prefix does not exist
      * @throws HandleServiceException if the Handle service request fails
      */
-    public PageResource<String> fetchAllHandlesByPrefixId(Integer prefixId, String serviceUrl, String handleUsername, String token, String search, int page, int size, UriInfo uriInfo) {
+    public PageResource<HandleResponseDto> fetchAllHandlesByPrefixId(Integer prefixId, String serviceUrl, String handleUsername, String token, String search, int page, int size, UriInfo uriInfo) {
 
-        var prefix = prefixRepository
-                .findByIdOptional(prefixId)
+        var prefix = prefixRepository.findByIdOptional(prefixId)
                 .orElseThrow(() -> new NotFoundException("Prefix not found"));
 
+        var prefixName = prefix.name;
+
+        var adminHandle = prefixName + "/" + handleUsername;
+        var basicUsername = "301%3A" + adminHandle;
+
+        var authorization = buildBasicAuthorization(basicUsername, token);
+
+        var authFingerprint = fingerprint(authorization);
+
         try {
-            var handleClient = buildHandleClient(serviceUrl);
+            // 1. Retrieve all identifiers (cached per prefix).
+            var identifiers = handleCacheService.getIdentifiers(serviceUrl, prefixName, authFingerprint, authorization);
 
-            var adminHandle = prefix.name + "/" + handleUsername;
-            var basicUsername = "301%3A" + adminHandle;
-            var authorization = buildBasicAuthorization(basicUsername, token);
+            // 2. Search across ALL identifiers.
+            var searchTerm = search == null
+                    ? ""
+                    : search.trim().toLowerCase(Locale.ROOT);
 
-            LOG.infof("Requesting Handles: prefix=%s, page=%s, size=%s", prefix.name, page, size);
-
-            if (search == null || search.isBlank()) {
-
-                var clientResponse = handleClient.getAll(authorization, prefix.name, page, size);
-
-                return new PageResource<>(page, size, clientResponse.getHandles(), clientResponse.getTotalCount(), uriInfo);
-            }
-
-            var clientResponse = handleClient.getAll(authorization, prefix.name);
-
-            var searchTerm = search.trim().toLowerCase();
-
-            var handles = clientResponse.getHandles().stream()
-                    .filter(handle -> handle.toLowerCase().contains(searchTerm))
+            var filtered = identifiers
+                    .stream()
+                    .filter(identifier -> identifier.toLowerCase(Locale.ROOT).contains(searchTerm))
                     .toList();
 
-            return new PageResource<>(page, size, handles, uriInfo);
+            // 3. Apply PCC pagination.
+            var fromIndex = (int) Math.min((long) page * size, filtered.size());
+            var toIndex = Math.min(fromIndex + size, filtered.size());
+
+            var pageIdentifiers = filtered.subList(fromIndex, toIndex);
+
+            // 4. Retrieve metadata concurrently.
+            var futures = pageIdentifiers.stream()
+                    .map(identifier -> CompletableFuture.supplyAsync(() -> {
+
+                        var suffix = identifier.substring(prefixName.length() + 1);
+
+                        return handleCacheService.getDetails(serviceUrl, identifier, authFingerprint, authorization, prefixName, suffix);
+                        }, handleExecutor))
+                    .toList();
+
+            // 5. Preserve original handle order.
+            var handles = futures.stream()
+                    .map(CompletableFuture::join)
+                    .toList();
+
+            LOG.infof(
+                    "Retrieved %s handles with metadata " +
+                            "for prefix %s (total matching: %s)",
+                    handles.size(),
+                    prefixName,
+                    filtered.size()
+            );
+
+            // 6. Return PCC pagination.
+            return new PageResource<>(page, size, handles, filtered.size(), uriInfo);
+
+        } catch (CompletionException e) {
+
+            var cause = e.getCause();
+
+            if (cause instanceof ClientWebApplicationException clientError) {
+                throw handleClientException(clientError);
+            }
+
+            throw e;
 
         } catch (ClientWebApplicationException e) {
             throw handleClientException(e);
+        }
+    }
+
+    private String fingerprint(String authorization) {
+        try {
+            var digest = MessageDigest.getInstance("SHA-256");
+
+            return HexFormat.of().formatHex(
+                    digest.digest(
+                            authorization.getBytes(StandardCharsets.UTF_8)
+                    )
+            );
+
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException(
+                    "SHA-256 not available", e
+            );
         }
     }
 
@@ -189,8 +267,12 @@ public class HandleService {
 
         try {
             var handleClient = buildHandleClient(serviceUrl);
-
             var existingHandle = handleClient.getHandle(authorization, prefixName, suffix);
+
+            var authFingerprint = fingerprint(authorization);
+
+            handleCacheService.invalidateIdentifiers(serviceUrl, prefixName, authFingerprint);
+            handleCacheService.invalidateDetails(serviceUrl, prefixName + "/" + suffix, authFingerprint);
 
             var clientRequest = HandleMapper.INSTANCE.updateToClientRequest(request, existingHandle);
 
@@ -228,6 +310,11 @@ public class HandleService {
             var handleClient = buildHandleClient(serviceUrl);
 
             var clientResponse = handleClient.deleteHandle(authorization, prefixName, suffix);
+
+            var authFingerprint = fingerprint(authorization);
+
+            handleCacheService.invalidateIdentifiers(serviceUrl, prefixName, authFingerprint);
+            handleCacheService.invalidateDetails(serviceUrl, prefixName + "/" + suffix, authFingerprint);
 
             LOG.infof(
                     "Handle service response: responseCode=%s, handle=%s",

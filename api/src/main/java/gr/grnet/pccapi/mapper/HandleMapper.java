@@ -1,6 +1,5 @@
 package gr.grnet.pccapi.mapper;
 
-import gr.grnet.pccapi.client.handle.HandleClientListResponse;
 import gr.grnet.pccapi.client.handle.HandleClientRequest;
 import gr.grnet.pccapi.client.handle.HandleClientResponse;
 import gr.grnet.pccapi.dto.handle.*;
@@ -17,16 +16,12 @@ public interface HandleMapper {
 
     HandleMapper INSTANCE = Mappers.getMapper(HandleMapper.class);
 
-    @Named("clientToApi")
-    HandleListResponseDto toResponseListDto(HandleClientListResponse response);
-
     @Mapping(target = "handle", source = "response.handle")
     @Mapping(target = "values", source = "request.values", qualifiedByName = "mapCreateValues")
     HandleResponseDto createToResponseDto(HandleClientResponse response, HandleRequestDto request);
 
     @Mapping(target = "values", source = "values", qualifiedByName = "mapGetValues")
     HandleResponseDto getToResponseDto(HandleClientResponse response);
-
 
     @Mapping(target = "values", expression = "java(mapUpdateValues(request.getValues(), existingHandle.getValues()))")
     HandleClientRequest updateToClientRequest(HandleUpdateRequestDto request, HandleClientResponse existingHandle);
