@@ -1,5 +1,7 @@
 package gr.grnet.pccapi.repository;
 
+import gr.grnet.pccapi.dto.statistic.AccountsPerProviderDto;
+import gr.grnet.pccapi.dto.statistic.PrefixesPerProviderDto;
 import gr.grnet.pccapi.entity.Account;
 import gr.grnet.pccapi.entity.Page;
 import gr.grnet.pccapi.entity.PageQuery;
@@ -58,5 +60,20 @@ public class AccountRepository implements Repository<Account, String> {
         pageable.page = Page.of(page, size);
 
         return pageable;
+    }
+    public long countAccounts() {
+        return count();
+    }
+
+    public List<AccountsPerProviderDto> countAccountsPerProvider() {
+        return getSession()
+                .createQuery(
+                        "SELECT new gr.grnet.pccapi.dto.statistic.AccountsPerProviderDto(" +
+                                "a.prefix.provider.name, COUNT(a)) " +
+                                "FROM Account a " +
+                                "WHERE a.prefix.provider IS NOT NULL " +
+                                "GROUP BY a.prefix.provider.id, a.prefix.provider.name",
+                        AccountsPerProviderDto.class)
+                .getResultList();
     }
 }

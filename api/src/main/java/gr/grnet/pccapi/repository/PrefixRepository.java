@@ -1,5 +1,6 @@
 package gr.grnet.pccapi.repository;
 
+import gr.grnet.pccapi.dto.statistic.PrefixesPerProviderDto;
 import gr.grnet.pccapi.entity.Page;
 import gr.grnet.pccapi.entity.PageQuery;
 import gr.grnet.pccapi.entity.PageQueryImpl;
@@ -10,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
 
@@ -148,7 +150,25 @@ public class PrefixRepository implements Repository<Prefix, Integer> {
     return find("id = ?1 and provider.id = ?2", prefixId, providerId).
             firstResultOptional();
   }
+
   public boolean existsByProviderId(Integer providerId) {
     return count("provider.id", providerId) > 0;
+  }
+
+
+  public long countPrefixes() {
+    return count();
+  }
+
+  public List<PrefixesPerProviderDto> countPrefixesPerProvider() {
+    return getEntityManager()
+            .createQuery(
+                    "SELECT new PrefixesPerProviderDto(" +
+                            "p.provider.name, COUNT(p)) " +
+                            "FROM prefix p " +
+                            "WHERE p.provider IS NOT NULL " +
+                            "GROUP BY p.provider.id, p.provider.name",
+                    PrefixesPerProviderDto.class)
+            .getResultList();
   }
 }

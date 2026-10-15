@@ -1,10 +1,13 @@
 package gr.grnet.pccapi.endpoint;
 
+import gr.grnet.pccapi.dto.APIResponseMsg;
 import gr.grnet.pccapi.dto.InformativeResponse;
 import gr.grnet.pccapi.dto.metadata.RoleAssignmentMetadataResponseDto;
 import gr.grnet.pccapi.dto.metadata.RoleMetadataResponseDto;
 import gr.grnet.pccapi.service.PrefixService;
+import gr.grnet.pccapi.dto.statistic.AdminTotalStatistics;
 import gr.grnet.pccapi.service.RoleMetadataService;
+import gr.grnet.pccapi.service.StatisticsService;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.validation.constraints.Max;
@@ -50,6 +53,9 @@ public class AdminEndpoint {
 
     @Inject
     PrefixService prefixService;
+    @Inject
+
+    StatisticsService statisticsService;
 
     @Tag(name = "Admin")
     @Operation(
@@ -141,11 +147,6 @@ public class AdminEndpoint {
             content = @Content(schema = @Schema(
                     type = SchemaType.OBJECT,
                     implementation = InformativeResponse.class)))
-    @APIResponse(
-            responseCode = "500",
-            description = "Internal Server Error.",
-            content = @Content(schema = @Schema(
-                    implementation = InformativeResponse.class)))
     @GET
     @Path("/prefixes")
     @SecuredEndpoint()
@@ -190,4 +191,45 @@ public class AdminEndpoint {
 
         return Response.ok(prefixes).build();
     }
+
+    @Tag(name = "Admin")
+    @Operation(
+            summary = "Get  Statistics Results.",
+            description = "Returns results of Statistics.")
+    @APIResponse(
+            responseCode = "200",
+            description = "Statistics found",
+            content = @Content(schema = @Schema(
+                    implementation = AdminTotalStatistics.class)))
+    @APIResponse(
+            responseCode = "401",
+            description = "User has not been authenticated.",
+            content = @Content(schema = @Schema(
+                    type = SchemaType.OBJECT,
+                    implementation = InformativeResponse.class)))
+    @APIResponse(
+            responseCode = "403",
+            description = "Not permitted.",
+            content = @Content(schema = @Schema(
+                    type = SchemaType.OBJECT,
+                    implementation = InformativeResponse.class)))
+    @APIResponse(
+            responseCode = "500",
+            description = "Internal Server Error.",
+            content =
+            @Content(
+                    schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class)))
+
+    @GET
+    @Path("/statistics")
+    @Produces(MediaType.APPLICATION_JSON)
+    @SecuredEndpoint
+
+    public Response getStatisticsRequest() {
+
+        var statistics = statisticsService.getStatistics();
+
+        return Response.ok().entity(statistics).build();
+    }
+
 }

@@ -1,7 +1,6 @@
 package gr.grnet.pccapi.repository;
 
 import gr.grnet.pccapi.entity.Provider;
-import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.Collection;
@@ -28,5 +27,8 @@ public class ProviderRepository implements Repository<Provider, Integer> {
                 contactId, providerId)
                 .firstResultOptional()
                 .isPresent();
+    }
+    public long countProviders() {
+        return count();
     }
 }

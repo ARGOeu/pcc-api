@@ -30,7 +30,6 @@ public interface ProviderMapper {
    */
   @Mapping(target = "contacts", source = "contacts", qualifiedByName = "contactsToDtos")
   ProviderResponseDTO providerToResponse(Provider provider);
-
   /**
    * Converts a list of Provider instances to a list of ProviderResponseDTO instances
    *
