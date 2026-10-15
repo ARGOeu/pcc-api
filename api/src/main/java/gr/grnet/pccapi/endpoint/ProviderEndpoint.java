@@ -1,11 +1,19 @@
 package gr.grnet.pccapi.endpoint;
 
 import gr.grnet.pccapi.dto.APIResponseMsg;
+import gr.grnet.pccapi.dto.InformativeResponse;
+import gr.grnet.pccapi.dto.prefix.PartialPrefixDto;
+import gr.grnet.pccapi.dto.prefix.PrefixRequestDto;
+import gr.grnet.pccapi.dto.prefix.PrefixResponseDto;
+import gr.grnet.pccapi.dto.provider.PartialProviderRequest;
+import gr.grnet.pccapi.dto.provider.ProviderRequestDto;
 import gr.grnet.pccapi.dto.provider.ProviderResponseDTO;
+import gr.grnet.pccapi.resources.PrefixResource;
 import gr.grnet.pccapi.resources.ProviderResource;
 import gr.grnet.pccapi.service.ProviderService;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -128,4 +136,159 @@ public class ProviderEndpoint {
 
     return Response.ok(providerService.fetchById(id)).build();
   }
+
+
+    @Operation(summary = "Create Provider")
+    @APIResponse(
+            responseCode = "201",
+            description = "Provider created",
+            content = @Content(schema = @Schema(
+                    implementation = ProviderResponseDTO.class)))
+    @APIResponse(
+            responseCode = "401",
+            description = "User has not been authenticated.",
+            content = @Content(schema = @Schema(
+                    type = SchemaType.OBJECT,
+                    implementation = InformativeResponse.class)))
+    @APIResponse(
+            responseCode = "403",
+            description = "Not permitted.",
+            content = @Content(schema = @Schema(
+                    type = SchemaType.OBJECT,
+                    implementation = InformativeResponse.class)))
+    @APIResponse(
+            responseCode = "404",
+            description = "Prefix not found.",
+            content = @Content(schema = @Schema(
+                    type = SchemaType.OBJECT,
+                    implementation = InformativeResponse.class)))
+    @APIResponse(
+            responseCode = "409",
+            description = "Prefix already exists",
+            content = @Content(schema = @Schema(
+                    implementation = InformativeResponse.class)))
+    @APIResponse(
+            responseCode = "500",
+            description = "Internal Server Error",
+            content = @Content(schema = @Schema(
+                    implementation = InformativeResponse.class)))
+    @POST
+    @SecuredEndpoint(
+            params = {
+                    @ParamRef(
+                            param = "id",
+                            type = ParamType.PATH,
+                            referTo = ProviderResource.class
+                    )
+            }
+    )
+    public Response create(
+            @PathParam("id") int id,
+            @Valid ProviderRequestDto providerRequestDto) {
+
+        var response = providerService.create(providerRequestDto);
+
+        return Response.status(Response.Status.CREATED).entity(response).build();
+    }
+
+    @Operation(summary = "Patch provider")
+    @APIResponse(
+            responseCode = "200",
+            description = "Provider updated",
+            content = @Content(schema = @Schema(
+                    implementation = ProviderResponseDTO.class)))
+    @APIResponse(
+            responseCode = "401",
+            description = "User has not been authenticated.",
+            content = @Content(schema = @Schema(
+                    type = SchemaType.OBJECT,
+                    implementation = InformativeResponse.class)))
+    @APIResponse(
+            responseCode = "403",
+            description = "Not permitted.",
+            content = @Content(schema = @Schema(
+                    type = SchemaType.OBJECT,
+                    implementation = InformativeResponse.class)))
+    @APIResponse(
+            responseCode = "404",
+            description = "Prefix not found",
+            content = @Content(schema = @Schema(
+                    implementation = InformativeResponse.class)))
+    @APIResponse(
+            responseCode = "500",
+            description = "Internal Server Error",
+            content = @Content(schema = @Schema(
+                    implementation = InformativeResponse.class)))
+    @PATCH
+    @Path("/{provider-id}")
+    @SecuredEndpoint(
+            params = {
+                   @ParamRef(
+                            param = "provider-id",
+                            type = ParamType.PATH,
+                            referTo = ProviderResource.class
+                    )
+            }
+    )
+    public Response update(
+            @PathParam("id") int id,
+            @PathParam("provider-id") int providerId,
+            @Valid PartialProviderRequest providerRequestDto) {
+
+        var prefix = providerService.update(providerId, providerRequestDto);
+
+        return Response.ok(prefix).build();
+    }
+    @Operation(summary = "Delete provider")
+    @APIResponse(
+            responseCode = "200",
+            description = "Provider deleted",
+            content = @Content(schema = @Schema(
+                    implementation = InformativeResponse.class)))
+    @APIResponse(
+            responseCode = "401",
+            description = "User has not been authenticated.",
+            content = @Content(schema = @Schema(
+                    type = SchemaType.OBJECT,
+                    implementation = InformativeResponse.class)))
+    @APIResponse(
+            responseCode = "403",
+            description = "Not permitted.",
+            content = @Content(schema = @Schema(
+                    type = SchemaType.OBJECT,
+                    implementation = InformativeResponse.class)))
+    @APIResponse(
+            responseCode = "404",
+            description = "Prefix not found.",
+            content = @Content(schema = @Schema(
+                    type = SchemaType.OBJECT,
+                    implementation = InformativeResponse.class)))
+    @APIResponse(
+            responseCode = "500",
+            description = "Internal Server Error",
+            content = @Content(schema = @Schema(
+                    implementation = InformativeResponse.class)))
+    @DELETE
+    @Path("/{provider-id}")
+    @SecuredEndpoint(
+            params = {
+                    @ParamRef(
+                            param = "provider-id",
+                            type = ParamType.PATH,
+                            referTo = ProviderResource.class
+                    )
+            }
+    )
+    public Response deleteById(
+            @PathParam("provider-id") Integer providerId) {
+
+        providerService.delete(providerId);
+
+        var informativeResponse = new InformativeResponse();
+        informativeResponse.code = 200;
+        informativeResponse.message = "Provider has been successfully deleted.";
+
+        return Response.ok().entity(informativeResponse).build();
+    }
+
 }

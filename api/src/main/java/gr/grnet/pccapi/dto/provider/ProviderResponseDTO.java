@@ -1,8 +1,12 @@
 package gr.grnet.pccapi.dto.provider;
 
+import gr.grnet.pccapi.dto.ContactDto;
 import lombok.Getter;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /** A class that represents a Provider served as response by the Provider endpoint */
 @Getter
@@ -24,4 +28,11 @@ public class ProviderResponseDTO {
       description = "The name of the provider .",
       example = "GRNET")
   public String name;
+
+  @Schema(
+          type = SchemaType.ARRAY,
+          implementation = ContactDto.class,
+          description = "The contacts associated with this provider"
+  )
+  private List<ContactDto> contacts = new ArrayList<>();
 }
