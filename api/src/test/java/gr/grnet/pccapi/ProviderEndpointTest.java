@@ -1,31 +1,26 @@
 package gr.grnet.pccapi;
 
-import static io.restassured.RestAssured.given;
-import static io.smallrye.common.constraint.Assert.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import gr.grnet.pccapi.dto.APIResponseMsg;
 import gr.grnet.pccapi.dto.ContactDto;
 import gr.grnet.pccapi.dto.InformativeResponse;
-import gr.grnet.pccapi.dto.prefix.PrefixResponseDto;
 import gr.grnet.pccapi.dto.provider.ProviderResponseDTO;
 import gr.grnet.pccapi.endpoint.ProviderEndpoint;
-import gr.grnet.pccapi.entity.Contact;
-import gr.grnet.pccapi.entity.Provider;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import io.restassured.http.ContentType;
-import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
-import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 import java.util.Arrays;
+
+import static io.restassured.RestAssured.given;
+import static io.smallrye.common.constraint.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @QuarkusTest
 @TestHTTPEndpoint(ProviderEndpoint.class)
@@ -252,8 +247,8 @@ public class ProviderEndpointTest extends KeycloakTest {
 
         assertEquals(200, deleteResponse.code);
     }
+  private RequestSpecification authenticatedRequest() {
 
-    private RequestSpecification authenticatedRequest() {
 
         return given()
                 .header("Authorization", "Bearer " + adminToken);

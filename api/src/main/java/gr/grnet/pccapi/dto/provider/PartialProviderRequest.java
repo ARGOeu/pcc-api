@@ -16,8 +16,6 @@ import java.util.List;
 @Getter
 @Setter
 public class PartialProviderRequest {
-
-
     @Schema(
             type = SchemaType.STRING,
             description = "The description of the provider .",
@@ -25,7 +23,6 @@ public class PartialProviderRequest {
     )
     @JsonProperty("description")
     public String  description;
-
 
     @JsonProperty("contacts")
     @NotEmpty(message = "At least one contact should be added")
