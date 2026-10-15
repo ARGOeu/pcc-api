@@ -83,6 +83,7 @@ According to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), the `Unre
 - [#80](https://github.com/ARGOeu/pcc-api/pull/80) PCC-161 Run resolvable script on a new PID in a prefix: replace daemons jar execution with a thread worker
 - [#81](https://github.com/ARGOeu/pcc-api/pull/81) PCC-169 Upgrade PCC API
 - [#88](https://github.com/ARGOeu/pcc-api/pull/88) PCC-171 Update project documentation after Quarkus 3.27 upgrade
+- [#105](https://github.com/ARGOeu/pcc-api/pull/105) Update Email Sender Address for PCC Notifications
 
 ### Fixed
 
