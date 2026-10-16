@@ -39,5 +39,5 @@ public class HandleListResponseDto {
             type = SchemaType.ARRAY,
             implementation = String.class,
             description = "The Handle identifiers.")
-    private List<String> handles;
+    private List<HandleResponseDto> handles;
 }
