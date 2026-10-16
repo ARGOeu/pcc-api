@@ -116,7 +116,7 @@ public class PrefixService {
     return PrefixMapper.INSTANCE.prefixesToResponseDto(prefixes);
   }
 
-  public PageResource<PrefixResponseDto> fetchByPageAndSize(String search, String provider, String domain, String contractType, int page, int size, UriInfo uriInfo) {
+  public PageResource<PrefixResponseDto> fetchByProviderByPageAndSize(String search, String provider, String domain, String contractType, int page, int size, UriInfo uriInfo) {
 
     if (accessControlService.isSuperAdmin()) {
       var prefixes = prefixRepository.fetchPrefixesByPage(search, provider, domain, contractType, page, size);
@@ -131,6 +131,13 @@ public class PrefixService {
     }
 
     var prefixes = prefixRepository.fetchPrefixesByProviderIdsAndPage(providerIds, search, provider, domain, contractType, page, size);
+
+    return new PageResource<>(prefixes, PrefixMapper.INSTANCE.prefixesToResponseDto(prefixes.list()), uriInfo);
+  }
+
+  public PageResource<PrefixResponseDto> fetchAllPrefixesByPageAndSize(String search, String provider, String domain, String contractType, int page, int size, UriInfo uriInfo) {
+
+    var prefixes = prefixRepository.fetchPrefixesByPage(search, provider, domain, contractType, page, size);
 
     return new PageResource<>(prefixes, PrefixMapper.INSTANCE.prefixesToResponseDto(prefixes.list()), uriInfo);
   }
