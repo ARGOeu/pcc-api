@@ -2,18 +2,25 @@ package gr.grnet.pccapi.endpoint;
 
 import gr.grnet.pccapi.dto.APIResponseMsg;
 import gr.grnet.pccapi.dto.InformativeResponse;
+import gr.grnet.pccapi.dto.PrefixRequestResponse;
+import gr.grnet.pccapi.dto.PrefixRequestStatusDto;
 import gr.grnet.pccapi.dto.metadata.RoleAssignmentMetadataResponseDto;
 import gr.grnet.pccapi.dto.metadata.RoleMetadataResponseDto;
+import gr.grnet.pccapi.enums.PrefixRequestStatus;
+import gr.grnet.pccapi.service.PrefixRequestService;
 import gr.grnet.pccapi.service.PrefixService;
 import gr.grnet.pccapi.dto.statistic.AdminTotalStatistics;
 import gr.grnet.pccapi.service.RoleMetadataService;
 import gr.grnet.pccapi.service.StatisticsService;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -56,6 +63,9 @@ public class AdminEndpoint {
     @Inject
 
     StatisticsService statisticsService;
+
+    @Inject
+    PrefixRequestService prefixRequestService;
 
     @Tag(name = "Admin")
     @Operation(
@@ -231,5 +241,43 @@ public class AdminEndpoint {
 
         return Response.ok().entity(statistics).build();
     }
+    @Tag(name = "Admin")
+    @Operation(summary = "Update prefix request's status")
+    @APIResponse(
+            responseCode = "200",
+            description = "Prefixes found",
+            content = @Content(schema = @Schema(
+                    implementation = PrefixRequestResponse.class)))
+    @APIResponse(
+            responseCode = "401",
+            description = "User has not been authenticated.",
+            content = @Content(schema = @Schema(
+                    type = SchemaType.OBJECT,
+                    implementation = InformativeResponse.class)))
+    @APIResponse(
+            responseCode = "403",
+            description = "Not permitted.",
+            content = @Content(schema = @Schema(
+                    type = SchemaType.OBJECT,
+                    implementation = InformativeResponse.class)))
+    @APIResponse(
+            responseCode = "500",
+            description = "Internal Server Error.",
+            content =
+            @Content(
+                    schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class)))
+    @PATCH
+    @Path("/prefix-requests/{id}/status")
+    @SecuredEndpoint
+    public Response updateStatus(
+            @PathParam("id") Integer id,
+            @Valid @NotNull PrefixRequestStatusDto dto) {
 
+        PrefixRequestResponse response =
+                prefixRequestService.updateStatus(
+                        id,
+                        dto
+                );
+        return Response.ok(response).build();
+    }
 }

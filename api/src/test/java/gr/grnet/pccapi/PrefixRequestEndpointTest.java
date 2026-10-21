@@ -49,6 +49,7 @@ public class PrefixRequestEndpointTest extends KeycloakTest {
     private Response createPrefixRequest(String requestBody) {
         return given()
                 .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
                 .body(requestBody)
                 .when()
                 .post()

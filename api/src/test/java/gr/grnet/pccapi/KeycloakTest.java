@@ -1,6 +1,7 @@
 package gr.grnet.pccapi;
 
 import gr.grnet.pccapi.service.PrefixInvitationService;
+import gr.grnet.pccapi.service.PrefixRequestService;
 import gr.grnet.pccapi.service.PrefixService;
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusMock;
@@ -27,6 +28,9 @@ public class KeycloakTest {
     PrefixService prefixService;
 
     @Inject
+    PrefixRequestService prefixRequestService;
+
+    @Inject
     PrefixInvitationService prefixInvitationService;
 
     @Inject
@@ -37,6 +41,7 @@ public class KeycloakTest {
 
     @TestHTTPResource
     URI baseUri;
+
     protected String adminToken;
     protected String providerAdminToken;
     protected String prefixMemberToken;
