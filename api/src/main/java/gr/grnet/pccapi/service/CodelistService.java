@@ -3,11 +3,13 @@ package gr.grnet.pccapi.service;
 import gr.grnet.pccapi.dto.CodelistDto;
 import gr.grnet.pccapi.entity.Codelist;
 import gr.grnet.pccapi.enums.CodelistCategory;
+import gr.grnet.pccapi.enums.ContactType;
 import gr.grnet.pccapi.mapper.CodelistMapper;
 import gr.grnet.pccapi.repository.CodelistRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import lombok.AllArgsConstructor;
 
@@ -43,5 +45,13 @@ public class CodelistService {
       codes = codelistRepository.find("category", category).list();
     }
     return CodelistMapper.INSTANCE.codelistsToResponseDto(codes);
+  }
+
+
+  public List<String> getContactTypes() {
+
+    return Arrays.stream(ContactType.values())
+            .map(Enum::name)
+            .toList();
   }
 }

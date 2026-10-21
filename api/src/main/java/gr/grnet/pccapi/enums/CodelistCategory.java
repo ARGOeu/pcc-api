@@ -2,7 +2,9 @@ package gr.grnet.pccapi.enums;
 
 public enum CodelistCategory {
   LOOKUP_SERVICE_TYPE("lookup_service_type"),
-  CONTRACT_TYPE("contract_type");
+  CONTRACT_TYPE("contract_type"),
+  CONTACT_TYPE("contact_type");
+
   private final String text;
 
   CodelistCategory(final String text) {

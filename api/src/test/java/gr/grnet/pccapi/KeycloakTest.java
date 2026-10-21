@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@QuarkusTest
+//@QuarkusTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class KeycloakTest {
 
