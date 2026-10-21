@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 import lombok.Setter;
+import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import java.util.List;
@@ -16,6 +17,14 @@ import java.util.List;
 @Setter
 public class PartialProviderRequest {
 
+
+    @Schema(
+            type = SchemaType.STRING,
+            description = "The description of the provider .",
+            example = "GRNET provider description"
+    )
+    @JsonProperty("description")
+    public String  description;
 
 
     @JsonProperty("contacts")

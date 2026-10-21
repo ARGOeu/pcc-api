@@ -121,6 +121,7 @@ public class ProviderService {
                 .orElseThrow(() ->
                         new NotFoundException("Provider not found"));
 
+       provider.setDescription(request.description);
         var oldContacts = new HashSet<>(provider.getContacts());
 
         var newContacts = request.getContacts().stream()
