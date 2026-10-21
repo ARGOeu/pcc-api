@@ -40,4 +40,8 @@ public class ProviderRepository implements Repository<Provider, Integer> {
 
         return count("name in ?1", providerNames);
     }
+
+    public long deleteByName(String name) {
+        return delete("name", name);
+    }
 }

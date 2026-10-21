@@ -87,6 +87,33 @@ public class PccAuthorizationInitializer {
                                 .findFirst()
                                 .orElseThrow();
                     });
+// Create  role if it does not already exist
+            var memberRole = resourceAuthorizationService.getAllRoles()
+                    .stream()
+                    .filter(role -> "member".equals(role.name))
+                    .findFirst()
+                    .orElseGet(() -> {
+
+                        var role = new CreateRoleRequest();
+                        role.name = "member";
+                        role.attributes = Map.of(
+                                "preferred_name", List.of("Member"),
+                                "description", List.of(
+                                        "Role with member rights in service"
+                                )
+                        );
+
+                        resourceAuthorizationService.createNewRole(role);
+
+                        return resourceAuthorizationService.getAllRoles()
+                                .stream()
+                                .filter(createdRole ->
+                                        "prefix_member".equals(createdRole.name))
+                                .findFirst()
+                                .orElseThrow();
+                    });
+
+
 
             // Assign user1 as provider_admin for Provider 1
             var roleAssignment = new AssignRoleRequest();
