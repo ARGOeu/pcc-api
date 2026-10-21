@@ -1,5 +1,6 @@
 package gr.grnet.pccapi.dto.provider;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import gr.grnet.pccapi.dto.ContactDto;
 import lombok.Getter;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
@@ -28,6 +29,14 @@ public class ProviderResponseDTO {
       description = "The name of the provider .",
       example = "GRNET")
   public String name;
+
+  @Schema(
+          type = SchemaType.STRING,
+          implementation = String.class,
+          description = "The description of the provider .",
+          example = "GRNET description provider")
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public String description;
 
   @Schema(
           type = SchemaType.ARRAY,

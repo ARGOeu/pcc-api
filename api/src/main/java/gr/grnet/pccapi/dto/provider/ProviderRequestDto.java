@@ -26,6 +26,13 @@ public class ProviderRequestDto {
     @JsonProperty("name")
     public String  name;
 
+    @Schema(
+            type = SchemaType.STRING,
+            description = "The description of the provider .",
+            example = "GRNET provider description"
+    )
+    @JsonProperty("description")
+    public String  description;
 
     @JsonProperty("contacts")
     @NotEmpty(message = "At least one contact should be added")

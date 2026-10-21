@@ -27,6 +27,7 @@ public class Provider extends PanacheEntityBase {
 
     private String name;
 
+    private String description;
 
     @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(
@@ -58,5 +59,13 @@ public class Provider extends PanacheEntityBase {
 
     public void setContacts(Set<Contact> contacts) {
         this.contacts = contacts;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
