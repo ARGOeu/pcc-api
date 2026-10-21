@@ -3,6 +3,7 @@ package gr.grnet.pccapi;
 import gr.grnet.pccapi.service.PrefixInvitationService;
 import gr.grnet.pccapi.service.PrefixRequestService;
 import gr.grnet.pccapi.service.PrefixService;
+import gr.grnet.pccapi.service.ProviderService;
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusMock;
 import io.restassured.RestAssured;
@@ -39,6 +40,9 @@ public class KeycloakTest {
     @Inject
     RoleEndpointRepository roleEndpointRepository;
 
+    @Inject
+    ProviderService providerService;
+
     @TestHTTPResource
     URI baseUri;
 
@@ -59,6 +63,8 @@ public class KeycloakTest {
 
         prefixInvitationService.deleteAll();
         prefixService.deleteAll();
+        //providerService.deleteAll();
+        prefixRequestService.deleteAll();
     }
 
     protected String getAccessToken(String username) {
