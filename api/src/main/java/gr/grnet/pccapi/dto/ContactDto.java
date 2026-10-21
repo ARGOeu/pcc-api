@@ -18,7 +18,7 @@ public class ContactDto {
             example = "1"
     )
     @JsonProperty(value = "id", access = JsonProperty.Access.READ_ONLY)
-    public Long id;
+    public Integer id;
 
     @Schema(
             type = SchemaType.STRING,

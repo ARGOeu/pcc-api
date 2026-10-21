@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicUpdate;
@@ -41,4 +42,47 @@ public class Provider extends PanacheEntityBase {
     )
     private Set<Contact> contacts = new HashSet<>();
 
+    @OneToMany(mappedBy = "provider")
+    private Set<PrefixRequest> prefixRequests = new HashSet<>();
+
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Set<Contact> getContacts() {
+        return contacts;
+    }
+
+    public void setContacts(Set<Contact> contacts) {
+        this.contacts = contacts;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Set<PrefixRequest> getPrefixRequests() {
+        return prefixRequests;
+    }
+
+    public void setPrefixRequests(Set<PrefixRequest> prefixRequests) {
+        this.prefixRequests = prefixRequests;
+
+    }
 }
