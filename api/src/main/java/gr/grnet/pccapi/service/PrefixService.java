@@ -112,6 +112,8 @@ public class PrefixService {
   public List<PrefixResponseDto> fetchAll() {
 
     var prefixes = prefixRepository.findAll().list();
+
+
     // Map the prefixes retrieved from the database to the equivalent prefixDTO list and return
     return PrefixMapper.INSTANCE.prefixesToResponseDto(prefixes);
   }

@@ -1,6 +1,4 @@
 package gr.grnet.pccapi.entity;
-
-import gr.grnet.pccapi.entity.Provider;
 import gr.grnet.pccapi.enums.PrefixExpectedHandles;
 import gr.grnet.pccapi.enums.PrefixRequestStatus;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
@@ -21,11 +19,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicUpdate;
 import java.time.Instant;
-
-
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalDateTime;
 
 /**
  * A class representing a prefix request submitted by a user.
@@ -88,6 +81,12 @@ public class PrefixRequest extends PanacheEntityBase {
 
     @Column(name = "updated_at")
     public Instant updatedAt;
+
+    @Column(name = "created_by")
+    public String createdBy;
+
+    @Column(name = "handled_by")
+    public String handledBy;
 
     @PrePersist
     public void prePersist() {

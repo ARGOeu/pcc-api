@@ -187,5 +187,4 @@ public class ProviderService {
     public void deleteByName(String name) {
         providerRepository.deleteByName(name);
     }
-
 }

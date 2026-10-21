@@ -63,8 +63,7 @@ public class KeycloakTest {
 
         prefixInvitationService.deleteAll();
         prefixService.deleteAll();
-        //providerService.deleteAll();
-        prefixRequestService.deleteAll();
+       prefixRequestService.deleteAll();
     }
 
     protected String getAccessToken(String username) {
