@@ -79,7 +79,8 @@ public interface HandleMapper {
         for (var value : requestValues) {
             values.add(new HandleClientRequest.Value(
                     index++,
-                    value.getType(),
+                    value
+                            .getType(),
                     new HandleClientRequest.Data(
                             "string",
                             value.getValue())));

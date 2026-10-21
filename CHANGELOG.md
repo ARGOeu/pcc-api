@@ -70,7 +70,7 @@ According to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), the `Unre
 - [#100](https://github.com/ARGOeu/pcc-api/pull/100) PCC-190 [API] - Add supported role attributes list
 - [#101](https://github.com/ARGOeu/pcc-api/pull/101) PCC-196 [API] - Add username field to the prefix accounts
 - [#102](https://github.com/ARGOeu/pcc-api/pull/102) PCC-198 Add /admin/prefixes Endpoint for Super Admin to Retrieve All Prefixes
-
+- [#126](https://github.com/ARGOeu/pcc-api/pull/126) PCC-197 [API] - Provider CRUD
 
 ### Changed
 

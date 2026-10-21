@@ -148,4 +148,7 @@ public class PrefixRepository implements Repository<Prefix, Integer> {
     return find("id = ?1 and provider.id = ?2", prefixId, providerId).
             firstResultOptional();
   }
+  public boolean existsByProviderId(Integer providerId) {
+    return count("provider.id", providerId) > 0;
+  }
 }
