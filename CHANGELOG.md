@@ -72,6 +72,9 @@ According to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), the `Unre
 - [#102](https://github.com/ARGOeu/pcc-api/pull/102) PCC-198 Add /admin/prefixes Endpoint for Super Admin to Retrieve All Prefixes
 - [#106](https://github.com/ARGOeu/pcc-api/pull/106) PCC-197 [API] - Provider CRUD
 - [#112](https://github.com/ARGOeu/pcc-api/pull/112) PCC-218 Add ContactType in codelist
+- [#126](https://github.com/ARGOeu/pcc-api/pull/126) PCC-197 [API] - Provider CRUD
+- [#110](https://github.com/ARGOeu/pcc-api/pull/110) PCC-205 [API] - Improve error handling for invalid Handle Service credentials
+
 ### Changed
 
 - [#14](https://github.com/ARGOeu/pcc-api/pull/14) PCC-16 Update Swagger properties
