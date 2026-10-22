@@ -171,4 +171,30 @@ public class PrefixRepository implements Repository<Prefix, Integer> {
                     PrefixesPerProviderDto.class)
             .getResultList();
   }
+
+  public long countPrefixesByProviderNames(List<String> providerNames) {
+    if (providerNames.isEmpty()) {
+      return 0;
+    }
+
+    return count("provider.name in ?1", providerNames);
+  }
+  public List<PrefixesPerProviderDto> countPrefixesPerProviderNames(
+          List<String> providerNames) {
+
+    if (providerNames == null || providerNames.isEmpty()) {
+      return List.of();
+    }
+
+    return getSession().createQuery("""
+        SELECT new gr.grnet.pccapi.dto.statistic.PrefixesPerProviderDto(
+            p.provider.name, COUNT(p)
+        )
+        FROM prefix p
+        WHERE p.provider.name IN :providerNames
+        GROUP BY p.provider.name
+        """, PrefixesPerProviderDto.class)
+            .setParameter("providerNames", providerNames)
+            .getResultList();
+  }
 }

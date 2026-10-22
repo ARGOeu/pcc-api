@@ -75,6 +75,9 @@ According to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), the `Unre
 - [#108](https://github.com/ARGOeu/pcc-api/pull/108) PCC-206: [API] - Add endpoint to validate URL reachability
 - [#126](https://github.com/ARGOeu/pcc-api/pull/126) PCC-197 [API] - Provider CRUD
 - [#107](https://github.com/ARGOeu/pcc-api/pull/107) PCC-207 [API] - Add Statistics Endpoint for Administrators
+- [#126](https://github.com/ARGOeu/pcc-api/pull/126) PCC-197 [API] - Provider CRUD
+- [#107](https://github.com/ARGOeu/pcc-api/pull/107) PCC-207 [API] - Add Statistics Endpoint for Administrators
+- [#109](https://github.com/ARGOeu/pcc-api/pull/109) PCC-208 [API] - Provider admin statistics
 
 ### Changed
 

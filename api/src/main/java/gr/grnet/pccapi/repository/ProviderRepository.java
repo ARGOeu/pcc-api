@@ -28,7 +28,16 @@ public class ProviderRepository implements Repository<Provider, Integer> {
                 .firstResultOptional()
                 .isPresent();
     }
+
     public long countProviders() {
         return count();
+    }
+
+    public long countByNames(List<String> providerNames) {
+        if (providerNames.isEmpty()) {
+            return 0;
+        }
+
+        return count("name in ?1", providerNames);
     }
 }

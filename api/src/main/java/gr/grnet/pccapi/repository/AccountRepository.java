@@ -76,4 +76,29 @@ public class AccountRepository implements Repository<Account, String> {
                         AccountsPerProviderDto.class)
                 .getResultList();
     }
+    public long countAccountsByProviderNames(List<String> providerNames) {
+        if (providerNames.isEmpty()) {
+            return 0;
+        }
+
+        return count("prefix.provider.name in ?1", providerNames);
+    }
+    public List<AccountsPerProviderDto> countAccountsPerProviderNames(
+            List<String> providerNames) {
+
+        if (providerNames == null || providerNames.isEmpty()) {
+            return List.of();
+        }
+
+        return getSession().createQuery("""
+        SELECT new AccountsPerProviderDto(
+            a.prefix.provider.name, COUNT(a)
+        )
+        FROM Account a
+        WHERE a.prefix.provider.name IN :providerNames
+        GROUP BY a.prefix.provider.name
+        """, AccountsPerProviderDto.class)
+                .setParameter("providerNames", providerNames)
+                .getResultList();
+    }
 }

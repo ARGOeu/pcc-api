@@ -32,6 +32,13 @@ public class StatisticsService {
   @Inject
   AccountRepository accountRepository;
 
+  @Inject
+  UserEntitlementsService userEntitlementsService;
+
+  @Inject
+  AccessControlService accessControlService;
+
+
   public int getPIDCountByPrefixID(String prefix) {
     try {
       return statisticsRepository.getPIDCountByPrefixID(prefix);
@@ -63,6 +70,47 @@ public class StatisticsService {
     }
   }
 
+    public AdminStatisticsResponse getStatistics() {
+      AdminTotalStatistics total = new AdminTotalStatistics();
+
+      if (accessControlService.isSuperAdmin()) {
+        // Global statistics
+        total.totalProvidersNum = providerRepository.count();
+        total.totalPrefixesNum = prefixRepository.countPrefixes();
+        total.totalAccountsNum = accountRepository.countAccounts();
+
+        total.prefixesPerProvider =
+                prefixRepository.countPrefixesPerProvider();
+
+        total.accountsPerProvider =
+                accountRepository.countAccountsPerProvider();
+      } else {
+        // Statistics limited to the providers this user administers
+        var providerNames =
+                userEntitlementsService.getAdministeredProviderNames();
+
+        total.totalProvidersNum =
+                providerRepository.countByNames(providerNames);
+
+        total.totalPrefixesNum =
+                prefixRepository.countPrefixesByProviderNames(providerNames);
+
+        total.totalAccountsNum =
+                accountRepository.countAccountsByProviderNames(providerNames);
+
+        total.prefixesPerProvider =
+                prefixRepository.countPrefixesPerProviderNames(providerNames);
+
+        total.accountsPerProvider =
+                accountRepository.countAccountsPerProviderNames(providerNames);
+      }
+
+      AdminStatisticsResponse response = new AdminStatisticsResponse();
+      response.totalStatistics = total;
+
+      return response;
+    }
+
   public StatisticsDto setPrefixStatistics(String prefix, StatisticsRequestDto statisticsDto) {
 
     if (!prefixRepository.existsByName(prefix)) {
@@ -74,26 +122,26 @@ public class StatisticsService {
       if (statisticsRepository.getPrefixByID(prefix)) {
 
         statistics =
-            statisticsRepository.updatePrefixStatistics(
-                prefix,
-                statisticsDto.handlesCount,
-                statisticsDto.resolvableCount,
-                statisticsDto.unresolvableCount,
-                statisticsDto.uncheckedCount);
+                statisticsRepository.updatePrefixStatistics(
+                        prefix,
+                        statisticsDto.handlesCount,
+                        statisticsDto.resolvableCount,
+                        statisticsDto.unresolvableCount,
+                        statisticsDto.uncheckedCount);
       } else {
 
         statistics =
-            statisticsRepository.insertPrefixStatistics(
-                prefix,
-                statisticsDto.handlesCount,
-                statisticsDto.resolvableCount,
-                statisticsDto.unresolvableCount,
-                statisticsDto.uncheckedCount);
+                statisticsRepository.insertPrefixStatistics(
+                        prefix,
+                        statisticsDto.handlesCount,
+                        statisticsDto.resolvableCount,
+                        statisticsDto.unresolvableCount,
+                        statisticsDto.uncheckedCount);
       }
 
       return StatisticsMapper.INSTANCE.statisticsToDto(
-          statistics.orElseThrow(
-              () -> new SQLException("Can not handle prefix statistic in hrls database.")));
+              statistics.orElseThrow(
+                      () -> new SQLException("Can not handle prefix statistic in hrls database.")));
 
     } catch (IllegalArgumentException e) {
       throw new NotFoundException(e.getMessage());
@@ -104,27 +152,4 @@ public class StatisticsService {
     }
   }
 
-  public AdminStatisticsResponse getStatistics() {
-
-    AdminTotalStatistics total = new AdminTotalStatistics();
-
-    // Overall counts
-    total.totalProvidersNum = providerRepository.count();
-    total.totalPrefixesNum = prefixRepository.countPrefixes();
-    total.totalAccountsNum = accountRepository.countAccounts();
-
-    // Prefixes grouped by provider
-    total.prefixesPerProvider =
-            prefixRepository.countPrefixesPerProvider();
-
-    // Accounts grouped by provider
-    total.accountsPerProvider =
-            accountRepository.countAccountsPerProvider();
-
-    // Wrap the statistics in the requested response
-    AdminStatisticsResponse response = new AdminStatisticsResponse();
-    response.totalStatistics = total;
-
-    return response;
-  }
 }

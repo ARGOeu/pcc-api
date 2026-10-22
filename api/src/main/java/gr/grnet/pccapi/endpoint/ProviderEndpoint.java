@@ -5,8 +5,10 @@ import gr.grnet.pccapi.dto.InformativeResponse;
 import gr.grnet.pccapi.dto.provider.PartialProviderRequest;
 import gr.grnet.pccapi.dto.provider.ProviderRequestDto;
 import gr.grnet.pccapi.dto.provider.ProviderResponseDTO;
+import gr.grnet.pccapi.dto.statistic.AdminTotalStatistics;
 import gr.grnet.pccapi.resources.ProviderResource;
 import gr.grnet.pccapi.service.ProviderService;
+import gr.grnet.pccapi.service.StatisticsService;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -50,6 +52,9 @@ public class ProviderEndpoint {
 
   @Inject
   ProviderService providerService;
+
+  @Inject
+    StatisticsService statisticsService;
 
   @GET
   @Operation(summary = "Get all providers")
@@ -292,6 +297,46 @@ public class ProviderEndpoint {
         informativeResponse.message = "Provider has been successfully deleted.";
 
         return Response.ok().entity(informativeResponse).build();
+    }
+
+    @Tag(name = "Provider")
+    @Operation(
+            summary = "Get  Statistics Results.",
+            description = "Returns results of Statistics.")
+    @APIResponse(
+            responseCode = "200",
+            description = "Statistics found",
+            content = @Content(schema = @Schema(
+                    implementation = AdminTotalStatistics.class)))
+    @APIResponse(
+            responseCode = "401",
+            description = "User has not been authenticated.",
+            content = @Content(schema = @Schema(
+                    type = SchemaType.OBJECT,
+                    implementation = InformativeResponse.class)))
+    @APIResponse(
+            responseCode = "403",
+            description = "Not permitted.",
+            content = @Content(schema = @Schema(
+                    type = SchemaType.OBJECT,
+                    implementation = InformativeResponse.class)))
+    @APIResponse(
+            responseCode = "500",
+            description = "Internal Server Error.",
+            content =
+            @Content(
+                    schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class)))
+
+    @GET
+    @Path("/statistics")
+    @Produces(MediaType.APPLICATION_JSON)
+   @SecuredEndpoint
+
+    public Response getStatisticsRequest() {
+
+        var statistics = statisticsService.getStatistics();
+
+        return Response.ok().entity(statistics).build();
     }
 
 }
