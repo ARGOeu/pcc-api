@@ -3,8 +3,6 @@ package gr.grnet.pccapi.service;
 import gr.grnet.pccapi.dto.provider.PartialProviderRequest;
 import gr.grnet.pccapi.dto.provider.ProviderRequestDto;
 import gr.grnet.pccapi.dto.provider.ProviderResponseDTO;
-import gr.grnet.pccapi.entity.Contact;
-import gr.grnet.pccapi.entity.Provider;
 import gr.grnet.pccapi.enums.ContactType;
 import gr.grnet.pccapi.exception.ConflictException;
 import gr.grnet.pccapi.mapper.ProviderMapper;
@@ -16,8 +14,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Response;
 import lombok.AllArgsConstructor;
 import org.grnet.endpoint.scanner.runtime.context.RoleEndpointHolder;
 import org.jboss.logging.Logger;
@@ -113,7 +109,6 @@ public class ProviderService {
 
         return ProviderMapper.INSTANCE.providerToResponse(provider);
     }
-
     @Transactional
     public ProviderResponseDTO update(Integer id, PartialProviderRequest request) {
 

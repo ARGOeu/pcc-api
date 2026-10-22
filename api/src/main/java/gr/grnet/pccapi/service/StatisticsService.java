@@ -1,10 +1,14 @@
 package gr.grnet.pccapi.service;
 
+import gr.grnet.pccapi.dto.statistic.AdminStatisticsResponse;
+import gr.grnet.pccapi.dto.statistic.AdminTotalStatistics;
 import gr.grnet.pccapi.dto.statistic.StatisticsDto;
 import gr.grnet.pccapi.dto.statistic.StatisticsRequestDto;
 import gr.grnet.pccapi.entity.Statistics;
 import gr.grnet.pccapi.mapper.StatisticsMapper;
+import gr.grnet.pccapi.repository.AccountRepository;
 import gr.grnet.pccapi.repository.PrefixRepository;
+import gr.grnet.pccapi.repository.ProviderRepository;
 import gr.grnet.pccapi.repository.StatisticsRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -22,6 +26,11 @@ public class StatisticsService {
   @Inject StatisticsRepository statisticsRepository;
 
   @Inject PrefixRepository prefixRepository;
+
+  @Inject
+  ProviderRepository providerRepository;
+  @Inject
+  AccountRepository accountRepository;
 
   public int getPIDCountByPrefixID(String prefix) {
     try {
@@ -93,5 +102,29 @@ public class StatisticsService {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public AdminStatisticsResponse getStatistics() {
+
+    AdminTotalStatistics total = new AdminTotalStatistics();
+
+    // Overall counts
+    total.totalProvidersNum = providerRepository.count();
+    total.totalPrefixesNum = prefixRepository.countPrefixes();
+    total.totalAccountsNum = accountRepository.countAccounts();
+
+    // Prefixes grouped by provider
+    total.prefixesPerProvider =
+            prefixRepository.countPrefixesPerProvider();
+
+    // Accounts grouped by provider
+    total.accountsPerProvider =
+            accountRepository.countAccountsPerProvider();
+
+    // Wrap the statistics in the requested response
+    AdminStatisticsResponse response = new AdminStatisticsResponse();
+    response.totalStatistics = total;
+
+    return response;
   }
 }
