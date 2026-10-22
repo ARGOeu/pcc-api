@@ -4,7 +4,6 @@ import gr.grnet.pccapi.service.PrefixInvitationService;
 import gr.grnet.pccapi.service.PrefixService;
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusMock;
-import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
 import jakarta.inject.Inject;
 
@@ -105,6 +104,18 @@ public class KeycloakTest {
         entitlementProvider.setSuperAdmin(false);
         entitlementProvider.setEntitlements(
                 List.of(entitlement(providerId, "provider_member"))
+        );
+    }
+
+    protected void mockMember() {
+        entitlementProvider.setSuperAdmin(false);
+        entitlementProvider.setEntitlements(
+                List.of(new Entitlement(
+                        "pcc-api",
+                        List.of("pcc-api", "member"),
+                        "member",
+                        "urn:mace:grnet.gr:einfra:login-devel:group:pcc-api:role=member"
+                ))
         );
     }
 
