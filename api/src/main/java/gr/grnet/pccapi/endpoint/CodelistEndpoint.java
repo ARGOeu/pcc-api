@@ -44,10 +44,8 @@ public class CodelistEndpoint {
     @Inject
     CodelistService codelistService;
 
-    @Operation(
-            summary = "Get codelist entries",
-            description =
-                    "Returns all codelist entries, or only entries for the given category when provided.")
+    @Operation(summary = "Get codelist entries",
+            description = "Returns all codelist entries, or only entries for the given category when provided.")
     @APIResponse(
             responseCode = "200",
             description = "Codelist entries found",
@@ -90,8 +88,7 @@ public class CodelistEndpoint {
     }
 
     @Tag(name = "Codelist")
-    @Operation(
-            summary = "Get list of contact types.",
+    @Operation(summary = "Get list of contact types.",
             description = "This endpoint returns a list of contact types ")
     @APIResponse(
             responseCode = "200",

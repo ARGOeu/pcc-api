@@ -35,7 +35,8 @@ public class ServiceEndpoint {
   @Inject
   ServiceService service;
 
-  @Operation(summary = "Get all services")
+  @Operation(summary = "Get all services",
+          description = "Retrieves the list of all services registered in the PID Central Catalogue.")
   @APIResponse(
       responseCode = "200",
       description = "Services retrieved.",
@@ -66,7 +67,9 @@ public class ServiceEndpoint {
     return Response.ok(service.fetchAll()).build();
   }
 
-  @Operation(summary = "Get service by id")
+  @Operation(summary = "Get service by id",
+          description = "Retrieves the details of a specific service using its unique identifier."
+  )
   @APIResponse(
       responseCode = "200",
       description = "Service retrieved.",

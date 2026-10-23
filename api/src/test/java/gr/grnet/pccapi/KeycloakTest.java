@@ -48,8 +48,8 @@ public class KeycloakTest {
 
     protected String adminToken;
     protected String providerAdminToken;
-    protected String prefixMemberToken;
-    protected String invitedUserToken;
+    protected String prefixAdminToken;
+    protected String member;
 
 
     @BeforeAll
@@ -58,8 +58,8 @@ public class KeycloakTest {
 
         adminToken = getAccessToken("admin");
         providerAdminToken = getAccessToken("user1");
-        prefixMemberToken = getAccessToken("user2");
-        invitedUserToken = getAccessToken("user3");
+        prefixAdminToken = getAccessToken("user2");
+        member = getAccessToken("user3");
 
         prefixInvitationService.deleteAll();
         prefixService.deleteAll();
@@ -142,24 +142,24 @@ public class KeycloakTest {
     }
 
     protected void mockRoleEndpoints(String role, String... endpoints) {
+        mockRoleEndpointsWithScope(role, null, endpoints);
+    }
 
+    protected void mockRoleEndpointsWithScope(String role, String scope, String... endpoints) {
         var roleEndpoints = new ArrayList<RoleEndpoint>();
 
         for (int i = 0; i < endpoints.length; i++) {
-
             roleEndpoints.add(new RoleEndpoint(
-                            (long) i + 1,
-                            role,
-                            role,
-                            endpoints[i],
-                            LocalDateTime.now(),
-                            null
-                    )
-            );
+                    (long) i + 1,
+                    role,
+                    role,
+                    endpoints[i],
+                    LocalDateTime.now(),
+                    scope
+            ));
         }
 
-        ((TestRoleEndpointRepository) roleEndpointRepository)
-                .set(roleEndpoints);
+        ((TestRoleEndpointRepository) roleEndpointRepository).set(roleEndpoints);
     }
 }
 

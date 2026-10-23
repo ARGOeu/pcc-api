@@ -62,7 +62,8 @@ public class AccountEndpoint {
     @Inject
     AccountService accountService;
 
-    @Operation(summary = "Create account")
+    @Operation(summary = "Create account",
+            description = "Creates a new account under the specified prefix using the provided account information.")
     @APIResponse(
             responseCode = "201",
             description = "Account created",
@@ -121,13 +122,14 @@ public class AccountEndpoint {
         return Response.status(Response.Status.CREATED).entity(response).build();
     }
 
-    @Operation(summary = "Get accounts")
+    @Operation(summary = "Get accounts",
+            description = "Retrieves a paginated list of accounts associated with the specified prefix. Supports searching by email or endpoint.")
     @APIResponse(
             responseCode = "200",
             description = "Accounts found",
             content = @Content(schema = @Schema(
                     type = SchemaType.ARRAY,
-                    implementation = AccountResponseDto.class)))
+                    implementation = PageableAccounts.class)))
     @APIResponse(
             responseCode = "401",
             description = "User has not been authenticated.",
@@ -191,7 +193,8 @@ public class AccountEndpoint {
         return Response.ok(accounts).build();
     }
 
-    @Operation(summary = "Get account by id")
+    @Operation(summary = "Get account by id",
+            description = "Retrieves the details of a specific account associated with the specified prefix.")
     @APIResponse(
             responseCode = "200",
             description = "Account found",
@@ -257,7 +260,8 @@ public class AccountEndpoint {
         return Response.ok(account).build();
     }
 
-    @Operation(summary = "Update account")
+    @Operation(summary = "Update account",
+            description = "Updates an existing account associated with the specified prefix using the provided account information.")
     @APIResponse(
             responseCode = "200",
             description = "Account updated",
@@ -323,7 +327,8 @@ public class AccountEndpoint {
         return Response.ok(updatedAccount).build();
     }
 
-    @Operation(summary = "Delete account")
+    @Operation(summary = "Delete account",
+            description = "Deletes an existing account associated with the specified prefix.")
     @APIResponse(
             responseCode = "200",
             description = "Account deleted",

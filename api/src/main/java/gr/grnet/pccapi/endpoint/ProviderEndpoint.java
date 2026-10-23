@@ -57,7 +57,8 @@ public class ProviderEndpoint {
     StatisticsService statisticsService;
 
   @GET
-  @Operation(summary = "Get all providers")
+  @Operation(summary = "Get all providers",
+          description = "Retrieves the list of providers registered in the PID Central Catalogue.")
   @APIResponse(
       responseCode = "200",
       description = "Providers retrieved.",
@@ -99,7 +100,8 @@ public class ProviderEndpoint {
 
   @GET
   @Path("/{id}")
-  @Operation(summary = "Get provider by id")
+  @Operation(summary = "Get provider by id",
+          description = "Retrieves the details of a specific provider using its unique identifier.")
   @APIResponse(
       responseCode = "200",
       description = "Provider retrieved.",
@@ -147,7 +149,8 @@ public class ProviderEndpoint {
   }
 
 
-    @Operation(summary = "Create Provider")
+    @Operation(summary = "Create Provider",
+            description = "Creates a new provider in the PID Central Catalogue using the provided information.")
     @APIResponse(
             responseCode = "201",
             description = "Provider created",
@@ -199,7 +202,8 @@ public class ProviderEndpoint {
         return Response.status(Response.Status.CREATED).entity(response).build();
     }
 
-    @Operation(summary = "Patch provider")
+    @Operation(summary = "Patch provider",
+            description = "Partially updates an existing provider. Only the provided fields are updated, while omitted fields retain their current values.")
     @APIResponse(
             responseCode = "200",
             description = "Provider updated",
@@ -247,7 +251,8 @@ public class ProviderEndpoint {
 
         return Response.ok(prefix).build();
     }
-    @Operation(summary = "Delete provider")
+    @Operation(summary = "Delete provider",
+            description = "Deletes an existing provider from the PID Central Catalogue.")
     @APIResponse(
             responseCode = "200",
             description = "Provider deleted",

@@ -65,7 +65,7 @@ public class PrefixInvitationEndpoint {
 
     @Operation(
             summary = "Create prefix invitation",
-            description = "Creates an invitation for the specified Prefix."
+            description = "Creates an invitation for a user to join the specified prefix with an assigned role."
     )
     @APIResponse(
             responseCode = "201",
@@ -140,7 +140,8 @@ public class PrefixInvitationEndpoint {
         return Response.status(Response.Status.CREATED).entity(response).build();
     }
 
-    @Operation(summary = "Get prefix invitations")
+    @Operation(summary = "Get prefix invitations",
+            description = "Retrieves a paginated list of invitations associated with the specified prefix. Supports searching by email or role, sorting, and pagination.")
     @APIResponse(
             responseCode = "200",
             description = "Invitations found.",
@@ -250,7 +251,7 @@ public class PrefixInvitationEndpoint {
     }
 
     @Operation(summary = "Get prefix invitation by id",
-            description = "Returns a specific invitation belonging to the specified Prefix.")
+            description = "Retrieves the details of a specific invitation associated with the specified prefix.")
     @APIResponse(
             responseCode = "200",
             description = "Invitation found.",
@@ -321,7 +322,8 @@ public class PrefixInvitationEndpoint {
         return Response.ok(prefixInvitationService.getInvitationById(prefixId, invitationId)).build();
     }
 
-    @Operation(summary = "Revoke prefix invitation", description = "Revokes an invitation belonging to the specified Prefix.")
+    @Operation(summary = "Revoke prefix invitation",
+            description = "Revokes an existing invitation to the specified prefix, preventing the invited user from accepting it.")
     @APIResponse(
             responseCode = "200",
             description = "Invitation revoked.",
