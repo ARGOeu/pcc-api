@@ -178,4 +178,14 @@ public class ProviderService {
         // Delete the provider.
         providerRepository.delete(provider);
     }
+
+    @Transactional
+    public void deleteAll() {
+        providerRepository.deleteAll();
+    }
+    @Transactional
+    public void deleteByName(String name) {
+        providerRepository.deleteByName(name);
+    }
+
 }
