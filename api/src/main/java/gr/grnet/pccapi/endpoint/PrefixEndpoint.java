@@ -60,7 +60,8 @@ public class PrefixEndpoint {
     @Inject
     StatisticsService statisticsService;
 
-    @Operation(summary = "Create prefix")
+    @Operation(summary = "Create prefix",
+            description = "Creates a new prefix in the PID Central Catalogue and associates it with the specified provider.")
     @APIResponse(
             responseCode = "201",
             description = "Prefix created",
@@ -113,7 +114,8 @@ public class PrefixEndpoint {
         return Response.status(Response.Status.CREATED).entity(response).build();
     }
 
-    @Operation(summary = "Update prefix")
+    @Operation(summary = "Update prefix",
+            description = "Updates an existing prefix using the provided information. Requires authorization to manage the specified prefix.")
     @APIResponse(
             responseCode = "200",
             description = "Prefix updated",
@@ -165,7 +167,8 @@ public class PrefixEndpoint {
         return Response.ok(prefixService.update(prefixRequestDto, prefixId)).build();
     }
 
-    @Operation(summary = "Get prefixes")
+    @Operation(summary = "Get prefixes",
+            description = "Retrieves a paginated list of prefixes associated with the specified provider. Supports searching and filtering by provider, domain, and contract type.")
     @APIResponse(
             responseCode = "200",
             description = "Prefixes found",
@@ -247,7 +250,8 @@ public class PrefixEndpoint {
         return Response.ok(prefixes).build();
     }
 
-    @Operation(summary = "Patch prefix")
+    @Operation(summary = "Patch prefix",
+            description = "Partially updates an existing prefix. Only the provided fields are updated, while omitted fields retain their current values.")
     @APIResponse(
             responseCode = "200",
             description = "Prefix updated",
@@ -301,7 +305,8 @@ public class PrefixEndpoint {
         return Response.ok(prefix).build();
     }
 
-    @Operation(summary = "Delete prefix")
+    @Operation(summary = "Delete prefix",
+            description = "Deletes an existing prefix from the PID Central Catalogue. Requires authorization to manage the specified prefix.")
     @APIResponse(
             responseCode = "200",
             description = "Prefix deleted",
@@ -359,7 +364,8 @@ public class PrefixEndpoint {
         return Response.ok().entity(informativeResponse).build();
     }
 
-    @Operation(summary = "Get prefix by id")
+    @Operation(summary = "Get prefix by id",
+            description = "Retrieves the details of a specific prefix associated with the specified provider.")
     @APIResponse(
             responseCode = "200",
             description = "Prefix found",
@@ -412,7 +418,8 @@ public class PrefixEndpoint {
         return Response.ok(prefixService.fetchById(prefixId)).build();
     }
 
-    @Operation(summary = "Get PID count")
+    @Operation(summary = "Get PID count",
+            description = "Retrieves the total number of PIDs registered under the specified prefix.")
     @APIResponse(responseCode = "200", description = "Count retrieved")
     @APIResponse(
             responseCode = "401",
@@ -461,7 +468,8 @@ public class PrefixEndpoint {
         return Response.ok(statisticsService.getPIDCountByPrefixID(prefixId)).build();
     }
 
-    @Operation(summary = "Get resolvable PID count")
+    @Operation(summary = "Get resolvable PID count",
+            description = "Retrieves the number of resolvable PIDs associated with the specified prefix.")
     @APIResponse(responseCode = "200", description = "Count retrieved")
     @APIResponse(
             responseCode = "401",
@@ -510,7 +518,8 @@ public class PrefixEndpoint {
         return Response.ok(statisticsService.getResolvablePIDCountByPrefixID(prefixId)).build();
     }
 
-    @Operation(summary = "Get prefix statistic")
+    @Operation(summary = "Get prefix statistic",
+            description = "Retrieves the stored statistical information associated with the specified prefix.")
     @APIResponse(
             responseCode = "200",
             description = "Statistics retrieved",
@@ -563,7 +572,8 @@ public class PrefixEndpoint {
     return Response.ok(statisticsService.getPrefixStatisticsByID(prefixId)).build();
   }
 
-    @Operation(summary = "Set prefix statistic")
+    @Operation(summary = "Set prefix statistic",
+            description = "Saves statistical information for the specified prefix using the provided statistics data.")
     @APIResponse(
             responseCode = "200",
             description = "Statistics saved",
