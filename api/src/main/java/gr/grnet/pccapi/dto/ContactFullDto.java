@@ -16,11 +16,11 @@ public class ContactFullDto {
     @Schema(
             type = SchemaType.STRING,
             description = "Contacts's id",
-            example = "9e2c9890-56c7-432a-bd6e-32e1da6eaa84-5"
+            example = "1"
     )
     @JsonProperty(value = "id", access = JsonProperty.Access.READ_ONLY)
 
-    public String id;
+    public Integer id;
 
     @Schema(
             type = SchemaType.STRING,

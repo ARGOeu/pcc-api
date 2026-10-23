@@ -70,14 +70,17 @@ According to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), the `Unre
 - [#100](https://github.com/ARGOeu/pcc-api/pull/100) PCC-190 [API] - Add supported role attributes list
 - [#101](https://github.com/ARGOeu/pcc-api/pull/101) PCC-196 [API] - Add username field to the prefix accounts
 - [#102](https://github.com/ARGOeu/pcc-api/pull/102) PCC-198 Add /admin/prefixes Endpoint for Super Admin to Retrieve All Prefixes
+<<<<<<< HEAD
 - [#106](https://github.com/ARGOeu/pcc-api/pull/106) PCC-197 [API] - Provider CRUD
 - [#112](https://github.com/ARGOeu/pcc-api/pull/112) PCC-218 Add ContactType in codelist
 - [#108](https://github.com/ARGOeu/pcc-api/pull/108) PCC-206: [API] - Add endpoint to validate URL reachability
 - [#126](https://github.com/ARGOeu/pcc-api/pull/126) PCC-197 [API] - Provider CRUD
 - [#107](https://github.com/ARGOeu/pcc-api/pull/107) PCC-207 [API] - Add Statistics Endpoint for Administrators
 - [#126](https://github.com/ARGOeu/pcc-api/pull/126) PCC-197 [API] - Provider CRUD
+<<<<<<< HEAD
 - [#107](https://github.com/ARGOeu/pcc-api/pull/107) PCC-207 [API] - Add Statistics Endpoint for Administrators
 - [#109](https://github.com/ARGOeu/pcc-api/pull/109) PCC-208 [API] - Provider admin statistics
+- [#113](https://github.com/ARGOeu/pcc-api/pull/113) PCC-219 Implement Public CRUD Endpoints for Prefix Requests
 
 ### Changed
 
