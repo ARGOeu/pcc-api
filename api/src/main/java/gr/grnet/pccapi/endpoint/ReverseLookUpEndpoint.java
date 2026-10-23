@@ -40,7 +40,8 @@ public class ReverseLookUpEndpoint {
   @Inject
   ReverseLookUpService reverseLookUpService;
 
-  @Operation(summary = "Search handles")
+  @Operation(summary = "Search handles",
+          description = "Searches for Handles through the Handle Reverse Lookup Service (HRLS) using the provided filters. Supports pagination through the page and limit parameters.")
   @APIResponse(
       responseCode = "200",
       description = "Handles retrieved.",
@@ -81,7 +82,8 @@ public class ReverseLookUpEndpoint {
     return Response.ok(reverseLookUpService.search(filtersDto, page, limit)).build();
   }
 
-  @Operation(summary = "Get filters")
+  @Operation(summary = "Get filters",
+          description = "Retrieves the list of available filters that can be used when searching for Handles through the Reverse Lookup Service.")
   @APIResponse(
       responseCode = "200",
       description = "Filters retrieved.",
@@ -112,7 +114,8 @@ public class ReverseLookUpEndpoint {
     return Response.ok(EnumSet.allOf(Filter.class)).build();
   }
 
-  @Operation(summary = "Get lookup service types")
+  @Operation(summary = "Get lookup service types",
+          description = "Retrieves the available lookup service types supported by the PID Central Catalogue.")
   @APIResponse(
       responseCode = "200",
       description = "Types retrieved.",

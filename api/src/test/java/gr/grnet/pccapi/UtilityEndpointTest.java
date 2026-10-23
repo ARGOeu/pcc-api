@@ -24,12 +24,14 @@ public class UtilityEndpointTest extends KeycloakTest {
     @BeforeEach
     void setupAuthorization() {
         mockMember();
+        mockRoleEndpoints("member", "POST_/api/v1/validate-url");
+
     }
 
     private RequestSpecification request() {
         return given()
                 .auth()
-                .oauth2(prefixMemberToken)
+                .oauth2(member)
                 .contentType(ContentType.JSON);
     }
 

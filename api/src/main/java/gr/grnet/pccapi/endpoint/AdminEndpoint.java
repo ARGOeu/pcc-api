@@ -129,7 +129,8 @@ public class AdminEndpoint {
 
 
     @Tag(name = "Admin")
-    @Operation(summary = "Get prefixes")
+    @Operation(summary = "Get prefixes",
+            description = "Retrieves a paginated list of all prefixes registered in the PID Central Catalogue, regardless of provider. Supports searching and filtering by provider, domain, and contract type.")
     @APIResponse(
             responseCode = "200",
             description = "Prefixes found",
