@@ -2,6 +2,7 @@ package gr.grnet.pccapi.service;
 
 import gr.grnet.pccapi.dto.PrefixRequestInitialDto;
 import gr.grnet.pccapi.dto.PrefixRequestResponse;
+import gr.grnet.pccapi.dto.PrefixRequestStatusDto;
 import gr.grnet.pccapi.entity.PrefixRequest;
 import gr.grnet.pccapi.enums.PrefixRequestStatus;
 import gr.grnet.pccapi.mapper.PrefixRequestMapper;
@@ -13,8 +14,8 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
 import lombok.AllArgsConstructor;
 import org.jboss.logging.Logger;
-
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -150,5 +151,48 @@ public class PrefixRequestService {
         }
 
         prefixRequestRepository.delete(request);
+    }
+
+    /**
+     * Updates the status of an existing prefix request.
+     *
+     * Only requests with PENDING status can be updated.
+     * The new status must be ACCEPTED or REJECTED.
+     *
+     * @param id the ID of the prefix request
+     * @param dto the status dto  to assign
+     * @return the updated prefix request response
+     * @throws NotFoundException if the request does not exist
+     * @throws jakarta.ws.rs.WebApplicationException if the request
+     *         is already processed or the new status is invalid
+     */
+    @Transactional
+    public PrefixRequestResponse updateStatus(
+            Integer id, PrefixRequestStatusDto dto) {
+
+        PrefixRequest request = prefixRequestRepository.findById(id);
+
+        if (request == null) {
+            throw new NotFoundException(
+                    "Prefix request not found with id: " + id);
+        }
+
+        // Only pending requests can change status.
+        if (request.getStatus() != PrefixRequestStatus.PENDING) {
+            throw new CustomValidationException(
+                    "Only pending requests can change status", 409);
+        }
+
+        // A pending request can only be accepted or rejected.
+        if (!Objects.equals(dto.status, PrefixRequestStatus.ACCEPTED.name())
+                && !Objects.equals(dto.status, PrefixRequestStatus.REJECTED.name())) {
+            throw new jakarta.ws.rs.BadRequestException(
+                    "Status can only be changed to ACCEPTED or REJECTED");
+        }
+
+        request.setStatus(PrefixRequestStatus.valueOf(dto.status));
+
+        return PrefixRequestMapper.INSTANCE
+                .prefixRequestToResponse(request);
     }
 }

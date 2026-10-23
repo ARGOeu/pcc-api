@@ -1,5 +1,6 @@
 package gr.grnet.pccapi.entity;
 
+import gr.grnet.pccapi.entity.Provider;
 import gr.grnet.pccapi.enums.PrefixExpectedHandles;
 import gr.grnet.pccapi.enums.PrefixRequestStatus;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
@@ -16,11 +17,11 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.DynamicUpdate;
-
-import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.LocalDateTime;
+
 
 /**
  * A class representing a prefix request submitted by a user.
@@ -28,6 +29,9 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "prefix_request")
 @DynamicUpdate
+
+@Getter
+@Setter
 public class PrefixRequest extends PanacheEntityBase {
 
     @Id
@@ -81,134 +85,6 @@ public class PrefixRequest extends PanacheEntityBase {
 
     @Column(name = "updated_at")
     public Instant updatedAt;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getContactPersonName() {
-        return contactPersonName;
-    }
-
-    public void setContactPersonName(String contactPersonName) {
-        this.contactPersonName = contactPersonName;
-    }
-
-    public String getContactPersonSurname() {
-        return contactPersonSurname;
-    }
-
-    public void setContactPersonSurname(String contactPersonSurname) {
-        this.contactPersonSurname = contactPersonSurname;
-    }
-
-    public String getContactPersonEmail() {
-        return contactPersonEmail;
-    }
-
-    public void setContactPersonEmail(String contactPersonEmail) {
-        this.contactPersonEmail = contactPersonEmail;
-    }
-
-    public String getContactPersonPhone() {
-        return contactPersonPhone;
-    }
-
-    public void setContactPersonPhone(String contactPersonPhone) {
-        this.contactPersonPhone = contactPersonPhone;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    public String getOrganizationName() {
-        return organizationName;
-    }
-
-    public void setOrganizationName(String organizationName) {
-        this.organizationName = organizationName;
-    }
-
-    public String getProjectName() {
-        return projectName;
-    }
-
-    public void setProjectName(String projectName) {
-        this.projectName = projectName;
-    }
-
-    public String getProjectUrl() {
-        return projectUrl;
-    }
-
-    public void setProjectUrl(String projectUrl) {
-        this.projectUrl = projectUrl;
-    }
-
-    public String getProjectDescription() {
-        return projectDescription;
-    }
-
-    public void setProjectDescription(String projectDescription) {
-        this.projectDescription = projectDescription;
-    }
-
-    public PrefixExpectedHandles getExpectedHandles() {
-        return expectedHandles;
-    }
-
-    public void setExpectedHandles(PrefixExpectedHandles expectedHandles) {
-        this.expectedHandles = expectedHandles;
-    }
-
-    public PrefixRequestStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(PrefixRequestStatus status) {
-        this.status = status;
-    }
-
-    public String getStatusReason() {
-        return statusReason;
-    }
-
-    public void setStatusReason(String statusReason) {
-        this.statusReason = statusReason;
-    }
-
-    public Provider getProvider() {
-        return provider;
-    }
-
-    public void setProvider(Provider provider) {
-        this.provider = provider;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
 
     @PrePersist
     public void prePersist() {

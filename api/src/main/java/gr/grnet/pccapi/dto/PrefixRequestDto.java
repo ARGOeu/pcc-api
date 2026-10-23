@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import gr.grnet.pccapi.validator.constraints.ValidExpectedHandles;
 import gr.grnet.pccapi.validator.constraints.ValidPrefixRequestStatus;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 import lombok.Setter;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
@@ -102,12 +103,13 @@ public class PrefixRequestDto {
     @Schema(
             type = SchemaType.STRING,
             implementation = String.class,
-            description = "The expected handles num of the prefix.",
-            example = "UP_TO_1000"
+            description = "The expected status of the prefix request.",
+            example = "ACCEPTED"
     )
     @JsonProperty("status")
     @ValidPrefixRequestStatus
     public String status;
+
     @Schema(
             type = SchemaType.STRING,
             implementation = String.class,
@@ -115,6 +117,7 @@ public class PrefixRequestDto {
             example = "It is rejected as invalid")
 
     private String statusReason;
+
     @Schema(
             type = SchemaType.STRING,
             implementation = String.class,
