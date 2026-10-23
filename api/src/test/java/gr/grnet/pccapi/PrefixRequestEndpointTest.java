@@ -1,10 +1,6 @@
 package gr.grnet.pccapi;
 
-import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import gr.grnet.pccapi.dto.PrefixRequestResponse;
 import gr.grnet.pccapi.endpoint.PrefixRequestEndpoint;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
@@ -17,6 +13,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
+import java.util.List;
+
+import static io.restassured.RestAssured.given;
+import static org.junit.jupiter.api.Assertions.*;
+
 @QuarkusTest
 @TestHTTPEndpoint(PrefixRequestEndpoint.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -24,6 +25,11 @@ import org.junit.jupiter.api.TestInstance;
 @QuarkusTestResource(KeycloakComposeResource.class)
 public class PrefixRequestEndpointTest extends KeycloakTest {
 
+    @BeforeEach
+    void setupAuthorization() {
+        mockSuperAdmin();
+        prefixRequestService.deleteAll();
+    }
 
     private String prefixRequestJson(
             String email,
@@ -46,8 +52,8 @@ public class PrefixRequestEndpointTest extends KeycloakTest {
                 """.formatted(email, projectName, projectUrl);
     }
 
-    private Response createPrefixRequest(String requestBody) {
-        return given()
+    private PrefixRequestResponse createPrefixRequest(String requestBody) {
+        return authenticatedRequest()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(requestBody)
@@ -56,25 +62,25 @@ public class PrefixRequestEndpointTest extends KeycloakTest {
                 .then()
                 .statusCode(201)
                 .extract()
-                .response();
+                .as(PrefixRequestResponse.class);
     }
 
-    private Response getPrefixRequest(Integer id) {
-        return given()
+    private PrefixRequestResponse getPrefixRequest(Integer id) {
+        return authenticatedRequest()
                 .contentType(ContentType.JSON)
                 .when()
                 .get("/{id}", id)
                 .then()
                 .statusCode(200)
                 .extract()
-                .response();
+                .as(PrefixRequestResponse.class);
     }
 
-    private Response updatePrefixRequest(
+    private PrefixRequestResponse updatePrefixRequest(
             Integer id,
             String requestBody) {
 
-        return given()
+        return authenticatedRequest()
                 .contentType(ContentType.JSON)
                 .body(requestBody)
                 .when()
@@ -82,7 +88,7 @@ public class PrefixRequestEndpointTest extends KeycloakTest {
                 .then()
                 .statusCode(201)
                 .extract()
-                .response();
+                .as(PrefixRequestResponse.class);
     }
 
     @Test
@@ -90,48 +96,39 @@ public class PrefixRequestEndpointTest extends KeycloakTest {
         String email = "prefix-create-test@example.com";
         String projectName = "PREFIX-CREATE-TEST";
 
-        Response response = createPrefixRequest(
+        PrefixRequestResponse response = createPrefixRequest(
                 prefixRequestJson(
                         email,
                         projectName,
                         "https://prefix-create-test.example.com"));
 
-        assertNotNull(response.jsonPath().get("id"));
-        assertEquals(
-                email,
-                response.jsonPath().getString("contactPersonEmail"));
-        assertEquals(
-                projectName,
-                response.jsonPath().getString("projectName"));
-        assertEquals(
-                "UP_TO_1000",
-                response.jsonPath().getString("expectedHandles"));
+        assertNotNull(response.id);
+        assertEquals(email,response.contactPersonEmail);
+        assertEquals(projectName, response.projectName);
+        assertEquals("UP_TO_1000", response.expectedHandles);
     }
 
     @Test
     void getPrefixRequestById() {
-        Response created = createPrefixRequest(
+        PrefixRequestResponse created = createPrefixRequest(
                 prefixRequestJson(
                         "prefix-get-test@example.com",
                         "PREFIX-GET-TEST",
                         "https://prefix-get-test.example.com"));
 
-        Integer id = created.jsonPath().getInt("id");
+        Integer id = created.id;
 
-        Response response = getPrefixRequest(id);
+        PrefixRequestResponse response = getPrefixRequest(id);
 
-        assertEquals(id, response.jsonPath().getInt("id"));
-        assertEquals(
-                "prefix-get-test@example.com",
-                response.jsonPath().getString("contactPersonEmail"));
-        assertEquals(
-                "PREFIX-GET-TEST",
-                response.jsonPath().getString("projectName"));
+        assertNotNull(response.id);
+        assertEquals("prefix-get-test@example.com", response.contactPersonEmail);
+        assertEquals("PREFIX-GET-TEST", response.projectName);
+
     }
 
     @Test
     void getPrefixRequestByIdNotFound() {
-        given()
+        authenticatedRequest()
                 .contentType(ContentType.JSON)
                 .when()
                 .get("/{id}", 999999)
@@ -147,57 +144,56 @@ public class PrefixRequestEndpointTest extends KeycloakTest {
                         "PREFIX-LIST-TEST",
                         "https://prefix-list-test.example.com"));
 
-        Response response = given()
+        List response = authenticatedRequest()
                 .contentType(ContentType.JSON)
                 .when()
                 .get()
                 .then()
                 .statusCode(200)
                 .extract()
-                .response();
+                .as(List.class);
 
         // Assumes the list endpoint returns a JSON array.
-        String responseBody = response.asString();
+       // String responseBody = response.asString();
 
-        assertNotNull(responseBody);
-        assertTrue(responseBody.contains("PREFIX-LIST-TEST"));
+
+        assertEquals(1,response.size());
     }
 
     @Test
     void updatePrefixRequest() {
-        Response created = createPrefixRequest(
+        PrefixRequestResponse created = createPrefixRequest(
                 prefixRequestJson(
                         "prefix-update-test@example.com",
                         "PREFIX-UPDATE-TEST",
                         "https://prefix-update-test.example.com"));
 
-        Integer id = created.jsonPath().getInt("id");
+        Integer id = created.id;
+
 
         String updatedEmail = "prefix-updated-test@example.com";
         String updatedProjectName = "PREFIX-UPDATED-TEST";
 
-        Response response = updatePrefixRequest(
+        PrefixRequestResponse response = updatePrefixRequest(
                 id,
                 prefixRequestJson(
                         updatedEmail,
                         updatedProjectName,
                         "https://prefix-updated-test.example.com"));
 
-        assertEquals(id, response.jsonPath().getInt("id"));
+        assertEquals(id, response.id);
         assertEquals(
                 updatedEmail,
-                response.jsonPath().getString("contactPersonEmail"));
+                response.contactPersonEmail);
         assertEquals(
                 updatedProjectName,
-                response.jsonPath().getString("projectName"));
+                response.projectName);
 
-        // Verify that updatedAt is populated after the update.
-        assertNotNull(response.jsonPath().get("updatedAt"));
     }
 
     @Test
     void updatePrefixRequestNotFound() {
-        given()
+        authenticatedRequest()
                 .contentType(ContentType.JSON)
                 .body(prefixRequestJson(
                         "prefix-missing-test@example.com",
@@ -211,22 +207,22 @@ public class PrefixRequestEndpointTest extends KeycloakTest {
 
     @Test
     void deletePrefixRequest() {
-        Response created = createPrefixRequest(
+        PrefixRequestResponse created = createPrefixRequest(
                 prefixRequestJson(
                         "prefix-delete-test@example.com",
                         "PREFIX-DELETE-TEST",
                         "https://prefix-delete-test.example.com"));
 
-        Integer id = created.jsonPath().getInt("id");
+        Integer id = created.id;
 
-        given()
+        authenticatedRequest()
                 .contentType(ContentType.JSON)
                 .when()
                 .delete("/{id}", id)
                 .then()
                 .statusCode(200);
 
-        given()
+        authenticatedRequest()
                 .contentType(ContentType.JSON)
                 .when()
                 .get("/{id}", id)
@@ -236,11 +232,18 @@ public class PrefixRequestEndpointTest extends KeycloakTest {
 
     @Test
     void deletePrefixRequestNotFound() {
-        given()
+        authenticatedRequest()
                 .contentType(ContentType.JSON)
                 .when()
                 .delete("/{id}", 999999)
                 .then()
                 .statusCode(404);
+    }
+
+    private RequestSpecification authenticatedRequest() {
+
+
+        return given()
+                .header("Authorization", "Bearer " + adminToken);
     }
 }

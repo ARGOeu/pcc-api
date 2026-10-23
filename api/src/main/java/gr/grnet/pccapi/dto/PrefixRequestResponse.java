@@ -141,4 +141,18 @@ public class PrefixRequestResponse {
     @JsonProperty("updated_at")
     public Instant updatedAt;
 
+    @Schema(
+            type = SchemaType.STRING,
+            description = "Creator's id",
+            example = "userid1233"
+    )
+    public String createdBy;
+
+    @Schema(
+            type = SchemaType.STRING,
+            description = "Adm handling the request",
+            example = "admin1234"
+    )
+    public String handledBy;
+
 }

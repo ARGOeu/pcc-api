@@ -1,17 +1,18 @@
 package gr.grnet.pccapi.endpoint;
 
 import gr.grnet.pccapi.dto.APIResponseMsg;
+import gr.grnet.pccapi.dto.AssignProviderDto;
 import gr.grnet.pccapi.dto.InformativeResponse;
 import gr.grnet.pccapi.dto.PrefixRequestResponse;
 import gr.grnet.pccapi.dto.PrefixRequestStatusDto;
 import gr.grnet.pccapi.dto.metadata.RoleAssignmentMetadataResponseDto;
 import gr.grnet.pccapi.dto.metadata.RoleMetadataResponseDto;
-import gr.grnet.pccapi.enums.PrefixRequestStatus;
 import gr.grnet.pccapi.service.PrefixRequestService;
 import gr.grnet.pccapi.service.PrefixService;
 import gr.grnet.pccapi.dto.statistic.AdminTotalStatistics;
 import gr.grnet.pccapi.service.RoleMetadataService;
 import gr.grnet.pccapi.service.StatisticsService;
+import gr.grnet.pccapi.service.Utility;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -60,12 +61,16 @@ public class AdminEndpoint {
 
     @Inject
     PrefixService prefixService;
+
     @Inject
 
     StatisticsService statisticsService;
 
     @Inject
     PrefixRequestService prefixRequestService;
+
+    @Inject
+    Utility utility;
 
     @Tag(name = "Admin")
     @Operation(
@@ -211,6 +216,7 @@ public class AdminEndpoint {
             description = "Statistics found",
             content = @Content(schema = @Schema(
                     implementation = AdminTotalStatistics.class)))
+
     @APIResponse(
             responseCode = "401",
             description = "User has not been authenticated.",
@@ -241,11 +247,51 @@ public class AdminEndpoint {
 
         return Response.ok().entity(statistics).build();
     }
-    @Tag(name = "Admin")
+    @Tag(name="Admin")
     @Operation(summary = "Update prefix request's status")
     @APIResponse(
             responseCode = "200",
-            description = "Prefixes found",
+            description = "Prefix request status updated",
+            content = @Content(schema = @Schema(
+                    implementation = PrefixRequestResponse.class)))
+
+    @APIResponse(
+            responseCode = "401",
+            description = "User has not been authenticated.",
+            content = @Content(schema = @Schema(
+                    type = SchemaType.OBJECT,
+                    implementation = InformativeResponse.class)))
+    @APIResponse(
+            responseCode = "403",
+            description = "Not permitted.",
+            content = @Content(schema = @Schema(
+                    type = SchemaType.OBJECT,
+                    implementation = InformativeResponse.class)))
+    @APIResponse(
+            responseCode = "500",
+            description = "Internal Server Error.",
+            content = @Content(schema = @Schema(
+                    implementation = InformativeResponse.class)))
+    @PATCH
+    @Path("/prefix-request/{id}/status")
+    @SecuredEndpoint
+    public Response updateStatus(
+            @PathParam("id") Integer id,
+            @Valid PrefixRequestStatusDto dto) {
+
+        PrefixRequestResponse response =
+                prefixRequestService.updateStatus(
+                        id,
+                        dto,utility.getUserUniqueIdentifier()
+                );
+        return Response.ok(response).build();
+    }
+
+    @Tag(name = "Admin")
+    @Operation(summary = "Update prefix request's provider")
+    @APIResponse(
+            responseCode = "200",
+            description = "Prefix request provider updated",
             content = @Content(schema = @Schema(
                     implementation = PrefixRequestResponse.class)))
     @APIResponse(
@@ -263,21 +309,18 @@ public class AdminEndpoint {
     @APIResponse(
             responseCode = "500",
             description = "Internal Server Error.",
-            content =
-            @Content(
-                    schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class)))
+            content = @Content(schema = @Schema(
+                    implementation = InformativeResponse.class)))
     @PATCH
-    @Path("/prefix-requests/{id}/status")
-    @SecuredEndpoint
-    public Response updateStatus(
+    @Path("/prefix-requests/{id}/assign-provider")
+    public Response assignProvider(
             @PathParam("id") Integer id,
-            @Valid @NotNull PrefixRequestStatusDto dto) {
+            @NotNull @Valid AssignProviderDto dto) {
 
         PrefixRequestResponse response =
-                prefixRequestService.updateStatus(
-                        id,
-                        dto
-                );
+                prefixRequestService.assignProvider(
+                        id, dto.getProviderId(),utility.getUserUniqueIdentifier());
+
         return Response.ok(response).build();
     }
 }
