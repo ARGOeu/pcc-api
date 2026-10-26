@@ -36,7 +36,8 @@ public class DomainEndpoint {
   @Inject
   DomainService domainService;
 
-  @Operation(summary = "Get domain by id", description = "Returns the domain for the given id.")
+  @Operation(summary = "Get domain by id",
+          description = "Returns the domain for the given id.")
   @APIResponse(
       responseCode = "200",
       description = "Domain found",
@@ -75,7 +76,8 @@ public class DomainEndpoint {
     return Response.ok(domain, MediaType.APPLICATION_JSON).build();
   }
 
-  @Operation(summary = "Get all domains", description = "Returns all available domains.")
+  @Operation(summary = "Get all domains",
+          description = "Returns all available domains.")
   @APIResponse(
       responseCode = "200",
       description = "Domains found",

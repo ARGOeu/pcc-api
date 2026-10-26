@@ -53,7 +53,8 @@ public class HandleEndpoint {
     HandleService handleService;
 
     @POST
-    @Operation(summary = "Create handle")
+    @Operation(summary = "Create handle",
+            description = "Creates a new Handle under the specified prefix using the provided Handle data and authentication credentials.")
     @APIResponse(
             responseCode = "201",
             description = "Handle created",
@@ -116,14 +117,12 @@ public class HandleEndpoint {
             }
     )
     public Response create(
-            @Parameter(
-                    name = "id",
+            @Parameter(name = "id",
                     description = "The identifier of the Provider.",
                     example = "1")
             @PathParam("id")
             Integer id,
-            @Parameter(
-                    name = "prefix-id",
+            @Parameter(name = "prefix-id",
                     description = "The identifier of the Prefix.",
                     example = "2")
             @PathParam("prefix-id")
@@ -134,8 +133,7 @@ public class HandleEndpoint {
                     example = "https://hdl.grnet.gr:8001/",
                     required = true)
             @HeaderParam("x-handle-service-url")
-            @URL(
-                    protocol = "https",
+            @URL(protocol = "https",
                     message = "Handle service URL must be a valid HTTPS URL.")
             String serviceUrl,
             @Parameter(
@@ -159,7 +157,8 @@ public class HandleEndpoint {
     }
 
     @GET
-    @Operation(summary = "Retrieve handles")
+    @Operation(summary = "Retrieve handles",
+            description = "Retrieves a paginated list of Handles associated with the specified prefix. Supports searching by Handle identifier and pagination.")
     @APIResponse(
             responseCode = "200",
             description = "Handles retrieved",
@@ -234,8 +233,7 @@ public class HandleEndpoint {
                     example = "https://hdl.grnet.gr:8001/",
                     required = true)
             @HeaderParam("x-handle-service-url")
-            @URL(
-                    protocol = "https",
+            @URL(protocol = "https",
                     message = "Handle service URL must be a valid HTTPS URL.")
             String serviceUrl,
             @Parameter(
@@ -251,38 +249,24 @@ public class HandleEndpoint {
                     required = true)
             @HeaderParam("x-handle-token")
             String token,
-            @Parameter(
-                    name = "search",
-                    in = QUERY,
+            @Parameter(name = "search", in = QUERY,
                     description = "Filters Handles by identifier.")
             @QueryParam("search")
             String search,
-            @Parameter(
-                    name = "page",
-                    in = QUERY,
+            @Parameter(name = "page", in = QUERY,
                     description = "Indicates the page number. Page number must be >= 1.")
             @DefaultValue("1")
-            @Min(
-                    value = 1,
-                    message = "Page number must be >= 1.")
+            @Min(value = 1, message = "Page number must be >= 1.")
             @QueryParam("page")
             int page,
-            @Parameter(
-                    name = "size",
-                    in = QUERY,
+            @Parameter(name = "size", in = QUERY,
                     description = "The page size.")
             @DefaultValue("10")
-            @Min(
-                    value = 1,
-                    message = "Page size must be between 1 and 100.")
-            @Max(
-                    value = 100,
-                    message = "Page size must be between 1 and 100.")
+            @Min(value = 1, message = "Page size must be between 1 and 100.")
+            @Max(value = 100, message = "Page size must be between 1 and 100.")
             @QueryParam("size")
             int size,
-
-            @Context
-            UriInfo uriInfo) {
+            @Context UriInfo uriInfo) {
 
         var handles = handleService.fetchAllHandlesByPrefixId(prefixId, serviceUrl, handleUsername, token, search, page - 1, size, uriInfo);
 
@@ -290,7 +274,8 @@ public class HandleEndpoint {
     }
 
     @GET
-    @Operation(summary = "Create handle")
+    @Operation(summary = "Get handle",
+            description = "Retrieves the details of a specific Handle using its prefix and suffix.")
     @APIResponse(
             responseCode = "201",
             description = "Handle created",
@@ -402,7 +387,8 @@ public class HandleEndpoint {
     }
 
     @PUT
-    @Operation(summary = "Update handle")
+    @Operation(summary = "Update handle",
+            description = "Updates an existing Handle identified by its prefix and suffix using the provided Handle data and authentication credentials.")
     @APIResponse(
             responseCode = "200",
             description = "Handle updated",
@@ -516,7 +502,8 @@ public class HandleEndpoint {
     }
 
     @DELETE
-    @Operation(summary = "Delete handle")
+    @Operation(summary = "Delete handle",
+            description = "Deletes an existing Handle identified by its prefix and suffix from the associated Handle service.")
     @APIResponse(
             responseCode = "200",
             description = "Handle deleted",
@@ -620,8 +607,7 @@ public class HandleEndpoint {
 
         var response = new InformativeResponse();
         response.code = 200;
-        response.message =
-                "Handle has been successfully deleted!";
+        response.message = "Handle has been successfully deleted!";
 
         return Response.status(Response.Status.OK).entity(response).build();
     }
