@@ -7,6 +7,8 @@ import gr.grnet.pccapi.entity.PrefixRequest;
 import gr.grnet.pccapi.enums.PrefixRequestStatus;
 import gr.grnet.pccapi.mapper.PrefixRequestMapper;
 import gr.grnet.pccapi.repository.PrefixRequestRepository;
+import gr.grnet.pccapi.entity.Provider;
+import gr.grnet.pccapi.repository.ProviderRepository;
 import gr.grnet.pccapi.validator.constraints.CustomValidationException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -27,6 +29,8 @@ public class PrefixRequestService {
 
     @Inject
     PrefixRequestRepository prefixRequestRepository;
+    @Inject
+    ProviderRepository providerRepository;
 
     /**
      * Creates a new prefix request with an initial PENDING status.
@@ -194,5 +198,42 @@ public class PrefixRequestService {
 
         return PrefixRequestMapper.INSTANCE
                 .prefixRequestToResponse(request);
+    }
+
+    /**
+     * Assigns an existing provider to a prefix request.
+     *
+     * @param requestId the ID of the prefix request
+     * @param providerId the ID of the provider to assign
+     * @return the updated prefix request response
+     * @throws NotFoundException if the prefix request or provider does not exist
+     */
+    @Transactional
+    public PrefixRequestResponse assignProvider(
+            Integer requestId, Integer providerId) {
+
+        PrefixRequest request = prefixRequestRepository.findById(requestId);
+
+        if (request == null) {
+            throw new NotFoundException(
+                    "Prefix request not found with id: " + requestId);
+        }
+
+        Provider provider = providerRepository.findById(providerId);
+
+        if (provider == null) {
+            throw new NotFoundException(
+                    "Provider not found with id: " + providerId);
+        }
+
+        request.setProvider(provider);
+
+        return PrefixRequestMapper.INSTANCE
+                .prefixRequestToResponse(request);
+    }
+
+    @Transactional
+    public void deleteAll() {
+        prefixRequestRepository.deleteAll();
     }
 }

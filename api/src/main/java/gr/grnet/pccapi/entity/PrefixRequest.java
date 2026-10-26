@@ -23,13 +23,16 @@ import org.hibernate.annotations.DynamicUpdate;
 import java.time.Instant;
 
 
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
+
 /**
  * A class representing a prefix request submitted by a user.
  */
 @Entity
 @Table(name = "prefix_request")
 @DynamicUpdate
-
 @Getter
 @Setter
 public class PrefixRequest extends PanacheEntityBase {
