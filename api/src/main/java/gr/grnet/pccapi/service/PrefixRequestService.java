@@ -9,13 +9,18 @@ import gr.grnet.pccapi.mapper.PrefixRequestMapper;
 import gr.grnet.pccapi.repository.PrefixRequestRepository;
 import gr.grnet.pccapi.entity.Provider;
 import gr.grnet.pccapi.repository.ProviderRepository;
+import gr.grnet.pccapi.resources.ProviderResource;
 import gr.grnet.pccapi.validator.constraints.CustomValidationException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.NotFoundException;
 import lombok.AllArgsConstructor;
+import org.grnet.endpoint.scanner.runtime.context.RoleEndpointHolder;
+import org.grnet.endpoint.scanner.runtime.services.ResourceAuthorizationService;
 import org.jboss.logging.Logger;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -31,10 +36,15 @@ public class PrefixRequestService {
     PrefixRequestRepository prefixRequestRepository;
     @Inject
     ProviderRepository providerRepository;
+    @Inject
+    AccessControlService accessControlService;
+
+    @Inject
+    ResourceAuthorizationService resourceAuthorizationService;
 
     /**
      * Creates a new prefix request with an initial PENDING status.
-     *
+     * <p>
      * The provider is initially unset because the request has not yet
      * been accepted and associated with a provider.
      *
@@ -42,13 +52,14 @@ public class PrefixRequestService {
      * @return the created prefix request as a response DTO
      */
     @Transactional
-    public PrefixRequestResponse create(PrefixRequestInitialDto request) {
+    public PrefixRequestResponse create(PrefixRequestInitialDto request, String createdBy) {
 
         LOG.info("Creating new prefix request...");
 
         var prefixRequest =
                 PrefixRequestMapper.INSTANCE.prefixRequestToEntity(request);
 
+        prefixRequest.createdBy = createdBy;
         // New requests always start in the PENDING state.
         prefixRequest.setStatus(PrefixRequestStatus.PENDING);
 
@@ -68,16 +79,54 @@ public class PrefixRequestService {
      * @return a list of prefix request response DTOs
      */
     @Transactional
-    public List<PrefixRequestResponse> fetchAll() {
+    public List<PrefixRequestResponse> fetchAll(String userId) {
 
         LOG.info("Fetching all prefix requests...");
 
-        List<PrefixRequest> requests = prefixRequestRepository.listAll();
+        //List<PrefixRequest> requests = prefixRequestRepository.listAll();
+        if (accessControlService.isSuperAdmin()) {
+            var prefixRequests = prefixRequestRepository.findAll().list();
+            return prefixRequests.stream()
+                    .map(PrefixRequestMapper.INSTANCE::prefixRequestToResponse)
+                    .collect(Collectors.toList());
+        }
 
-        // Convert entities into response DTOs.
-        return requests.stream()
+        var prefixRequests = prefixRequestRepository.findByCreator(userId);
+
+        return prefixRequests.stream()
                 .map(PrefixRequestMapper.INSTANCE::prefixRequestToResponse)
                 .collect(Collectors.toList());
+
+        // Convert entities into response DTOs.
+
+    }
+
+    @Transactional
+    public List<PrefixRequestResponse> fetchAssigned() {
+
+        LOG.info("Fetching all prefix requests...");
+
+        //List<PrefixRequest> requests = prefixRequestRepository.listAll();
+        if (accessControlService.isSuperAdmin()) {
+            var prefixRequests = prefixRequestRepository.findAll().list();
+            return prefixRequests.stream()
+                    .map(PrefixRequestMapper.INSTANCE::prefixRequestToResponse)
+                    .collect(Collectors.toList());
+        }
+
+        var providerIds = RoleEndpointHolder.get().stream()
+                .flatMap(role -> accessControlService
+                        .resolveAccessibleGroupsByName(role.getRoleName(), ProviderResource.PROVIDER.resourceName())
+                        .stream())
+                .map(Integer::valueOf)
+                .collect(Collectors.toList());
+
+        var prefixRequests = prefixRequestRepository.findByProviderIds(providerIds);
+
+        return prefixRequests.stream()
+                .map(PrefixRequestMapper.INSTANCE::prefixRequestToResponse)
+                .collect(Collectors.toList());
+
     }
 
     /**
@@ -88,7 +137,7 @@ public class PrefixRequestService {
      * @throws NotFoundException if no prefix request exists with the given ID
      */
     @Transactional
-    public PrefixRequestResponse fetchById(Integer id) {
+    public PrefixRequestResponse fetchById(Integer id, String userId) {
 
         PrefixRequest prefixRequest = prefixRequestRepository.findById(id);
 
@@ -97,23 +146,28 @@ public class PrefixRequestService {
                     "Prefix request not found with id: " + id);
         }
 
+        checkAccess(id, userId);
+
         return PrefixRequestMapper.INSTANCE
                 .prefixRequestToResponse(prefixRequest);
     }
 
     /**
      * Updates the details of an existing prefix request.
-     *
+     * <p>
      * The mapper updates the editable fields while preserving fields
      * that must not be modified through this operation.
      *
-     * @param id the ID of the prefix request to update
+     * @param id  the ID of the prefix request to update
      * @param dto the DTO containing the updated request details
      * @return the updated prefix request
      * @throws NotFoundException if no prefix request exists with the given ID
      */
     @Transactional
-    public PrefixRequest update(Integer id, PrefixRequestInitialDto dto) {
+    public PrefixRequestResponse update(
+            Integer id,
+            PrefixRequestInitialDto dto,
+            String userId) {
 
         PrefixRequest request = prefixRequestRepository.findById(id);
 
@@ -122,23 +176,24 @@ public class PrefixRequestService {
                     "Prefix request with id " + id + " not found");
         }
 
-        // Update the existing entity rather than creating a new one.
+        checkAccess(id, userId);
+
         PrefixRequestMapper.INSTANCE.updateEntity(dto, request);
 
-        return request;
+        return PrefixRequestMapper.INSTANCE.toResponse(request);
     }
 
     /**
      * Deletes a prefix request by its ID.
-     *
+     * <p>
      * Accepted requests cannot be deleted.
      *
      * @param id the ID of the prefix request to delete
-     * @throws NotFoundException if the prefix request does not exist
+     * @throws NotFoundException         if the prefix request does not exist
      * @throws CustomValidationException if the request has already been accepted
      */
     @Transactional
-    public void deleteById(Integer id) {
+    public void deleteById(Integer id, String userId) {
 
         PrefixRequest request = prefixRequestRepository.findById(id);
 
@@ -147,6 +202,7 @@ public class PrefixRequestService {
                     "Prefix request not found with id: " + id);
         }
 
+        checkAccess(id, userId);
         // Accepted requests must be preserved and cannot be deleted.
         if (request.getStatus() == PrefixRequestStatus.ACCEPTED) {
             throw new CustomValidationException(
@@ -159,20 +215,20 @@ public class PrefixRequestService {
 
     /**
      * Updates the status of an existing prefix request.
-     *
+     * <p>
      * Only requests with PENDING status can be updated.
      * The new status must be ACCEPTED or REJECTED.
      *
-     * @param id the ID of the prefix request
+     * @param id  the ID of the prefix request
      * @param dto the status dto  to assign
      * @return the updated prefix request response
-     * @throws NotFoundException if the request does not exist
+     * @throws NotFoundException                     if the request does not exist
      * @throws jakarta.ws.rs.WebApplicationException if the request
-     *         is already processed or the new status is invalid
+     *                                               is already processed or the new status is invalid
      */
     @Transactional
     public PrefixRequestResponse updateStatus(
-            Integer id, PrefixRequestStatusDto dto) {
+            Integer id, PrefixRequestStatusDto dto, String handledBy) {
 
         PrefixRequest request = prefixRequestRepository.findById(id);
 
@@ -195,7 +251,7 @@ public class PrefixRequestService {
         }
 
         request.setStatus(PrefixRequestStatus.valueOf(dto.status));
-
+        request.setHandledBy(handledBy);
         return PrefixRequestMapper.INSTANCE
                 .prefixRequestToResponse(request);
     }
@@ -203,14 +259,12 @@ public class PrefixRequestService {
     /**
      * Assigns an existing provider to a prefix request.
      *
-     * @param requestId the ID of the prefix request
      * @param providerId the ID of the provider to assign
      * @return the updated prefix request response
      * @throws NotFoundException if the prefix request or provider does not exist
      */
     @Transactional
-    public PrefixRequestResponse assignProvider(
-            Integer requestId, Integer providerId) {
+    public PrefixRequestResponse assignProvider(Integer requestId, Integer providerId, String handledBy) {
 
         PrefixRequest request = prefixRequestRepository.findById(requestId);
 
@@ -227,7 +281,7 @@ public class PrefixRequestService {
         }
 
         request.setProvider(provider);
-
+        request.setHandledBy(handledBy);
         return PrefixRequestMapper.INSTANCE
                 .prefixRequestToResponse(request);
     }
@@ -235,5 +289,46 @@ public class PrefixRequestService {
     @Transactional
     public void deleteAll() {
         prefixRequestRepository.deleteAll();
+    }
+
+    private boolean checkAccess(Integer id, String userId) {
+
+        if (!accessControlService.isSuperAdmin()) {
+
+            var prefixRequests=prefixRequestRepository.findByCreator(userId);
+
+            var exists = prefixRequests.stream()
+                    .anyMatch(request -> request.getId().equals(id));
+
+            if (!exists) {
+                throw new ForbiddenException("Access denied to prefix request with id: " + id);
+            }
+        }
+        return true;
+    }
+    private boolean checkProviderAccess(Integer id, String userId) {
+
+        if (!accessControlService.isSuperAdmin()) {
+
+            var providerIds = RoleEndpointHolder.get().stream()
+                    .flatMap(role -> accessControlService
+                            .resolveAccessibleGroupsByName(role.getRoleName(), ProviderResource.PROVIDER.resourceName())
+                            .stream())
+                    .map(Integer::valueOf)
+                    .collect(Collectors.toList());
+
+            List<PrefixRequest> prefixRequests = new ArrayList<>();
+            if (!providerIds.isEmpty()) {
+                prefixRequests = prefixRequestRepository.findByProviderIds(providerIds);
+            }
+
+            var exists = prefixRequests.stream()
+                    .anyMatch(request -> request.getId().equals(id));
+
+            if (!exists) {
+                throw new ForbiddenException("Access denied to prefix request with id: " + id);
+            }
+        }
+        return true;
     }
 }

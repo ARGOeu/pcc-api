@@ -12,6 +12,7 @@ import gr.grnet.pccapi.service.PrefixService;
 import gr.grnet.pccapi.dto.statistic.AdminTotalStatistics;
 import gr.grnet.pccapi.service.RoleMetadataService;
 import gr.grnet.pccapi.service.StatisticsService;
+import gr.grnet.pccapi.service.Utility;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -60,12 +61,16 @@ public class AdminEndpoint {
 
     @Inject
     PrefixService prefixService;
+
     @Inject
 
     StatisticsService statisticsService;
 
     @Inject
     PrefixRequestService prefixRequestService;
+
+    @Inject
+    Utility utility;
 
     @Tag(name = "Admin")
     @Operation(
@@ -276,10 +281,7 @@ public class AdminEndpoint {
             @Valid PrefixRequestStatusDto dto) {
 
         PrefixRequestResponse response =
-                prefixRequestService.updateStatus(
-                        id,
-                        dto
-                );
+                prefixRequestService.updateStatus( id, dto,utility.getUserUniqueIdentifier());
         return Response.ok(response).build();
     }
 
@@ -314,8 +316,7 @@ public class AdminEndpoint {
             @NotNull @Valid AssignProviderDto dto) {
 
         PrefixRequestResponse response =
-                prefixRequestService.assignProvider(
-                        id, dto.getProviderId());
+                prefixRequestService.assignProvider(id, dto.getProviderId(),utility.getUserUniqueIdentifier());
 
         return Response.ok(response).build();
     }

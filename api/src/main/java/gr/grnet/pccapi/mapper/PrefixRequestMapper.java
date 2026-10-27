@@ -26,7 +26,7 @@ public interface PrefixRequestMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
+  //  @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "statusReason", ignore = true)
     @Mapping(target = "provider", ignore = true)
@@ -54,6 +54,9 @@ public interface PrefixRequestMapper {
             source = "expectedHandles",
             qualifiedByName = "mapExpectedHandlesToString"
     )
+
+    @Mapping(target = "createdBy", source = "createdBy")
+    @Mapping(target = "handledBy", source = "handledBy")
     PrefixRequestResponse prefixRequestToResponse(
             PrefixRequest prefixRequest
     );
@@ -64,4 +67,10 @@ public interface PrefixRequestMapper {
     ) {
         return expectedHandles != null ? expectedHandles.name() : null;
     }
+
+    @Mapping(target = "providerId", source = "provider.id")
+    @Mapping(target = "providerName", source = "provider.name")
+    @Mapping(target = "updatedAt", source = "updatedAt")
+
+    PrefixRequestResponse toResponse(PrefixRequest entity);
 }
