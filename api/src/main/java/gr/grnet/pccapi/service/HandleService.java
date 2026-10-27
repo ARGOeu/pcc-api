@@ -14,6 +14,7 @@ import io.quarkus.rest.client.reactive.QuarkusRestClientBuilder;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.ClientWebApplicationException;
@@ -48,11 +49,9 @@ public class HandleService {
 
         LOG.infof("Creating Handle under Prefix with ID: %s", prefixId);
 
-        var prefix = prefixRepository
-                .findByIdOptional(prefixId)
-                .orElseThrow(() -> new NotFoundException("Prefix not found"));
-
+        var prefix = prefixRepository.findById(prefixId);
         var prefixName = prefix.name;
+
         var suffix = request.getSuffix();
 
         LOG.infof("Creating Handle: %s/%s", prefixName, suffix);
@@ -99,9 +98,7 @@ public class HandleService {
      */
     public PageResource<String> fetchAllHandlesByPrefixId(Integer prefixId, String serviceUrl, String handleUsername, String token, String search, int page, int size, UriInfo uriInfo) {
 
-        var prefix = prefixRepository
-                .findByIdOptional(prefixId)
-                .orElseThrow(() -> new NotFoundException("Prefix not found"));
+        var prefix = prefixRepository.findById(prefixId);
 
         try {
             var handleClient = buildHandleClient(serviceUrl);
@@ -138,10 +135,7 @@ public class HandleService {
 
         LOG.infof("Retrieving Handle under Prefix with ID: %s", prefixId);
 
-        var prefix = prefixRepository
-                .findByIdOptional(prefixId)
-                .orElseThrow(() -> new NotFoundException("Prefix not found"));
-
+        var prefix = prefixRepository.findById(prefixId);
         var prefixName = prefix.name;
 
         LOG.infof("Getting Handle: %s/%s", prefixName, suffixName);
@@ -175,10 +169,7 @@ public class HandleService {
 
         LOG.infof("Retrieving Handle under Prefix with ID: %s", prefixId);
 
-        var prefix = prefixRepository
-                .findByIdOptional(prefixId)
-                .orElseThrow(() -> new NotFoundException("Prefix not found"));
-
+        var prefix = prefixRepository.findById(prefixId);
         var prefixName = prefix.name;
 
         LOG.infof("Updating Handle: %s/%s", prefixName, suffix);
@@ -214,10 +205,7 @@ public class HandleService {
 
         LOG.infof("Retrieving Handle under Prefix with ID: %s", prefixId);
 
-        var prefix = prefixRepository
-                .findByIdOptional(prefixId)
-                .orElseThrow(() -> new NotFoundException("Prefix not found"));
-
+        var prefix = prefixRepository.findById(prefixId);
         var prefixName = prefix.name;
 
         var adminHandle = prefixName + "/" + handleUsername;
@@ -315,6 +303,10 @@ public class HandleService {
 
         var status = e.getResponse().getStatus();
 
+        if (status == Response.Status.UNAUTHORIZED.getStatusCode()) {
+            return new HandleServiceException(status, "Invalid Handle Service credentials");
+        }
+
         HandleClientResponse errorResponse = null;
 
         try {
@@ -326,13 +318,6 @@ public class HandleService {
         var message = errorResponse != null && errorResponse.getMessage() != null
                 ? errorResponse.getMessage()
                 : "Handle service request failed.";
-
-        LOG.errorf(
-                "Handle service request failed: status=%s, responseCode=%s, handle=%s, message=%s",
-                status,
-                errorResponse != null ? errorResponse.getResponseCode() : null,
-                errorResponse != null ? errorResponse.getHandle() : null,
-                message);
 
         return new HandleServiceException(status, message);
     }

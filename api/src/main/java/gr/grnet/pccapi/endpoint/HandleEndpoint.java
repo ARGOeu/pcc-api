@@ -5,9 +5,12 @@ import gr.grnet.pccapi.dto.handle.HandleListResponseDto;
 import gr.grnet.pccapi.dto.handle.HandleRequestDto;
 import gr.grnet.pccapi.dto.handle.HandleResponseDto;
 import gr.grnet.pccapi.dto.handle.HandleUpdateRequestDto;
+import gr.grnet.pccapi.repository.PrefixRepository;
+import gr.grnet.pccapi.repository.ProviderRepository;
 import gr.grnet.pccapi.resources.PrefixResource;
 import gr.grnet.pccapi.resources.ProviderResource;
 import gr.grnet.pccapi.service.HandleService;
+import gr.grnet.pccapi.validator.constraints.NotFoundEntity;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -121,11 +124,13 @@ public class HandleEndpoint {
                     description = "The identifier of the Provider.",
                     example = "1")
             @PathParam("id")
+            @Valid @NotFoundEntity(repository = ProviderRepository.class, message = "There is no Provider with the following id: ")
             Integer id,
             @Parameter(name = "prefix-id",
                     description = "The identifier of the Prefix.",
                     example = "2")
             @PathParam("prefix-id")
+            @Valid @NotFoundEntity(repository = PrefixRepository.class, message = "There is no Prefix with the following id: ")
             Integer prefixId,
             @Parameter(
                     name = "x-handle-service-url",
@@ -220,12 +225,14 @@ public class HandleEndpoint {
                     description = "The identifier of the Provider.",
                     example = "1")
             @PathParam("id")
+            @Valid @NotFoundEntity(repository = ProviderRepository.class, message = "There is no Provider with the following id: ")
             Integer id,
             @Parameter(
                     name = "prefix-id",
                     description = "The identifier of the Prefix.",
                     example = "2")
             @PathParam("prefix-id")
+            @Valid @NotFoundEntity(repository = PrefixRepository.class, message = "There is no Prefix with the following id: ")
             Integer prefixId,
             @Parameter(
                     name = "x-handle-service-url",
@@ -344,12 +351,14 @@ public class HandleEndpoint {
                     description = "The identifier of the Provider.",
                     example = "1")
             @PathParam("id")
+            @Valid @NotFoundEntity(repository = ProviderRepository.class, message = "There is no Provider with the following id: ")
             Integer id,
             @Parameter(
                     name = "prefix-id",
                     description = "The identifier of the Prefix.",
                     example = "2")
             @PathParam("prefix-id")
+            @Valid @NotFoundEntity(repository = PrefixRepository.class, message = "There is no Prefix with the following id: ")
             Integer prefixId,
             @Parameter(
                     name = "suffix",
@@ -457,12 +466,14 @@ public class HandleEndpoint {
                     description = "The identifier of the Provider.",
                     example = "1")
             @PathParam("id")
+            @Valid @NotFoundEntity(repository = ProviderRepository.class, message = "There is no Provider with the following id: ")
             Integer id,
             @Parameter(
                     name = "prefix-id",
                     description = "The identifier of the Prefix.",
                     example = "2")
             @PathParam("prefix-id")
+            @Valid @NotFoundEntity(repository = PrefixRepository.class, message = "There is no Prefix with the following id: ")
             Integer prefixId,
             @Parameter(
                     name = "suffix",
@@ -566,12 +577,14 @@ public class HandleEndpoint {
                     description = "The identifier of the Provider.",
                     example = "1")
             @PathParam("id")
+            @Valid @NotFoundEntity(repository = ProviderRepository.class, message = "There is no Provider with the following id: ")
             Integer id,
             @Parameter(
                     name = "prefix-id",
                     description = "The identifier of the Prefix.",
                     example = "2")
             @PathParam("prefix-id")
+            @Valid @NotFoundEntity(repository = PrefixRepository.class, message = "There is no Prefix with the following id: ")
             Integer prefixId,
             @Parameter(
                     name = "suffix",
