@@ -29,6 +29,7 @@ public class PrefixRequestResponse {
             description = "Contact person's first name",
             example = "John"
     )
+    @JsonProperty("contact_person_name")
     public String contactPersonName;
 
     @Schema(
@@ -36,6 +37,7 @@ public class PrefixRequestResponse {
             description = "Contact person's surname",
             example = "Doe"
     )
+    @JsonProperty("contact_person_surname")
     public String contactPersonSurname;
 
     @Schema(
@@ -43,6 +45,7 @@ public class PrefixRequestResponse {
             description = "Contact person's email",
             example = "john.doe@example.org"
     )
+    @JsonProperty("contact_person_email")
     public String contactPersonEmail;
 
     @Schema(
@@ -50,6 +53,7 @@ public class PrefixRequestResponse {
             description = "Contact person's phone number",
             example = "+30 210 1234567"
     )
+    @JsonProperty("contact_person_phone")
     public String contactPersonPhone;
 
     @Schema(
@@ -64,6 +68,7 @@ public class PrefixRequestResponse {
             description = "Name of the organization",
             example = "Example University"
     )
+    @JsonProperty("organization_name")
     public String organizationName;
 
     @Schema(
@@ -71,6 +76,7 @@ public class PrefixRequestResponse {
             description = "Name of the project",
             example = "Research Project"
     )
+    @JsonProperty("project_name")
     public String projectName;
 
     @Schema(
@@ -78,6 +84,7 @@ public class PrefixRequestResponse {
             description = "URL of the project",
             example = "https://example.org"
     )
+    @JsonProperty("project_url")
     public String projectUrl;
 
     @Schema(
@@ -85,6 +92,7 @@ public class PrefixRequestResponse {
             description = "Description of the project and intended use of the EPIC service",
             example = "Using the EPIC service for persistent identifiers"
     )
+    @JsonProperty("project_description")
     public String projectDescription;
 
     @Schema(
@@ -92,6 +100,7 @@ public class PrefixRequestResponse {
             description = "Expected number of handles",
             example = "UP_TO_1000"
     )
+    @JsonProperty("expected_handles")
     public String expectedHandles;
 
     @Schema(
@@ -107,6 +116,7 @@ public class PrefixRequestResponse {
             description = "Reason for accepting or rejecting the request",
             example = "The request meets the requirements"
     )
+    @JsonProperty("status_reason")
     public String statusReason;
 
     @Schema(
@@ -114,6 +124,7 @@ public class PrefixRequestResponse {
             description = "ID of the assigned provider",
             example = "1"
     )
+    @JsonProperty("provider_id")
     public Integer providerId;
 
     @Schema(
@@ -121,6 +132,8 @@ public class PrefixRequestResponse {
             description = "Name of the assigned provider",
             example = "GRNET"
     )
+
+    @JsonProperty("provider_name")
     public String providerName;
 
     @Schema(
@@ -146,6 +159,8 @@ public class PrefixRequestResponse {
             description = "Creator's id",
             example = "userid1233"
     )
+
+    @JsonProperty("created_by")
     public String createdBy;
 
     @Schema(
@@ -153,6 +168,8 @@ public class PrefixRequestResponse {
             description = "Adm handling the request",
             example = "admin1234"
     )
+
+    @JsonProperty("handled_by")
     public String handledBy;
 
 }

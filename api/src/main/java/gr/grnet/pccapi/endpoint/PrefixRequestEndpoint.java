@@ -156,7 +156,7 @@ public class PrefixRequestEndpoint {
                     implementation = APIResponseMsg.class)))
 
     @GET
-    @Path("/prefix-requests/by-provider")
+    @Path("/by-provider")
     @SecuredEndpoint
     public Response getAllAssigned() {
 
