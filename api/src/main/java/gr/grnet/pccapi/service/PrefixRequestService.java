@@ -20,7 +20,9 @@ import lombok.AllArgsConstructor;
 import org.grnet.endpoint.scanner.runtime.context.RoleEndpointHolder;
 import org.grnet.endpoint.scanner.runtime.services.ResourceAuthorizationService;
 import org.jboss.logging.Logger;
+
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -176,7 +178,16 @@ public class PrefixRequestService {
                     "Prefix request with id " + id + " not found");
         }
 
+
         checkAccess(id, userId);
+        if (EnumSet.of(PrefixRequestStatus.ACCEPTED, PrefixRequestStatus.REJECTED)
+                .contains(request.getStatus())) {
+            throw new ForbiddenException(String.format(
+                    "Prefix request with id: %s is already %s and cannot be updated",
+                    request.getId(),
+                    request.getStatus()
+            ));
+        }
 
         PrefixRequestMapper.INSTANCE.updateEntity(dto, request);
 
@@ -251,6 +262,7 @@ public class PrefixRequestService {
         }
 
         request.setStatus(PrefixRequestStatus.valueOf(dto.status));
+        request.setStatusReason(dto.statusReason);
         request.setHandledBy(handledBy);
         return PrefixRequestMapper.INSTANCE
                 .prefixRequestToResponse(request);
@@ -295,7 +307,7 @@ public class PrefixRequestService {
 
         if (!accessControlService.isSuperAdmin()) {
 
-            var prefixRequests=prefixRequestRepository.findByCreator(userId);
+            var prefixRequests = prefixRequestRepository.findByCreator(userId);
 
             var exists = prefixRequests.stream()
                     .anyMatch(request -> request.getId().equals(id));
@@ -306,6 +318,7 @@ public class PrefixRequestService {
         }
         return true;
     }
+
     private boolean checkProviderAccess(Integer id, String userId) {
 
         if (!accessControlService.isSuperAdmin()) {

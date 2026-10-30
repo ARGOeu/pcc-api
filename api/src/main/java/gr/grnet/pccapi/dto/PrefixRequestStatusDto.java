@@ -33,5 +33,6 @@ public class PrefixRequestStatusDto {
             description = "The reason for the assigned status of the prefix request.",
             example = "All requirements approved"
     )
-    public String reason;
+    @JsonProperty("status_reason")
+    public String statusReason;
 }

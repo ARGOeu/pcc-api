@@ -38,15 +38,15 @@ public class PrefixRequestEndpointTest extends KeycloakTest {
 
         return """
                 {
-                  "contactPersonName": "Test",
-                  "contactPersonSurname": "User",
-                  "contactPersonEmail": "%s",
-                  "contactPersonPhone": "2103911103",
+                  "contact_person_name": "Test",
+                  "contact_person_surname": "User",
+                  "contact_person_email": "%s",
+                  "contact_person_phone": "2103911103",
                   "country": "Greece",
-                  "organizationName": "GRNET",
-                  "projectName": "%s",
-                  "projectUrl": "%s",
-                  "projectDescription": "Test project description",
+                  "organization_name": "GRNET",
+                  "project_name": "%s",
+                  "project_url": "%s",
+                  "project_description": "Test project description",
                   "expected_handles": "UP_TO_1000"
                 }
                 """.formatted(email, projectName, projectUrl);
