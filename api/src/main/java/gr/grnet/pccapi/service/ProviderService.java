@@ -3,6 +3,7 @@ package gr.grnet.pccapi.service;
 import gr.grnet.pccapi.dto.provider.PartialProviderRequest;
 import gr.grnet.pccapi.dto.provider.ProviderRequestDto;
 import gr.grnet.pccapi.dto.provider.ProviderResponseDTO;
+import gr.grnet.pccapi.entity.Provider;
 import gr.grnet.pccapi.enums.ContactType;
 import gr.grnet.pccapi.exception.ConflictException;
 import gr.grnet.pccapi.mapper.ProviderMapper;
@@ -14,16 +15,16 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
-import lombok.AllArgsConstructor;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.grnet.endpoint.scanner.runtime.context.RoleEndpointHolder;
 import org.jboss.logging.Logger;
+import utils.ImageUploadUtil;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
-@AllArgsConstructor
 public class ProviderService {
     private static final org.jboss.logging.Logger LOG = Logger.getLogger(ProviderService.class);
 
@@ -37,6 +38,17 @@ public class ProviderService {
 
     @Inject
     PrefixRepository prefixRepository;
+
+    @Inject
+    ImageUploadUtil imageUploadUtil;
+
+    @ConfigProperty(name = "base.upload.logo.dir")
+    String baseUploadProvidersLogoDir;
+
+    @ConfigProperty(name = "api.server.url")
+    String apiServerUrl;
+
+
     /**
      * Retrieves the provider with the requested id from the database.
      *
@@ -92,13 +104,14 @@ public class ProviderService {
 
         var provider = ProviderMapper.INSTANCE.providerRequestToEntity(request);
 
+        provider.setLogo(null);
+
         var contacts = request.getContacts().stream()
                 .map(dto -> {
                     var type = ContactType.valueOf(dto.type);
 
                     return contactRepository
-                            .findByNameEmailAndType(
-                                    dto.name, dto.email, type)
+                            .findByNameEmailAndType(dto.name, dto.email, type)
                             .orElseGet(() ->
                                     ProviderMapper.INSTANCE.contactDtoToEntity(dto));
                 })
@@ -107,8 +120,13 @@ public class ProviderService {
         provider.setContacts(contacts);
         providerRepository.persist(provider);
 
+        handleLogo(request.getLogo(), provider);
+
         return ProviderMapper.INSTANCE.providerToResponse(provider);
     }
+
+
+
     @Transactional
     public ProviderResponseDTO update(Integer id, PartialProviderRequest request) {
 
@@ -116,14 +134,24 @@ public class ProviderService {
                 .orElseThrow(() ->
                         new NotFoundException("Provider not found"));
 
-       provider.setDescription(request.description);
+        provider.setDescription(request.description);
+
+        if (request.logo != null && !request.logo.isBlank()) {
+
+            imageUploadUtil.deleteImageIfExists(
+                    baseUploadProvidersLogoDir,
+                    provider.getId().toString()
+            );
+
+            handleLogo(request.logo, provider);
+        }
+
         var oldContacts = new HashSet<>(provider.getContacts());
-
         var newContacts = request.getContacts().stream()
-                .map(dto -> {
-                    var type = ContactType.valueOf(dto.type);
+               .map(dto -> {
+                   var type = ContactType.valueOf(dto.type);
 
-                    return contactRepository
+                   return contactRepository
                             .findByNameEmailAndType(dto.name, dto.email, type)
                             .orElseGet(() ->
                                     ProviderMapper.INSTANCE.contactDtoToEntity(dto));
@@ -177,6 +205,30 @@ public class ProviderService {
 
         // Delete the provider.
         providerRepository.delete(provider);
+    }
+
+    private void handleLogo(String logo, Provider provider) {
+
+        if (logo == null || logo.isBlank()) {
+            return;
+        }
+
+        if (logo.startsWith("data:image/")) {
+
+            imageUploadUtil.validateBase64Image(logo);
+
+            var savedPath = imageUploadUtil.saveBase64Image(
+                    baseUploadProvidersLogoDir,
+                    logo,
+                    provider.getId().toString(),
+                    "/logos/"
+            );
+
+            provider.setLogo(apiServerUrl.replaceAll("/+$", "") + savedPath);
+
+        } else {
+            provider.setLogo(logo);
+        }
     }
 
     @Transactional

@@ -1,7 +1,9 @@
 package gr.grnet.pccapi.dto.provider;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import gr.grnet.pccapi.dto.ContactDto;
+import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -37,6 +39,17 @@ public class ProviderResponseDTO {
           example = "GRNET description provider")
   @JsonInclude(JsonInclude.Include.NON_NULL)
   public String description;
+
+  @Schema(
+          type = SchemaType.STRING,
+          implementation = String.class,
+          description = "Provider's logo URL or base64 encoded image data URI. " +
+                  "Example URL: /logo/profile.jpg, or data URI: data:logo/png;base64,iVBORw0KGgo...",
+          example = "https://logo/profile.jpg")
+  @JsonProperty("logo")
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public String logo;
+
 
   @Schema(
           type = SchemaType.ARRAY,
