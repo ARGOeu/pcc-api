@@ -1,10 +1,11 @@
 -- ------------------------------------------------
--- Version: v1.32
+-- Version: v1.33
 --
 -- Description: Adds FROM_500000_TO_1000000 to prefix_request expected_handles values
 -- ------------------------------------------------
+
 ALTER TABLE prefix_request
-DROP CHECK chk_prefix_request_expected_handles;
+DROP CONSTRAINT chk_prefix_request_expected_handles;
 
 ALTER TABLE prefix_request
     ADD CONSTRAINT chk_prefix_request_expected_handles
