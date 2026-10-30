@@ -77,7 +77,7 @@ According to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), the `Unre
 - [#110](https://github.com/ARGOeu/pcc-api/pull/110) PCC-205 [API] - Improve error handling for invalid Handle Service credentials
 - [#112](https://github.com/ARGOeu/pcc-api/pull/112) PCC-218 Add ContactType in codelist
 - [#113](https://github.com/ARGOeu/pcc-api/pull/113) PCC-219 Implement Public CRUD Endpoints for Prefix Requests
-- [#126](https://github.com/ARGOeu/pcc-api/pull/126) PCC-197 [API] - Provider CRUD
+- [#120](https://github.com/ARGOeu/pcc-api/pull/120) PCC-230 [API] - Add Provider Logo Support
 
 ### Changed
 

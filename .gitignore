@@ -41,3 +41,5 @@ nb-configuration.xml
 api/.flattened-pom.xml
 api/pcc-mysql-data
 .java-version
+
+api/uploads/
