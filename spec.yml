@@ -1,0 +1,192 @@
+openapi: 3.0.3
+
+info:
+  title: PCC PID API
+  description: |
+    API for retrieving Handle records from a PID provider.
+    This specification covers the Get Handle operation available
+    to regular users.
+  version: 1.0.0
+
+tags:
+  - name: handles
+    description: Operations for retrieving PID Handles
+
+paths:
+  /api/v1/providers/{id}/prefixes/{prefix-id}/handles/{suffix}:
+    get:
+      tags:
+        - handles
+      operationId: getHandle
+      summary: Get Handle
+      description: |
+        Retrieves the details of a specific Handle using its
+        Provider ID, Prefix ID and suffix.
+
+        The operation requires an authenticated user and the
+        Handle service credentials provided through HTTP headers.
+
+      parameters:
+        - $ref: '#/components/parameters/ProviderId'
+        - $ref: '#/components/parameters/PrefixId'
+        - $ref: '#/components/parameters/Suffix'
+        - $ref: '#/components/parameters/HandleServiceUrl'
+        - $ref: '#/components/parameters/HandleUsername'
+        - $ref: '#/components/parameters/HandleToken'
+
+      responses:
+        '201':
+          description: Handle successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HandleResponse'
+
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+        '502':
+          $ref: '#/components/responses/BadGateway'
+
+components:
+
+  parameters:
+
+    ProviderId:
+      name: id
+      in: path
+      required: true
+      description: Identifier of the Provider.
+      schema:
+        type: integer
+      example: 1
+
+    PrefixId:
+      name: prefix-id
+      in: path
+      required: true
+      description: Identifier of the Prefix.
+      schema:
+        type: integer
+      example: 2
+
+    Suffix:
+      name: suffix
+      in: path
+      required: true
+      description: Suffix of the Handle identifier.
+      schema:
+        type: string
+      example: "001BDD3C"
+
+    HandleServiceUrl:
+      name: x-handle-service-url
+      in: header
+      required: true
+      description: |
+        HTTPS URL of the Handle service.
+      schema:
+        type: string
+        format: uri
+        pattern: '^https://'
+      example: "https://hdl.grnet.gr:8001/"
+
+    HandleUsername:
+      name: x-handle-username
+      in: header
+      required: true
+      description: Handle administrator username.
+      schema:
+        type: string
+      example: "TESTUSER08"
+
+    HandleToken:
+      name: x-handle-token
+      in: header
+      required: true
+      description: Token used to authenticate against the Handle service.
+      schema:
+        type: string
+
+  schemas:
+
+    HandleResponse:
+      type: object
+      description: |
+        Details of the retrieved Handle.
+        The exact properties must match HandleResponseDto.
+      additionalProperties: true
+
+    InformativeResponse:
+      type: object
+      description: |
+        Informative error response returned when the request fails.
+        The exact properties must match InformativeResponse.
+      additionalProperties: true
+
+  responses:
+
+    BadRequest:
+      description: Invalid request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InformativeResponse'
+
+    Unauthorized:
+      description: User has not been authenticated.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InformativeResponse'
+
+    Forbidden:
+      description: User is not permitted to access this Handle.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InformativeResponse'
+
+    NotFound:
+      description: Provider or Prefix not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InformativeResponse'
+
+    Conflict:
+      description: Handle already exists.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InformativeResponse'
+
+    InternalServerError:
+      description: Internal Server Error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InformativeResponse'
+
+    BadGateway:
+      description: PID provider communication error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InformativeResponse'
+

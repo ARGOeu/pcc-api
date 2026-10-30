@@ -4,7 +4,13 @@ import gr.grnet.pccapi.entity.Provider;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+import java.util.StringJoiner;
+
+import static java.nio.file.Files.find;
 
 @ApplicationScoped
 public class ProviderRepository implements Repository<Provider, Integer> {
@@ -43,5 +49,40 @@ public class ProviderRepository implements Repository<Provider, Integer> {
 
     public long deleteByName(String name) {
         return delete("name", name);
+    }
+
+
+    public List<Provider> fetchProvidersByAccessibleResources(
+            Set<Integer> providerIds,
+            Set<Integer> prefixIds) {
+
+        if ((providerIds == null || providerIds.isEmpty())
+                && (prefixIds == null || prefixIds.isEmpty())) {
+            return Collections.emptyList();
+        }
+
+        var conditions = new StringJoiner(" OR ");
+        var map = new HashMap<String, Object>();
+
+        if (providerIds != null && !providerIds.isEmpty()) {
+            conditions.add("p.id IN :providerIds");
+            map.put("providerIds", providerIds);
+        }
+
+        if (prefixIds != null && !prefixIds.isEmpty()) {
+            conditions.add(
+                    "EXISTS (" +
+                            "SELECT 1 FROM prefix pr " +
+                            "WHERE pr.provider.id = p.id " +
+                            "AND pr.id IN :prefixIds" +
+                            ")"
+            );
+            map.put("prefixIds", prefixIds);
+        }
+
+        return find(
+                "FROM provider p WHERE (" + conditions + ") ORDER BY p.name ASC",
+                map
+        ).list();
     }
 }
