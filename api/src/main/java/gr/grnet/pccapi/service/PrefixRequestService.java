@@ -9,7 +9,7 @@ import gr.grnet.pccapi.mapper.PrefixRequestMapper;
 import gr.grnet.pccapi.repository.PrefixRequestRepository;
 import gr.grnet.pccapi.entity.Provider;
 import gr.grnet.pccapi.repository.ProviderRepository;
-import gr.grnet.pccapi.resources.ProviderResource;
+import gr.grnet.pccapi.enums.resources.ProviderResource;
 import gr.grnet.pccapi.validator.constraints.CustomValidationException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

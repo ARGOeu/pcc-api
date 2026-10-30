@@ -7,17 +7,20 @@ import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 
 @Entity
-@Table(name = "prefix_invitation")
-public class PrefixInvitation {
+@Table(name = "invitation")
+public class Invitation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     public String id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
     @NotNull
-    @JoinColumn(name = "prefix_id")
-    public Prefix prefix;
+    @Column(name = "api_resource")
+    public String apiResource;
+
+    @NotNull
+    @Column(name = "resource_id")
+    public String resourceId;
 
     @NotNull
     @Column
@@ -46,9 +49,9 @@ public class PrefixInvitation {
 
     @PrePersist
     public void prePersist() {
+
         if (createdAt == null) {
             createdAt = Instant.now();
         }
     }
 }
-
