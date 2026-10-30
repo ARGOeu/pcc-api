@@ -35,71 +35,72 @@ public class MailerService {
     String title;
 
     @Inject
-    @Location("prefix_account_invitation.html")
-    Template prefixInvitationTemplate;
+    @Location("invitation.html")
+    Template invitationTemplate;
 
     @Inject
-    @Location("prefix_account_invitation_response.html")
-    Template prefixInvitationResponseTemplate;
+    @Location("invitation_response.html")
+    Template invitationResponseTemplate;
 
     @Inject
-    @Location("prefix_account_invitation_accepted.html")
-    Template prefixInvitationAcceptedTemplate;
+    @Location("invitation_accepted.html")
+    Template invitationAcceptedTemplate;
 
+    public void sendInvitationEmail(List<String> recipientEmails, String targetType, String targetName, String parentType, String parentName, String role, String invitationUrl) {
 
-    public void sendPrefixInvitationEmail(List<String> recipientEmails, String providerName, String prefixName, String role, String invitationUrl) {
+        var params = commonParams();
 
-        HashMap<String, Object> params = new HashMap<>();
-
-        params.put("sendFrom", sendFrom);
-        params.put("replyTo", replyTo);
-        params.put("title", title);
-        params.put("logoUrl", serviceUrl + "/images/logo.png");
-        params.put("providerName", providerName);
-        params.put("prefixName", prefixName);
+        params.put("targetType", targetType);
+        params.put("targetName", targetName);
+        params.put("parentType", parentType);
+        params.put("parentName", parentName);
         params.put("role", role);
         params.put("invitationUrl", invitationUrl);
 
-        sendBcc(prefixInvitationTemplate, params, MailType.PREFIX_INVITATION_CREATED, recipientEmails);
+        sendBcc(invitationTemplate, params, MailType.INVITATION_CREATED, recipientEmails);
     }
 
+    public void sendInvitationAcceptedToInvitee(List<String> recipientEmails, String targetType, String targetName, String parentType, String parentName, String role, String targetDetailsUrl) {
 
-    public void sendInvitationAcceptedToInvitee(List<String> recipientEmails, String providerName, String prefixName, String role, String prefixDetailsUrl) {
+        var params = commonParams();
 
-        HashMap<String, Object> params = new HashMap<>();
-
-        params.put("logoUrl", serviceUrl + "/images/logo.png");
-        params.put("sendFrom", sendFrom);
-        params.put("replyTo", replyTo);
-        params.put("title", title);
-        params.put("providerName", providerName);
-        params.put("prefixName", prefixName);
+        params.put("targetType", targetType);
+        params.put("targetName", targetName);
+        params.put("parentType", parentType);
+        params.put("parentName", parentName);
         params.put("role", role);
-        params.put("prefixDetailsUrl", prefixDetailsUrl);
+        params.put("targetDetailsUrl", targetDetailsUrl);
 
-        sendBcc(prefixInvitationAcceptedTemplate, params, MailType.PREFIX_INVITATION_RESPONSE_NOTIFY_USER, recipientEmails);
+        sendBcc(invitationAcceptedTemplate, params, MailType.INVITATION_RESPONSE_NOTIFY_USER, recipientEmails);
     }
 
+    public void sendInvitationResponseToAdmins(List<String> adminEmails, String targetType, String targetName, String parentType, String parentName, String inviteeEmail, String role, InvitationStatus status, String targetMembersUrl) {
 
-    public void sendInvitationResponseToAdmins(List<String> adminEmails, String providerName, String prefixName, String inviteeEmail, String role, InvitationStatus status, String prefixAccountsUrl) {
+        var params = commonParams();
 
-        HashMap<String, Object> params = new HashMap<>();
-
-        params.put("logoUrl", serviceUrl + "/images/logo.png");
-        params.put("sendFrom", sendFrom);
-        params.put("replyTo", replyTo);
-        params.put("title", title);
-        params.put("providerName", providerName);
-        params.put("prefixName", prefixName);
+        params.put("targetType", targetType);
+        params.put("targetName", targetName);
+        params.put("parentType", parentType);
+        params.put("parentName", parentName);
         params.put("inviteeEmail", inviteeEmail);
         params.put("role", role);
         params.put("status", status.name());
-        params.put("prefixAccountsUrl", prefixAccountsUrl);
+        params.put("targetMembersUrl", targetMembersUrl);
 
-        sendBcc(prefixInvitationResponseTemplate, params, MailType.PREFIX_INVITATION_RESPONSE_NOTIFY_ADMIN, adminEmails
-        );
+        sendBcc(invitationResponseTemplate, params, MailType.INVITATION_RESPONSE_NOTIFY_ADMIN, adminEmails);
     }
 
+    private HashMap<String, Object> commonParams() {
+
+        var params = new HashMap<String, Object>();
+
+        params.put("logoUrl", serviceUrl + "/images/logo.png");
+        params.put("sendFrom", sendFrom);
+        params.put("replyTo", replyTo);
+        params.put("title", title);
+
+        return params;
+    }
 
     private void sendBcc(Template template, HashMap<String, Object> params, MailType mailType, List<String> recipients) {
 
@@ -118,6 +119,7 @@ public class MailerService {
         mail.setHtml(mailTemplate.getBody());
 
         try {
+
             mailer.send(mail);
 
             LOG.infof(

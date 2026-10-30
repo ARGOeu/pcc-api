@@ -9,7 +9,7 @@ import gr.grnet.pccapi.mapper.ProviderMapper;
 import gr.grnet.pccapi.repository.ContactRepository;
 import gr.grnet.pccapi.repository.PrefixRepository;
 import gr.grnet.pccapi.repository.ProviderRepository;
-import gr.grnet.pccapi.resources.ProviderResource;
+import gr.grnet.pccapi.enums.resources.ProviderResource;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;

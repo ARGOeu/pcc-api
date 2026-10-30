@@ -5,7 +5,7 @@ import gr.grnet.pccapi.dto.account.AccountRequestDto;
 import gr.grnet.pccapi.dto.account.AccountResponseDto;
 import gr.grnet.pccapi.dto.account.AccountUpdateRequestDto;
 import gr.grnet.pccapi.dto.pagination.PageResource;
-import gr.grnet.pccapi.resources.ProviderResource;
+import gr.grnet.pccapi.enums.resources.ProviderResource;
 import gr.grnet.pccapi.service.AccountService;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;

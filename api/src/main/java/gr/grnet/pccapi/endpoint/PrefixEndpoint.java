@@ -7,8 +7,8 @@ import gr.grnet.pccapi.dto.prefix.PrefixRequestDto;
 import gr.grnet.pccapi.dto.prefix.PrefixResponseDto;
 import gr.grnet.pccapi.dto.statistic.StatisticsDto;
 import gr.grnet.pccapi.dto.statistic.StatisticsRequestDto;
-import gr.grnet.pccapi.resources.PrefixResource;
-import gr.grnet.pccapi.resources.ProviderResource;
+import gr.grnet.pccapi.enums.resources.PrefixResource;
+import gr.grnet.pccapi.enums.resources.ProviderResource;
 import gr.grnet.pccapi.service.PrefixService;
 import gr.grnet.pccapi.service.StatisticsService;
 import io.quarkus.security.Authenticated;
@@ -198,11 +198,6 @@ public class PrefixEndpoint {
                             param = "id",
                             type = ParamType.PATH,
                             referTo = ProviderResource.class
-                    ),
-                    @ParamRef(
-                            param = "prefix-id",
-                            type = ParamType.PATH,
-                            referTo = PrefixResource.class
                     )
             },
             scope = {Scope.ALL, Scope.MINE
