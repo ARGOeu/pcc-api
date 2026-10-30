@@ -15,141 +15,170 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.InternalServerErrorException;
 import jakarta.ws.rs.NotFoundException;
+
 import java.sql.SQLException;
 import java.util.Optional;
+
 import lombok.AllArgsConstructor;
 
 @ApplicationScoped
 @AllArgsConstructor
 public class StatisticsService {
 
-  @Inject StatisticsRepository statisticsRepository;
+    @Inject
+    StatisticsRepository statisticsRepository;
 
-  @Inject PrefixRepository prefixRepository;
+    @Inject
+    PrefixRepository prefixRepository;
 
-  @Inject
-  ProviderRepository providerRepository;
-  @Inject
-  AccountRepository accountRepository;
+    @Inject
+    ProviderRepository providerRepository;
+    @Inject
+    AccountRepository accountRepository;
 
-  @Inject
-  UserEntitlementsService userEntitlementsService;
+    @Inject
+    UserEntitlementsService userEntitlementsService;
 
-  @Inject
-  AccessControlService accessControlService;
+    @Inject
+    AccessControlService accessControlService;
 
+    //
+//  public int getPIDCountByPrefixID(String prefix) {
+//    try {
+//
+//      return statisticsRepository.getPIDCountByPrefixID(prefix);
+//    } catch (IllegalArgumentException e) {
+//      throw new NotFoundException(e.getMessage());
+//    } catch (SQLException e) {
+//      throw new InternalServerErrorException(e.getMessage());
+//    }
+//  }
+    public int getPIDCountByPrefixID(Integer providerId, int prefixId) {
+        var prefix = prefixRepository
+                .findByIdAndProviderId(prefixId, providerId)
+                .orElseThrow(() -> new NotFoundException("Prefix not found to this provider"));
 
-  public int getPIDCountByPrefixID(String prefix) {
-    try {
-      return statisticsRepository.getPIDCountByPrefixID(prefix);
-    } catch (IllegalArgumentException e) {
-      throw new NotFoundException(e.getMessage());
-    } catch (SQLException e) {
-      throw new InternalServerErrorException(e.getMessage());
+        try {
+            return statisticsRepository.getPIDCountByPrefixID(prefix.name);
+        } catch (SQLException e) {
+            throw new InternalServerErrorException(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            throw new NotFoundException(e.getMessage());
+        }
     }
-  }
 
-  public int getResolvablePIDCountByPrefixID(String prefix) {
-    try {
-      return statisticsRepository.getResolvablePIDCountByPrefixID(prefix);
-    } catch (IllegalArgumentException e) {
-      throw new NotFoundException(e.getMessage());
-    } catch (SQLException e) {
-      throw new InternalServerErrorException(e.getMessage());
-    }
-  }
+    public int getResolvablePIDCountByPrefixID(int providerId, int prefixId) {
+        try {
+            var prefix = prefixRepository
+                    .findByIdAndProviderId(prefixId, providerId)
+                    .orElseThrow(() -> new NotFoundException("Prefix not found to this provider"));
 
-  public StatisticsDto getPrefixStatisticsByID(String prefix) {
-    try {
-      var statistics = statisticsRepository.getPrefixStatisticsByID(prefix);
-      return StatisticsMapper.INSTANCE.statisticsToDto(statistics);
-    } catch (IllegalArgumentException e) {
-      throw new NotFoundException(e.getMessage());
-    } catch (SQLException e) {
-      throw new InternalServerErrorException(e.getMessage());
+            return statisticsRepository.getResolvablePIDCountByPrefixID(prefix.name);
+        } catch (IllegalArgumentException e) {
+            throw new NotFoundException(e.getMessage());
+        } catch (SQLException e) {
+            throw new InternalServerErrorException(e.getMessage());
+        }
     }
-  }
+
+    public StatisticsDto getPrefixStatisticsByID(int providerId, int prefixId) {
+        try {
+            var prefix = prefixRepository
+                    .findByIdAndProviderId(prefixId, providerId)
+                    .orElseThrow(() -> new NotFoundException("Prefix not found to this provider"));
+
+            var statistics = statisticsRepository.getPrefixStatisticsByID(prefix.name);
+            return StatisticsMapper.INSTANCE.statisticsToDto(statistics);
+        } catch (IllegalArgumentException e) {
+            throw new NotFoundException(e.getMessage());
+        } catch (SQLException e) {
+            throw new InternalServerErrorException(e.getMessage());
+        }
+    }
 
     public AdminStatisticsResponse getStatistics() {
-      AdminTotalStatistics total = new AdminTotalStatistics();
+        AdminTotalStatistics total = new AdminTotalStatistics();
 
-      if (accessControlService.isSuperAdmin()) {
-        // Global statistics
-        total.totalProvidersNum = providerRepository.count();
-        total.totalPrefixesNum = prefixRepository.countPrefixes();
-        total.totalAccountsNum = accountRepository.countAccounts();
+        if (accessControlService.isSuperAdmin()) {
+            // Global statistics
+            total.totalProvidersNum = providerRepository.count();
+            total.totalPrefixesNum = prefixRepository.countPrefixes();
+            total.totalAccountsNum = accountRepository.countAccounts();
 
-        total.prefixesPerProvider =
-                prefixRepository.countPrefixesPerProvider();
+            total.prefixesPerProvider =
+                    prefixRepository.countPrefixesPerProvider();
 
-        total.accountsPerProvider =
-                accountRepository.countAccountsPerProvider();
-      } else {
-        // Statistics limited to the providers this user administers
-        var providerNames =
-                userEntitlementsService.getAdministeredProviderNames();
+            total.accountsPerProvider =
+                    accountRepository.countAccountsPerProvider();
+        } else {
+            // Statistics limited to the providers this user administers
+            var providerNames =
+                    userEntitlementsService.getAdministeredProviderNames();
 
-        total.totalProvidersNum =
-                providerRepository.countByNames(providerNames);
+            total.totalProvidersNum =
+                    providerRepository.countByNames(providerNames);
 
-        total.totalPrefixesNum =
-                prefixRepository.countPrefixesByProviderNames(providerNames);
+            total.totalPrefixesNum =
+                    prefixRepository.countPrefixesByProviderNames(providerNames);
 
-        total.totalAccountsNum =
-                accountRepository.countAccountsByProviderNames(providerNames);
+            total.totalAccountsNum =
+                    accountRepository.countAccountsByProviderNames(providerNames);
 
-        total.prefixesPerProvider =
-                prefixRepository.countPrefixesPerProviderNames(providerNames);
+            total.prefixesPerProvider =
+                    prefixRepository.countPrefixesPerProviderNames(providerNames);
 
-        total.accountsPerProvider =
-                accountRepository.countAccountsPerProviderNames(providerNames);
-      }
+            total.accountsPerProvider =
+                    accountRepository.countAccountsPerProviderNames(providerNames);
+        }
 
-      AdminStatisticsResponse response = new AdminStatisticsResponse();
-      response.totalStatistics = total;
+        AdminStatisticsResponse response = new AdminStatisticsResponse();
+        response.totalStatistics = total;
 
-      return response;
+        return response;
     }
 
-  public StatisticsDto setPrefixStatistics(String prefix, StatisticsRequestDto statisticsDto) {
+    public StatisticsDto setPrefixStatistics(int providerId, int prefixId, StatisticsRequestDto statisticsDto) {
+        var prefix = prefixRepository
+                .findByIdAndProviderId(prefixId, providerId)
+                .orElseThrow(() -> new NotFoundException("Prefix not found to this provider"));
 
-    if (!prefixRepository.existsByName(prefix)) {
-      throw new BadRequestException("Prefix with name {" + prefix + "} does not exist");
+        if (!prefixRepository.existsByName(prefix.name)) {
+            throw new BadRequestException("Prefix with name {" + prefix + "} does not exist");
+        }
+
+        try {
+            Optional<Statistics> statistics;
+            if (statisticsRepository.getPrefixByID(prefix.name)) {
+
+                statistics =
+                        statisticsRepository.updatePrefixStatistics(
+                                prefix.name,
+                                statisticsDto.handlesCount,
+                                statisticsDto.resolvableCount,
+                                statisticsDto.unresolvableCount,
+                                statisticsDto.uncheckedCount);
+            } else {
+
+                statistics =
+                        statisticsRepository.insertPrefixStatistics(
+                                prefix.name,
+                                statisticsDto.handlesCount,
+                                statisticsDto.resolvableCount,
+                                statisticsDto.unresolvableCount,
+                                statisticsDto.uncheckedCount);
+            }
+
+            return StatisticsMapper.INSTANCE.statisticsToDto(
+                    statistics.orElseThrow(
+                            () -> new SQLException("Can not handle prefix statistic in hrls database.")));
+
+        } catch (IllegalArgumentException e) {
+            throw new NotFoundException(e.getMessage());
+        } catch (SQLException e) {
+            throw new InternalServerErrorException(e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
-
-    try {
-      Optional<Statistics> statistics;
-      if (statisticsRepository.getPrefixByID(prefix)) {
-
-        statistics =
-                statisticsRepository.updatePrefixStatistics(
-                        prefix,
-                        statisticsDto.handlesCount,
-                        statisticsDto.resolvableCount,
-                        statisticsDto.unresolvableCount,
-                        statisticsDto.uncheckedCount);
-      } else {
-
-        statistics =
-                statisticsRepository.insertPrefixStatistics(
-                        prefix,
-                        statisticsDto.handlesCount,
-                        statisticsDto.resolvableCount,
-                        statisticsDto.unresolvableCount,
-                        statisticsDto.uncheckedCount);
-      }
-
-      return StatisticsMapper.INSTANCE.statisticsToDto(
-              statistics.orElseThrow(
-                      () -> new SQLException("Can not handle prefix statistic in hrls database.")));
-
-    } catch (IllegalArgumentException e) {
-      throw new NotFoundException(e.getMessage());
-    } catch (SQLException e) {
-      throw new InternalServerErrorException(e.getMessage());
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
 
 }

@@ -7,8 +7,8 @@ import gr.grnet.pccapi.dto.handle.HandleResponseDto;
 import gr.grnet.pccapi.dto.handle.HandleUpdateRequestDto;
 import gr.grnet.pccapi.repository.PrefixRepository;
 import gr.grnet.pccapi.repository.ProviderRepository;
-import gr.grnet.pccapi.resources.PrefixResource;
-import gr.grnet.pccapi.resources.ProviderResource;
+import gr.grnet.pccapi.enums.resources.PrefixResource;
+import gr.grnet.pccapi.enums.resources.ProviderResource;
 import gr.grnet.pccapi.service.HandleService;
 import gr.grnet.pccapi.validator.constraints.NotFoundEntity;
 import io.quarkus.security.Authenticated;
@@ -156,7 +156,7 @@ public class HandleEndpoint {
             String token,
             @Valid HandleRequestDto request) {
 
-        var handle = handleService.create(prefixId, serviceUrl, handleUsername, token, request);
+        var handle = handleService.create(id,prefixId, serviceUrl, handleUsername, token, request);
 
         return Response.status(Response.Status.CREATED).entity(handle).build();
     }
@@ -275,7 +275,7 @@ public class HandleEndpoint {
             int size,
             @Context UriInfo uriInfo) {
 
-        var handles = handleService.fetchAllHandlesByPrefixId(prefixId, serviceUrl, handleUsername, token, search, page - 1, size, uriInfo);
+        var handles = handleService.fetchAllHandlesByPrefixId(id,prefixId, serviceUrl, handleUsername, token, search, page - 1, size, uriInfo);
 
         return Response.ok(handles).build();
     }
@@ -390,7 +390,7 @@ public class HandleEndpoint {
             @HeaderParam("x-handle-token")
             String token) {
 
-        var handle = handleService.getHandle(prefixId, suffix, serviceUrl, handleUsername, token);
+        var handle = handleService.getHandle(id,prefixId, suffix, serviceUrl, handleUsername, token);
 
         return Response.status(Response.Status.CREATED).entity(handle).build();
     }
@@ -507,7 +507,7 @@ public class HandleEndpoint {
             @Valid
             HandleUpdateRequestDto request) {
 
-        var handle = handleService.updateHandle(prefixId, suffix, serviceUrl, handleUsername, token, request);
+        var handle = handleService.updateHandle(id,prefixId, suffix, serviceUrl, handleUsername, token, request);
 
         return Response.status(Response.Status.OK).entity(handle).build();
     }
@@ -616,7 +616,7 @@ public class HandleEndpoint {
             @HeaderParam("x-handle-token")
             String token) {
 
-        handleService.deleteHandle(prefixId, suffix, serviceUrl, handleUsername, token);
+        handleService.deleteHandle(id,prefixId, suffix, serviceUrl, handleUsername, token);
 
         var response = new InformativeResponse();
         response.code = 200;

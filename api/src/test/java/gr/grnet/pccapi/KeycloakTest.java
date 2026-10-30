@@ -1,7 +1,7 @@
 package gr.grnet.pccapi;
 
-import gr.grnet.pccapi.service.PrefixInvitationService;
 import gr.grnet.pccapi.service.PrefixRequestService;
+import gr.grnet.pccapi.service.InvitationService;
 import gr.grnet.pccapi.service.PrefixService;
 import gr.grnet.pccapi.service.ProviderService;
 import io.quarkus.test.common.http.TestHTTPResource;
@@ -32,7 +32,7 @@ public class KeycloakTest {
     PrefixRequestService prefixRequestService;
 
     @Inject
-    PrefixInvitationService prefixInvitationService;
+    InvitationService invitationService;
 
     @Inject
     TestEntitlementProvider entitlementProvider;
@@ -61,9 +61,9 @@ public class KeycloakTest {
         prefixAdminToken = getAccessToken("user2");
         member = getAccessToken("user3");
 
-        prefixInvitationService.deleteAll();
+        invitationService.deleteAll();
         prefixService.deleteAll();
-       prefixRequestService.deleteAll();
+        prefixRequestService.deleteAll();
     }
 
     protected String getAccessToken(String username) {
@@ -119,12 +119,17 @@ public class KeycloakTest {
 
     protected void mockMember() {
         entitlementProvider.setSuperAdmin(false);
+
+        var raw = "urn:mace:grnet.gr:einfra:login-devel:group:pcc-api:"
+                + "MEMBER"
+                + ":role=member";
+
         entitlementProvider.setEntitlements(
                 List.of(new Entitlement(
                         "pcc-api",
                         List.of("pcc-api", "member"),
                         "member",
-                        "urn:mace:grnet.gr:einfra:login-devel:group:pcc-api:role=member"
+                        raw
                 ))
         );
     }
