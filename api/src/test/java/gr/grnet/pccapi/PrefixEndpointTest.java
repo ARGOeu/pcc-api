@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 
 import gr.grnet.pccapi.dto.APIResponseMsg;
 import gr.grnet.pccapi.dto.pagination.PageResource;
@@ -253,13 +254,13 @@ public class PrefixEndpointTest extends KeycloakTest {
     var response = authenticatedRequest()
             .contentType(ContentType.JSON)
             .body(validPrefixRequest("not-found"))
-            .put("/{prefix-id}", 999)
+            .put("/{prefix-id}", 1,999)
             .then()
             .statusCode(404)
             .extract()
             .as(APIResponseMsg.class);
 
-    assertEquals("Prefix not found", response.getMessage());
+    assertEquals("Prefix not found to this provider", response.getMessage());
   }
 
   @Test
@@ -462,7 +463,7 @@ public class PrefixEndpointTest extends KeycloakTest {
             .extract()
             .as(APIResponseMsg.class);
 
-    assertEquals("Prefix not found", response.getMessage());
+    assertEquals("Prefix not found to this provider", response.getMessage());
   }
 
   @Test
@@ -684,13 +685,13 @@ public class PrefixEndpointTest extends KeycloakTest {
   public void deletePrefixNotFound() {
 
     var response = authenticatedRequest()
-            .delete("/{prefix-id}", 999)
+            .delete("/{prefix-id}", 1,999)
             .then()
             .statusCode(404)
             .extract()
             .as(APIResponseMsg.class);
 
-    assertEquals("Prefix not found", response.getMessage());
+    assertEquals("Prefix not found for this provider", response.getMessage());
   }
 
   // ---------------------------------------------------------------------------
@@ -700,11 +701,11 @@ public class PrefixEndpointTest extends KeycloakTest {
   @Test
   public void fetchHandlesCountByPrefixIdNotFound() {
 
-    Mockito.when(statisticsService.getPIDCountByPrefixID("invalid"))
+    Mockito.when(statisticsService.getPIDCountByPrefixID(1,0))
             .thenThrow(new NotFoundException("Prefix invalid not found"));
 
     var response = authenticatedRequest()
-            .get("/{prefix-id}/count", "invalid")
+            .get("/{prefix-id}/count", 0)
             .then()
             .statusCode(404)
             .extract()
@@ -716,11 +717,11 @@ public class PrefixEndpointTest extends KeycloakTest {
   @Test
   public void fetchResolvablePIDCountByPrefixIdNotFound() {
 
-    Mockito.when(statisticsService.getResolvablePIDCountByPrefixID("invalid"))
+    Mockito.when(statisticsService.getResolvablePIDCountByPrefixID(1,0))
             .thenThrow(new NotFoundException("Prefix invalid not found"));
 
     var response = authenticatedRequest()
-            .get("/{prefix-id}/resolvable", "invalid")
+            .get("/{prefix-id}/resolvable", 0)
             .then()
             .statusCode(404)
             .extract()
@@ -732,18 +733,18 @@ public class PrefixEndpointTest extends KeycloakTest {
   @Test
   public void fetchStatisticsByPrefixId() {
 
-    Mockito.when(statisticsService.getPrefixStatisticsByID(any()))
+    Mockito.when(statisticsService.getPrefixStatisticsByID(anyInt(),anyInt()))
             .thenReturn(StatisticsMapper.INSTANCE.statisticsToDto(
-                    new Statistics("21.12132", 2, 3, 4, 5)));
+                    new Statistics(String.valueOf(21), 2, 3, 4, 5)));
 
     var response = authenticatedRequest()
-            .get("/{prefix-id}/statistic", "21.12132")
+            .get("/{prefix-id}/statistic", 21)
             .then()
             .statusCode(200)
             .extract()
             .as(StatisticsDto.class);
 
-    assertEquals("21.12132", response.prefix);
+    assertEquals("21", response.prefix);
     assertEquals(2, response.handlesCount);
     assertEquals(3, response.resolvableCount);
     assertEquals(4, response.unresolvableCount);
@@ -753,14 +754,17 @@ public class PrefixEndpointTest extends KeycloakTest {
   @Test
   public void testPrefixStatistics() {
 
+    var validPrefixRequest=validPrefixRequest("test");
+    var createPrefix=createPrefix(validPrefixRequest);
+
     var statisticsDto = new StatisticsDto();
-    statisticsDto.prefix = "test";
+    statisticsDto.prefix = createPrefix.name;
     statisticsDto.handlesCount = 10;
     statisticsDto.resolvableCount = 1;
     statisticsDto.unresolvableCount = 1;
     statisticsDto.uncheckedCount = 8;
 
-    Mockito.when(statisticsService.setPrefixStatistics(any(), any()))
+    Mockito.when(statisticsService.setPrefixStatistics(anyInt(),anyInt(), any()))
             .thenReturn(statisticsDto);
 
     var request = new StatisticsRequestDto()
@@ -772,7 +776,7 @@ public class PrefixEndpointTest extends KeycloakTest {
     var response = authenticatedRequest()
             .body(request)
             .contentType(ContentType.JSON)
-            .post("/{prefix-id}/statistic", "test")
+            .post("/{prefix-id}/statistic", 1,createPrefix.id)
             .then()
             .statusCode(200)
             .extract()
