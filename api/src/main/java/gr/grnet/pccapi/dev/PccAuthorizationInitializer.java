@@ -307,6 +307,17 @@ public class PccAuthorizationInitializer {
                     endpoint(
                             "b46b32ab387010d90ef1aa4ab980be05ad4311d670bbbe33f1d692aec1c79834",
                             null
+                    ),
+
+                    // GET /prefix-requests/by-provider
+                    endpoint(
+                            "97c7f2fd8c1f4e8d92c6f6a506a0b8b106b3da2e59025fc409c645cca3b20cdb",
+                            null
+                    ),
+                    // GET /prefix-requests/{id}/by-provider
+                    endpoint(
+                            "f6a65fd4e8633331041c8eb2454fc9c32f638cfda10ef0f2211f23eea5a77430",
+                            null
                     )
             ));
 

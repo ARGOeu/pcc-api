@@ -10,6 +10,8 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 
+import java.util.List;
+
 @Mapper(componentModel = "cdi")
 public interface PrefixRequestMapper {
 
@@ -68,9 +70,11 @@ public interface PrefixRequestMapper {
         return expectedHandles != null ? expectedHandles.name() : null;
     }
 
-    @Mapping(target = "providerId", source = "provider.id")
-    @Mapping(target = "providerName", source = "provider.name")
-    @Mapping(target = "updatedAt", source = "updatedAt")
+//    @Mapping(target = "providerId", source = "provider.id")
+//    @Mapping(target = "providerName", source = "provider.name")
+//    @Mapping(target = "updatedAt", source = "updatedAt")
+//
+//    PrefixRequestResponse toResponse(PrefixRequest entity);
 
-    PrefixRequestResponse toResponse(PrefixRequest entity);
+    List<PrefixRequestResponse> prefixRequestsToResponse(List<PrefixRequest> requests);
 }

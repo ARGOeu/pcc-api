@@ -1,6 +1,7 @@
 package gr.grnet.pccapi;
 
 import gr.grnet.pccapi.dto.PrefixRequestResponse;
+import gr.grnet.pccapi.dto.pagination.PageResource;
 import gr.grnet.pccapi.endpoint.PrefixRequestEndpoint;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
@@ -144,20 +145,20 @@ public class PrefixRequestEndpointTest extends KeycloakTest {
                         "PREFIX-LIST-TEST",
                         "https://prefix-list-test.example.com"));
 
-        List response = authenticatedRequest()
+        var response = authenticatedRequest()
                 .contentType(ContentType.JSON)
                 .when()
                 .get()
                 .then()
                 .statusCode(200)
                 .extract()
-                .as(List.class);
+                .as(PageResource.class);
 
         // Assumes the list endpoint returns a JSON array.
        // String responseBody = response.asString();
 
 
-        assertEquals(1,response.size());
+        assertEquals(1,response.getTotalElements());
     }
 
     @Test

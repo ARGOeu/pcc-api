@@ -3,8 +3,12 @@ package gr.grnet.pccapi.service;
 import gr.grnet.pccapi.dto.PrefixRequestInitialDto;
 import gr.grnet.pccapi.dto.PrefixRequestResponse;
 import gr.grnet.pccapi.dto.PrefixRequestStatusDto;
+import gr.grnet.pccapi.dto.pagination.PageResource;
+import gr.grnet.pccapi.dto.prefix.PrefixResponseDto;
+import gr.grnet.pccapi.entity.PageQuery;
 import gr.grnet.pccapi.entity.PrefixRequest;
 import gr.grnet.pccapi.enums.PrefixRequestStatus;
+import gr.grnet.pccapi.mapper.PrefixMapper;
 import gr.grnet.pccapi.mapper.PrefixRequestMapper;
 import gr.grnet.pccapi.repository.PrefixRequestRepository;
 import gr.grnet.pccapi.entity.Provider;
@@ -16,6 +20,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.core.UriInfo;
 import lombok.AllArgsConstructor;
 import org.grnet.endpoint.scanner.runtime.context.RoleEndpointHolder;
 import org.grnet.endpoint.scanner.runtime.services.ResourceAuthorizationService;
@@ -81,54 +86,60 @@ public class PrefixRequestService {
      * @return a list of prefix request response DTOs
      */
     @Transactional
-    public List<PrefixRequestResponse> fetchAll(String userId) {
+    public PageResource<PrefixRequestResponse> fetchAll(
+            String userId,
+            String search,
+            int page,
+            int size,
+            UriInfo uriInfo
+    ) {
 
         LOG.info("Fetching all prefix requests...");
 
-        //List<PrefixRequest> requests = prefixRequestRepository.listAll();
+        PageQuery<PrefixRequest> prefixRequests;
+
         if (accessControlService.isSuperAdmin()) {
-            var prefixRequests = prefixRequestRepository.findAll().list();
-            return prefixRequests.stream()
-                    .map(PrefixRequestMapper.INSTANCE::prefixRequestToResponse)
-                    .collect(Collectors.toList());
+            prefixRequests = prefixRequestRepository.findAllPaged(search, page, size);
+        } else {
+            prefixRequests = prefixRequestRepository.findByCreatorPageAndSize(userId, search, page, size);
         }
 
-        var prefixRequests = prefixRequestRepository.findByCreator(userId);
-
-        return prefixRequests.stream()
-                .map(PrefixRequestMapper.INSTANCE::prefixRequestToResponse)
-                .collect(Collectors.toList());
-
-        // Convert entities into response DTOs.
+        return new PageResource<>(prefixRequests, PrefixRequestMapper.INSTANCE.prefixRequestsToResponse(prefixRequests.list()), uriInfo);
 
     }
 
     @Transactional
-    public List<PrefixRequestResponse> fetchAssigned() {
+    public PageResource<PrefixRequestResponse> fetchAssigned(
+            String search,
+            int page,
+            int size,
+            UriInfo uriInfo) {
 
-        LOG.info("Fetching all prefix requests...");
+        LOG.info("Fetching assigned prefix requests...");
 
-        //List<PrefixRequest> requests = prefixRequestRepository.listAll();
+        PageQuery<PrefixRequest> prefixRequests;
+
         if (accessControlService.isSuperAdmin()) {
-            var prefixRequests = prefixRequestRepository.findAll().list();
-            return prefixRequests.stream()
-                    .map(PrefixRequestMapper.INSTANCE::prefixRequestToResponse)
-                    .collect(Collectors.toList());
+            prefixRequests = prefixRequestRepository.findAllPaged(search, page, size);
+        } else {
+            var providerIds = RoleEndpointHolder.get().stream()
+                    .flatMap(role -> accessControlService
+                            .resolveAccessibleGroupsByName(
+                                    role.getRoleName(),
+                                    ProviderResource.PROVIDER.resourceName())
+                            .stream())
+                    .map(Integer::valueOf)
+                    .distinct()
+                    .toList();
+
+            prefixRequests = prefixRequestRepository.findByProviderIds(
+                    providerIds, search, page, size);
         }
 
-        var providerIds = RoleEndpointHolder.get().stream()
-                .flatMap(role -> accessControlService
-                        .resolveAccessibleGroupsByName(role.getRoleName(), ProviderResource.PROVIDER.resourceName())
-                        .stream())
-                .map(Integer::valueOf)
-                .collect(Collectors.toList());
+        var responses = PrefixRequestMapper.INSTANCE
+                .prefixRequestsToResponse(prefixRequests.list());
 
-        var prefixRequests = prefixRequestRepository.findByProviderIds(providerIds);
-
-        return prefixRequests.stream()
-                .map(PrefixRequestMapper.INSTANCE::prefixRequestToResponse)
-                .collect(Collectors.toList());
-
+        return new PageResource<>(prefixRequests, responses, uriInfo);
     }
 
     /**
@@ -191,7 +202,7 @@ public class PrefixRequestService {
 
         PrefixRequestMapper.INSTANCE.updateEntity(dto, request);
 
-        return PrefixRequestMapper.INSTANCE.toResponse(request);
+        return PrefixRequestMapper.INSTANCE.prefixRequestToResponse(request);
     }
 
     /**
@@ -319,29 +330,27 @@ public class PrefixRequestService {
         return true;
     }
 
-    private boolean checkProviderAccess(Integer id, String userId) {
 
-        if (!accessControlService.isSuperAdmin()) {
+    @Transactional
+    public PrefixRequestResponse fetchAssignedById(Integer id) {
 
-            var providerIds = RoleEndpointHolder.get().stream()
-                    .flatMap(role -> accessControlService
-                            .resolveAccessibleGroupsByName(role.getRoleName(), ProviderResource.PROVIDER.resourceName())
-                            .stream())
-                    .map(Integer::valueOf)
-                    .collect(Collectors.toList());
-
-            List<PrefixRequest> prefixRequests = new ArrayList<>();
-            if (!providerIds.isEmpty()) {
-                prefixRequests = prefixRequestRepository.findByProviderIds(providerIds);
-            }
-
-            var exists = prefixRequests.stream()
-                    .anyMatch(request -> request.getId().equals(id));
-
-            if (!exists) {
-                throw new ForbiddenException("Access denied to prefix request with id: " + id);
-            }
+        if (accessControlService.isSuperAdmin()) {
+            return prefixRequestRepository.findByIdOptional(id)
+                    .map(PrefixRequestMapper.INSTANCE::prefixRequestToResponse)
+                    .orElseThrow(() -> new NotFoundException("Prefix request not found"));
         }
-        return true;
+
+        var providerIds = RoleEndpointHolder.get().stream()
+                .flatMap(role -> accessControlService
+                        .resolveAccessibleGroupsByName(
+                                role.getRoleName(),
+                                ProviderResource.PROVIDER.resourceName())
+                        .stream())
+                .map(Integer::valueOf)
+                .toList();
+
+        return prefixRequestRepository.findByIdAndProviderIds(id, providerIds)
+                .map(PrefixRequestMapper.INSTANCE::prefixRequestToResponse)
+                .orElseThrow(() -> new NotFoundException("Prefix request not found"));
     }
 }
