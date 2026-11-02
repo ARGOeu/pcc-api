@@ -1,12 +1,11 @@
 package gr.grnet.pccapi.endpoint;
 
 import gr.grnet.pccapi.dto.InformativeResponse;
-import gr.grnet.pccapi.dto.invitation.PrefixInvitationActionResponse;
-import gr.grnet.pccapi.dto.invitation.PrefixInvitationResponse;
+import gr.grnet.pccapi.dto.invitation.InvitationActionResponse;
+import gr.grnet.pccapi.dto.invitation.InvitationResponse;
 import gr.grnet.pccapi.dto.pagination.PageResource;
-import gr.grnet.pccapi.repository.PrefixInvitationRepository;
-import gr.grnet.pccapi.resources.InvitationResource;
-import gr.grnet.pccapi.service.PrefixInvitationService;
+import gr.grnet.pccapi.repository.InvitationRepository;
+import gr.grnet.pccapi.service.InvitationService;
 import gr.grnet.pccapi.service.Utility;
 import gr.grnet.pccapi.validator.constraints.NotFoundEntity;
 import io.quarkus.security.Authenticated;
@@ -31,15 +30,14 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
-import org.grnet.endpoint.scanner.runtime.ParamRef;
-import org.grnet.endpoint.scanner.runtime.ParamType;
+import org.grnet.endpoint.scanner.runtime.Scope;
 import org.grnet.endpoint.scanner.runtime.SecuredEndpoint;
 
 import java.util.List;
 
 import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.QUERY;
 
-@Path("/users/invitation")
+@Path("/users")
 @Authenticated
 @SecurityScheme(
         securitySchemeName = "Authentication",
@@ -48,11 +46,12 @@ import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.QUE
         scheme = "bearer",
         bearerFormat = "JWT",
         in = SecuritySchemeIn.HEADER)
-@Tag(name = "User")
-public class UserInvitationEndpoint {
+@Tag(name = "User Invitations")
+@Produces(MediaType.APPLICATION_JSON)
+public class UserEndpoint {
 
     @Inject
-    PrefixInvitationService prefixInvitationService;
+    InvitationService invitationService;
 
     @Inject
     Utility utility;
@@ -66,7 +65,7 @@ public class UserInvitationEndpoint {
             description = "Invitation details.",
             content = @Content(schema = @Schema(
                     type = SchemaType.OBJECT,
-                    implementation = PrefixInvitationResponse.class)))
+                    implementation = InvitationResponse.class)))
     @APIResponse(
             responseCode = "401",
             description = "User has not been authenticated.",
@@ -75,7 +74,7 @@ public class UserInvitationEndpoint {
                     implementation = InformativeResponse.class)))
     @APIResponse(
             responseCode = "403",
-            description = "Not permitted.",
+            description = "The invitation does not belong to the authenticated user.",
             content = @Content(schema = @Schema(
                     type = SchemaType.OBJECT,
                     implementation = InformativeResponse.class)))
@@ -85,22 +84,15 @@ public class UserInvitationEndpoint {
             content = @Content(schema = @Schema(
                     type = SchemaType.OBJECT,
                     implementation = InformativeResponse.class)))
-    @APIResponse(
-            responseCode = "410",
-            description = "Invitation expired.",
-            content = @Content(schema = @Schema(
-                    type = SchemaType.OBJECT,
-                    implementation = InformativeResponse.class)))
     @SecurityRequirement(name = "Authentication")
     @GET
-    @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/invitations/{id}")
+    @SecuredEndpoint
     public Response getInvitationById(
             @PathParam("id")
-            @Valid @NotFoundEntity(repository = PrefixInvitationRepository.class, message = "There is no Invitation with the following id: ")
-            String id)  {
+            @Valid @NotFoundEntity(repository = InvitationRepository.class, message = "There is no Invitation with the following id: ") String id) {
 
-        var response = prefixInvitationService.getInvitationById(id, utility.getUserEmail());
+        var response = invitationService.getInvitationById(id, utility.getUserEmail());
 
         return Response.ok(response).build();
     }
@@ -114,7 +106,7 @@ public class UserInvitationEndpoint {
             description = "Invitation updated.",
             content = @Content(schema = @Schema(
                     type = SchemaType.OBJECT,
-                    implementation = PrefixInvitationResponse.class)))
+                    implementation = InvitationResponse.class)))
     @APIResponse(
             responseCode = "401",
             description = "User has not been authenticated.",
@@ -123,7 +115,7 @@ public class UserInvitationEndpoint {
                     implementation = InformativeResponse.class)))
     @APIResponse(
             responseCode = "403",
-            description = "Not permitted.",
+            description = "The invitation does not belong to the authenticated user.",
             content = @Content(schema = @Schema(
                     type = SchemaType.OBJECT,
                     implementation = InformativeResponse.class)))
@@ -135,39 +127,38 @@ public class UserInvitationEndpoint {
                     implementation = InformativeResponse.class)))
     @APIResponse(
             responseCode = "409",
-            description = "Invitation already responded.",
-            content = @Content(schema = @Schema(
-                    type = SchemaType.OBJECT,
-                    implementation = InformativeResponse.class)))
-    @APIResponse(
-            responseCode = "410",
-            description = "Invitation expired.",
+            description = "Invitation has already been responded to.",
             content = @Content(schema = @Schema(
                     type = SchemaType.OBJECT,
                     implementation = InformativeResponse.class)))
     @SecurityRequirement(name = "Authentication")
     @PATCH
-    @Path("/{id}")
+    @Path("/invitations/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @SecuredEndpoint
     public Response respond(
             @PathParam("id")
-            @Valid @NotFoundEntity(repository = PrefixInvitationRepository.class, message = "There is no Invitation with the following id: ") String id,
-            @Valid @NotNull(message = "The request body is empty.")
-            PrefixInvitationActionResponse request) {
+            @Valid
+            @NotFoundEntity(
+                    repository = InvitationRepository.class,
+                    message = "There is no Invitation with the following id: ")
+            String id,
+            @Valid
+            @NotNull(message = "The request body is empty.")
+            InvitationActionResponse request) {
 
-        var response = prefixInvitationService.respondToInvitation(id, request, utility.getUserEmail(), utility.getUserUniqueIdentifier(), utility.getUsername());
+        var response = invitationService.respondToInvitation(id, request, utility.getUserEmail(), utility.getUserUniqueIdentifier(), utility.getUsername());
 
         return Response.ok(response).build();
     }
 
     @Operation(
-            summary = "Get all invitation.",
-            description = "Returns all invitation for the authenticated user. "
+            summary = "Get all invitations.",
+            description = "Returns all invitations for the authenticated user."
     )
     @APIResponse(
             responseCode = "200",
-            description = "Invitation details.",
+            description = "Invitations retrieved.",
             content = @Content(schema = @Schema(
                     type = SchemaType.OBJECT,
                     implementation = PageableInvitations.class)))
@@ -177,63 +168,46 @@ public class UserInvitationEndpoint {
             content = @Content(schema = @Schema(
                     type = SchemaType.OBJECT,
                     implementation = InformativeResponse.class)))
-    @APIResponse(
-            responseCode = "403",
-            description = "Not permitted.",
-            content = @Content(schema = @Schema(
-                    type = SchemaType.OBJECT,
-                    implementation = InformativeResponse.class)))
-    @APIResponse(
-            responseCode = "404",
-            description = "Invitation not found.",
-            content = @Content(schema = @Schema(
-                    type = SchemaType.OBJECT,
-                    implementation = InformativeResponse.class)))
-    @APIResponse(
-            responseCode = "410",
-            description = "Invitation expired.",
-            content = @Content(schema = @Schema(
-                    type = SchemaType.OBJECT,
-                    implementation = InformativeResponse.class)))
     @SecurityRequirement(name = "Authentication")
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getInvites(
-            @Parameter(name = "page", in = QUERY,
+    @Path("/invitations")
+    @SecuredEndpoint(scope = {Scope.ALL, Scope.MINE})
+    public Response getInvitations(
+            @Parameter(
+                    name = "page",
+                    in = QUERY,
                     description = "Page number. Must be >= 1.")
             @DefaultValue("1")
             @Min(value = 1, message = "Page number must be >= 1.")
             @QueryParam("page")
             int page,
-            @Parameter(name = "size", in = QUERY,
+            @Parameter(
+                    name = "size",
+                    in = QUERY,
                     description = "Page size.")
             @DefaultValue("10")
             @Min(value = 1, message = "Page size must be between 1 and 100.")
             @Max(value = 100, message = "Page size must be between 1 and 100.")
             @QueryParam("size")
-            int size, @Context UriInfo uriInfo)
-    {
-        var response = prefixInvitationService.getAllInvitationsByUser(utility.getUserEmail(), page - 1 , size, uriInfo);
+            int size,
+            @Context UriInfo uriInfo) {
+
+        var response = invitationService.getAllInvitationsByUser(utility.getUserEmail(), page - 1, size, uriInfo);
 
         return Response.ok(response).build();
     }
 
+    public static class PageableInvitations extends PageResource<InvitationResponse> {
 
-
-    // --------------------------------------------------------------------------------------------------------------------------
-    // HELPER METHODS
-    // --------------------------------------------------------------------------------------------------------------------------
-    public static class PageableInvitations extends PageResource<PrefixInvitationResponse> {
-
-        private List<PrefixInvitationResponse> content;
+        private List<InvitationResponse> content;
 
         @Override
-        public List<PrefixInvitationResponse> getContent() {
+        public List<InvitationResponse> getContent() {
             return content;
         }
 
         @Override
-        public void setContent(List<PrefixInvitationResponse> content) {
+        public void setContent(List<InvitationResponse> content) {
             this.content = content;
         }
     }

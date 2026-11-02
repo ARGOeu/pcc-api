@@ -9,7 +9,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import java.time.Instant;
 
-public class PrefixInvitationResponse {
+public class InvitationResponse {
     @Schema(
             type = SchemaType.STRING,
             implementation = String.class,
@@ -21,20 +21,20 @@ public class PrefixInvitationResponse {
     @Schema(
             type = SchemaType.STRING,
             implementation = String.class,
-            description = "Provider Id",
-            example = "1"
+            description = "API resource to which the user is being invited.",
+            example = "Provider"
     )
-    @JsonProperty("prefix_id")
-    public String prefixId;
+    @JsonProperty("api_resource")
+    public String apiResource;
 
     @Schema(
             type = SchemaType.STRING,
             implementation = String.class,
-            description = "Prefix Name",
-            example = "21.12137"
+            description = "Identifier of the target API resource.",
+            example = "1"
     )
-    @JsonProperty("prefix_name")
-    public String prefixName;
+    @JsonProperty("resource_id")
+    public String resourceId;
 
     @Schema(
             type = SchemaType.STRING,
