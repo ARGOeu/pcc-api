@@ -18,7 +18,7 @@ import jakarta.ws.rs.NotFoundException;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.grnet.endpoint.scanner.runtime.context.RoleEndpointHolder;
 import org.jboss.logging.Logger;
-import utils.ImageUploadUtil;
+import gr.grnet.pccapi.utils.ImageUploadUtil;
 
 import java.util.HashSet;
 import java.util.List;
@@ -136,15 +136,7 @@ public class ProviderService {
 
         provider.setDescription(request.description);
 
-        if (request.logo != null && !request.logo.isBlank()) {
-
-            imageUploadUtil.deleteImageIfExists(
-                    baseUploadProvidersLogoDir,
-                    provider.getId().toString()
-            );
-
-            handleLogo(request.logo, provider);
-        }
+        handleLogo(request.logo, provider);
 
         var oldContacts = new HashSet<>(provider.getContacts());
         var newContacts = request.getContacts().stream()
@@ -210,6 +202,7 @@ public class ProviderService {
     private void handleLogo(String logo, Provider provider) {
 
         if (logo == null || logo.isBlank()) {
+            provider.setLogo(null);
             return;
         }
 
@@ -224,7 +217,9 @@ public class ProviderService {
                     "/logos/"
             );
 
-            provider.setLogo(apiServerUrl.replaceAll("/+$", "") + savedPath);
+            provider.setLogo(
+                    apiServerUrl.replaceAll("/+$", "") + savedPath
+            );
 
         } else {
             provider.setLogo(logo);

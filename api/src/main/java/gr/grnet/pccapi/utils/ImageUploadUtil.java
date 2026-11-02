@@ -1,4 +1,4 @@
-package utils;
+package gr.grnet.pccapi.utils;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.BadRequestException;

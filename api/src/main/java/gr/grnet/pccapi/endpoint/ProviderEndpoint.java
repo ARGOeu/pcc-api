@@ -232,11 +232,11 @@ public class ProviderEndpoint {
             content = @Content(schema = @Schema(
                     implementation = InformativeResponse.class)))
     @PATCH
-    @Path("/{provider-id}")
+    @Path("/{id}")
     @SecuredEndpoint(
             params = {
                    @ParamRef(
-                            param = "provider-id",
+                            param = "id",
                             type = ParamType.PATH,
                             referTo = ProviderResource.class
                     )
@@ -244,10 +244,9 @@ public class ProviderEndpoint {
     )
     public Response update(
             @PathParam("id") int id,
-            @PathParam("provider-id") int providerId,
             @Valid PartialProviderRequest providerRequestDto) {
 
-        var prefix = providerService.update(providerId, providerRequestDto);
+        var prefix = providerService.update(id, providerRequestDto);
 
         return Response.ok(prefix).build();
     }
@@ -282,18 +281,18 @@ public class ProviderEndpoint {
             content = @Content(schema = @Schema(
                     implementation = InformativeResponse.class)))
     @DELETE
-    @Path("/{provider-id}")
+    @Path("/{id}")
     @SecuredEndpoint(
             params = {
                     @ParamRef(
-                            param = "provider-id",
+                            param = "id",
                             type = ParamType.PATH,
                             referTo = ProviderResource.class
                     )
             }
     )
     public Response deleteById(
-            @PathParam("provider-id") Integer providerId) {
+            @PathParam("id") Integer providerId) {
 
         providerService.delete(providerId);
 
