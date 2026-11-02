@@ -78,6 +78,7 @@ According to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), the `Unre
 - [#112](https://github.com/ARGOeu/pcc-api/pull/112) PCC-218 Add ContactType in codelist
 - [#113](https://github.com/ARGOeu/pcc-api/pull/113) PCC-219 Implement Public CRUD Endpoints for Prefix Requests
 - [#120](https://github.com/ARGOeu/pcc-api/pull/120) PCC-230 [API] - Add Provider Logo Support
+- [#124](https://github.com/ARGOeu/pcc-api/pull/124) PCC-233 Add status as filter to prefix request lists
 
 ### Changed
 
