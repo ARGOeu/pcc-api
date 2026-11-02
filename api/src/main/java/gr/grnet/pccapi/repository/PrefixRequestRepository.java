@@ -5,6 +5,7 @@ import gr.grnet.pccapi.entity.PageQuery;
 import gr.grnet.pccapi.entity.PageQueryImpl;
 import gr.grnet.pccapi.entity.Prefix;
 import gr.grnet.pccapi.entity.PrefixRequest;
+import gr.grnet.pccapi.enums.PrefixRequestStatus;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.apache.commons.lang3.StringUtils;
 
@@ -26,6 +27,7 @@ public class PrefixRequestRepository implements Repository<PrefixRequest, Intege
     public PageQuery<PrefixRequest> findByProviderIds(
             List<Integer> providerIds,
             String search,
+            String status,
             int page,
             int size) {
 
@@ -56,6 +58,10 @@ public class PrefixRequestRepository implements Repository<PrefixRequest, Intege
             );
             map.put("search", "%" + search + "%");
         }
+        if (StringUtils.isNotBlank(status)) {
+            conditions.add("pr.status = :status");
+            map.put("status", PrefixRequestStatus.valueOf(status));
+        }
         joiner.add("WHERE");
         joiner.add(conditions.toString());
         joiner.add("ORDER BY pr.createdAt DESC");
@@ -80,6 +86,7 @@ public class PrefixRequestRepository implements Repository<PrefixRequest, Intege
     public PageQuery<PrefixRequest> findByCreatorPageAndSize(
             String userId,
             String search,
+            String status,
             int page,
             int size) {
 
@@ -106,6 +113,11 @@ public class PrefixRequestRepository implements Repository<PrefixRequest, Intege
             );
             map.put("search", "%" + search + "%");
         }
+        if (StringUtils.isNotBlank(status)) {
+            conditions.add("pr.status = :status");
+            map.put("status", PrefixRequestStatus.valueOf(status));
+        }
+
 
         joiner.add("WHERE");
         joiner.add(conditions.toString());
@@ -132,7 +144,7 @@ public class PrefixRequestRepository implements Repository<PrefixRequest, Intege
                 .firstResultOptional();
     }
 
-    public PageQuery<PrefixRequest> findAllPaged(String search, int page, int size) {
+    public PageQuery<PrefixRequest> findAllPaged(String search,String status, int page, int size) {
 
         var joiner = new StringJoiner(StringUtils.SPACE);
         joiner.add("from PrefixRequest pr");
@@ -154,6 +166,10 @@ public class PrefixRequestRepository implements Repository<PrefixRequest, Intege
                             ")"
             );
             map.put("search", "%" + search + "%");
+        }
+        if (StringUtils.isNotBlank(status)) {
+            conditions.add("pr.status = :status");
+            map.put("status", PrefixRequestStatus.valueOf(status));
         }
 
         if (conditions.length() > 0) {

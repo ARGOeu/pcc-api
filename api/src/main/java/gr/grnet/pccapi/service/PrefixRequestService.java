@@ -89,6 +89,7 @@ public class PrefixRequestService {
     public PageResource<PrefixRequestResponse> fetchAll(
             String userId,
             String search,
+            String status,
             int page,
             int size,
             UriInfo uriInfo
@@ -99,9 +100,9 @@ public class PrefixRequestService {
         PageQuery<PrefixRequest> prefixRequests;
 
         if (accessControlService.isSuperAdmin()) {
-            prefixRequests = prefixRequestRepository.findAllPaged(search, page, size);
+            prefixRequests = prefixRequestRepository.findAllPaged(search,status, page, size);
         } else {
-            prefixRequests = prefixRequestRepository.findByCreatorPageAndSize(userId, search, page, size);
+            prefixRequests = prefixRequestRepository.findByCreatorPageAndSize(userId, search,status, page, size);
         }
 
         return new PageResource<>(prefixRequests, PrefixRequestMapper.INSTANCE.prefixRequestsToResponse(prefixRequests.list()), uriInfo);
@@ -111,6 +112,7 @@ public class PrefixRequestService {
     @Transactional
     public PageResource<PrefixRequestResponse> fetchAssigned(
             String search,
+            String status,
             int page,
             int size,
             UriInfo uriInfo) {
@@ -120,7 +122,7 @@ public class PrefixRequestService {
         PageQuery<PrefixRequest> prefixRequests;
 
         if (accessControlService.isSuperAdmin()) {
-            prefixRequests = prefixRequestRepository.findAllPaged(search, page, size);
+            prefixRequests = prefixRequestRepository.findAllPaged(search,status, page, size);
         } else {
             var providerIds = RoleEndpointHolder.get().stream()
                     .flatMap(role -> accessControlService
@@ -133,7 +135,7 @@ public class PrefixRequestService {
                     .toList();
 
             prefixRequests = prefixRequestRepository.findByProviderIds(
-                    providerIds, search, page, size);
+                    providerIds, search,status, page, size);
         }
 
         var responses = PrefixRequestMapper.INSTANCE

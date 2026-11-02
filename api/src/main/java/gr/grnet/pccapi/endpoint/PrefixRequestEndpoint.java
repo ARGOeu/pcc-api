@@ -8,6 +8,7 @@ import gr.grnet.pccapi.dto.pagination.PageResource;
 import gr.grnet.pccapi.dto.prefix.PrefixResponseDto;
 import gr.grnet.pccapi.service.PrefixRequestService;
 import gr.grnet.pccapi.service.Utility;
+import gr.grnet.pccapi.validator.constraints.ValidPrefixRequestStatus;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -99,6 +100,13 @@ public class PrefixRequestEndpoint {
                                        example = "GRNET")
                                @QueryParam("search")
                                String search,
+                           @Parameter(name = "status", in = QUERY,
+                                   description = "Search prefix requests by status",
+                                   example = "ACCEPTED")
+                           @ValidPrefixRequestStatus
+                           @QueryParam("status")
+                           String status,
+
                            @Parameter(name = "page", in = QUERY,
                                    description = "Page number. Must be >= 1.")
                                @DefaultValue("1")
@@ -114,7 +122,7 @@ public class PrefixRequestEndpoint {
                                int size,
                            @Context UriInfo uriInfo) {
 
-        return Response.ok(prefixRequestService.fetchAll(utility.getUserUniqueIdentifier(),search,page-1,size, uriInfo)).build();
+        return Response.ok(prefixRequestService.fetchAll(utility.getUserUniqueIdentifier(),search,status,page-1,size, uriInfo)).build();
     }
 
     @Operation(summary = "Get prefix request by id")
@@ -194,6 +202,12 @@ public class PrefixRequestEndpoint {
                                                example = "GRNET")
                                        @QueryParam("search")
                                        String search,
+                                   @Parameter(name = "status", in = QUERY,
+                                           description = "Search prefix requests by status",
+                                           example = "ACCEPTED")
+                                   @ValidPrefixRequestStatus
+                                   @QueryParam("status")
+                                   String status,
                                    @Parameter(name = "page", in = QUERY,
                                            description = "Page number. Must be >= 1.")
                                    @DefaultValue("1")
@@ -211,7 +225,7 @@ public class PrefixRequestEndpoint {
 
     ) {
 
-        return Response.ok(prefixRequestService.fetchAssigned(search, page-1, size,uriInfo)).build();
+        return Response.ok(prefixRequestService.fetchAssigned(search,status, page-1, size,uriInfo)).build();
     }
 
     @Operation(summary = "Create Prefix Request")
