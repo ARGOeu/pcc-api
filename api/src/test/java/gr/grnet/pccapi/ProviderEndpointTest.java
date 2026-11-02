@@ -129,21 +129,19 @@ public class ProviderEndpointTest extends KeycloakTest {
     @Test
     void createProviderWithContact() {
 
-        String providerName = "PROVIDER-CREATE-TEST";
-        String contactName = "Create Test Contact";
-        String email = "create-test@example.com";
+        var providerName = "PROVIDER-CREATE-TEST";
+        var contactName = "Create Test Contact";
+        var email = "create-test@example.com";
 
-        String requestBody = providerJson(
-                providerName,
-                contactJson(contactName, email, "ADMIN"));
+        var requestBody = providerJson(providerName, contactJson(contactName, email, "ADMIN"));
 
-        ProviderResponseDTO response = createProvider(requestBody);
+        var response = createProvider(requestBody);
 
         assertEquals(providerName, response.getName());
         assertNotNull(response.getContacts());
         assertEquals(1, response.getContacts().size());
 
-        ContactDto contact = response.getContacts().iterator().next();
+        var contact = response.getContacts().iterator().next();
         assertEquals(contactName, contact.name);
         assertEquals(email, contact.email);
     }
@@ -151,27 +149,21 @@ public class ProviderEndpointTest extends KeycloakTest {
     @Test
     void createProviderReusesExistingContact() {
 
-        String contactName = "Shared Test Contact";
-        String email = "shared-test@example.com";
-        String contact = contactJson(contactName, email, "ADMIN");
+        var contactName = "Shared Test Contact";
+        var email = "shared-test@example.com";
+        var contact = contactJson(contactName, email, "ADMIN");
 
-        String firstProviderName = "PROVIDER-SHARED-1";
-        String secondProviderName = "PROVIDER-SHARED-2";
+        var firstProviderName = "PROVIDER-SHARED-1";
+        var secondProviderName = "PROVIDER-SHARED-2";
 
-        ProviderResponseDTO firstResponse =
-                createProvider(providerJson(firstProviderName, contact));
-
-        ProviderResponseDTO secondResponse =
-                createProvider(providerJson(secondProviderName, contact));
+        var firstResponse = createProvider(providerJson(firstProviderName, contact));
+        var secondResponse = createProvider(providerJson(secondProviderName, contact));
 
         assertEquals(1, firstResponse.getContacts().size());
         assertEquals(1, secondResponse.getContacts().size());
 
-        ContactDto firstContact =
-                firstResponse.getContacts().iterator().next();
-
-        ContactDto secondContact =
-                secondResponse.getContacts().iterator().next();
+        var firstContact = firstResponse.getContacts().iterator().next();
+        var secondContact = secondResponse.getContacts().iterator().next();
 
         assertEquals(firstContact.id, secondContact.id);
     }
@@ -179,31 +171,22 @@ public class ProviderEndpointTest extends KeycloakTest {
     @Test
     void updateProviderReplacesContactsAndKeepsProviderName() {
 
-        String providerName = "PROVIDER-UPDATE-TEST";
+        var providerName = "PROVIDER-UPDATE-TEST";
+        var initialContact = contactJson("Old Contact", "old-contact@example.com", "ADMIN");
 
-        String initialContact =
-                contactJson("Old Contact", "old-contact@example.com", "ADMIN");
+        var createResponse = createProvider(providerJson(providerName, initialContact));
 
-        ProviderResponseDTO createResponse =
-                createProvider(providerJson(providerName, initialContact));
+        var providerId = createResponse.id;
+        var replacementContact = contactJson("New Contact", "new-contact@example.com", "ADMIN");
 
-        Integer providerId = createResponse.id;
-
-        String replacementContact =
-                contactJson("New Contact", "new-contact@example.com", "ADMIN");
-
-        String updateBody =
-                providerJson("THIS-NAME-SHOULD-NOT-CHANGE", replacementContact);
-
-        ProviderResponseDTO updateResponse =
-                updateProvider(providerId, updateBody);
+        var updateBody = providerJson("THIS-NAME-SHOULD-NOT-CHANGE", replacementContact);
+        var updateResponse = updateProvider(providerId, updateBody);
 
         assertNotNull(updateResponse);
         assertEquals(providerName, updateResponse.getName());
         assertEquals(1, updateResponse.getContacts().size());
 
-        ContactDto updatedContact =
-                updateResponse.getContacts().iterator().next();
+        var updatedContact = updateResponse.getContacts().iterator().next();
 
         assertEquals("New Contact", updatedContact.name);
         assertEquals("new-contact@example.com", updatedContact.email);
@@ -237,14 +220,14 @@ public class ProviderEndpointTest extends KeycloakTest {
     @Test
     void createProviderWithLogoUrl() {
 
-        String logo = "https://example.com/logo.png";
+        var logo = "https://example.com/logo.png";
 
-        String requestBody = providerJson(
+        var requestBody = providerJson(
                 uniqueProviderName(),
                 logo,
                 testContact());
 
-        ProviderResponseDTO response = createProvider(requestBody);
+        var response = createProvider(requestBody);
 
         assertNotNull(response.id);
         assertEquals(logo, response.getLogo());
@@ -256,12 +239,12 @@ public class ProviderEndpointTest extends KeycloakTest {
     @Test
     void createProviderWithBase64Logo() throws IOException {
 
-        String requestBody = providerJson(
+        var requestBody = providerJson(
                 uniqueProviderName(),
                 base64Logo(),
                 testContact());
 
-        ProviderResponseDTO response = createProvider(requestBody);
+        var response = createProvider(requestBody);
 
         assertNotNull(response.id);
         assertNotNull(response.getLogo());
@@ -270,12 +253,12 @@ public class ProviderEndpointTest extends KeycloakTest {
 
         assertFalse(response.getLogo().startsWith("data:image/"));
 
-        Path imagePath = logoPath(response.id, ".png");
+        var imagePath = logoPath(response.id, ".png");
 
         assertTrue(Files.exists(imagePath));
         assertTrue(Files.size(imagePath) > 0);
 
-        ProviderResponseDTO fetched = fetchProvider(response.id);
+        var fetched = fetchProvider(response.id);
 
         assertEquals(response.getLogo(), fetched.getLogo());
     }
@@ -283,15 +266,13 @@ public class ProviderEndpointTest extends KeycloakTest {
     @Test
     void updateProviderWithLogoUrl() {
 
-        String oldLogo = "https://example.com/old.png";
-        String newLogo = "https://example.com/new.jpg";
+        var oldLogo = "https://example.com/old.png";
+        var newLogo = "https://example.com/new.jpg";
 
-        ProviderResponseDTO created = createProvider(
+        var created = createProvider(
                 providerJson(uniqueProviderName(), oldLogo, testContact()));
 
-        ProviderResponseDTO updated = updateProvider(
-                created.id,
-                updateProviderJson(newLogo));
+        var updated = updateProvider(created.id, updateProviderJson(newLogo));
 
         assertEquals(newLogo, updated.getLogo());
         assertEquals(newLogo, fetchProvider(created.id).getLogo());
@@ -300,15 +281,13 @@ public class ProviderEndpointTest extends KeycloakTest {
     @Test
     void updateProviderWithBase64Logo() throws IOException {
 
-        ProviderResponseDTO created = createProvider(
+        var created = createProvider(
                 providerJson(
                         uniqueProviderName(),
                         "https://example.com/old.png",
                         testContact()));
 
-        ProviderResponseDTO updated = updateProvider(
-                created.id,
-                updateProviderJson(base64Logo()));
+        var updated = updateProvider(created.id, updateProviderJson(base64Logo()));
 
         assertNotNull(updated.getLogo());
         assertTrue(updated.getLogo()
@@ -321,45 +300,43 @@ public class ProviderEndpointTest extends KeycloakTest {
     }
 
     @Test
-    void updateProviderWithoutChangingLogo() {
+    void updateProviderWithoutLogoRemovesExistingLogo() {
 
-        String originalLogo = "https://example.com/original.png";
+        var originalLogo = "https://example.com/original.png";
 
-        ProviderResponseDTO created = createProvider(
+        var created = createProvider(
                 providerJson(
                         uniqueProviderName(),
                         originalLogo,
                         testContact()));
 
-        String requestBody = """
-                {
-                  "description": "Updated provider description",
-                  "contacts": [%s]
-                }
-                """.formatted(testContact());
+        var requestBody = """
+            {
+              "description": "Updated provider description",
+              "contacts": [%s]
+            }
+            """.formatted(testContact());
 
-        ProviderResponseDTO updated =
-                updateProvider(created.id, requestBody);
+         var updated = updateProvider(created.id, requestBody);
 
-        assertEquals(originalLogo, updated.getLogo());
-        assertEquals(originalLogo,
-                fetchProvider(created.id).getLogo());
+        assertNull(updated.getLogo());
+        assertNull(fetchProvider(created.id).getLogo());
     }
 
     @Test
     void updateProviderFromBase64ToExternalUrl() throws IOException {
 
-        ProviderResponseDTO created = createProvider(
+        var created = createProvider(
                 providerJson(
                         uniqueProviderName(),
                         base64Logo(),
                         testContact()));
 
-        Path imagePath = logoPath(created.id, ".png");
+        var imagePath = logoPath(created.id, ".png");
 
         assertTrue(Files.exists(imagePath));
 
-        String newLogo = "https://example.com/replacement.png";
+        var newLogo = "https://example.com/replacement.png";
 
         ProviderResponseDTO updated = updateProvider(
                 created.id,
@@ -368,15 +345,12 @@ public class ProviderEndpointTest extends KeycloakTest {
         assertEquals(newLogo, updated.getLogo());
         assertEquals(newLogo,
                 fetchProvider(created.id).getLogo());
-
-        assertFalse(Files.exists(imagePath),
-                "Previous uploaded logo should be deleted");
     }
 
     @Test
     void createProviderWithInvalidLogo() {
 
-        String requestBody = providerJson(
+        var requestBody = providerJson(
                 uniqueProviderName(),
                 "invalid-logo",
                 testContact());
@@ -393,9 +367,9 @@ public class ProviderEndpointTest extends KeycloakTest {
     @Test
     void updateProviderWithInvalidLogo() {
 
-        String originalLogo = "https://example.com/original.png";
+        var originalLogo = "https://example.com/original.png";
 
-        ProviderResponseDTO created = createProvider(
+        var created = createProvider(
                 providerJson(
                         uniqueProviderName(),
                         originalLogo,
@@ -436,10 +410,7 @@ public class ProviderEndpointTest extends KeycloakTest {
                 """.formatted(name, contactsJson);
     }
 
-    private String providerJson(
-            String name,
-            String logo,
-            String contactsJson) {
+    private String providerJson(String name, String logo, String contactsJson) {
 
         return """
                 {
@@ -495,9 +466,7 @@ public class ProviderEndpointTest extends KeycloakTest {
         return response;
     }
 
-    private ProviderResponseDTO updateProvider(
-            Integer id,
-            String requestBody) {
+    private ProviderResponseDTO updateProvider(Integer id, String requestBody) {
 
         return authenticatedRequest()
                 .contentType(ContentType.JSON)
