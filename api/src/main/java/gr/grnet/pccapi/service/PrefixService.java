@@ -6,15 +6,12 @@ import gr.grnet.pccapi.dto.prefix.PrefixRequestDto;
 import gr.grnet.pccapi.dto.prefix.PrefixResponseDto;
 import gr.grnet.pccapi.entity.Codelist;
 import gr.grnet.pccapi.entity.Domain;
+import gr.grnet.pccapi.entity.Prefix;
 import gr.grnet.pccapi.entity.Service;
 import gr.grnet.pccapi.enums.CodelistCategory;
 import gr.grnet.pccapi.exception.ConflictException;
 import gr.grnet.pccapi.mapper.PrefixMapper;
-import gr.grnet.pccapi.repository.CodelistRepository;
-import gr.grnet.pccapi.repository.DomainRepository;
-import gr.grnet.pccapi.repository.PrefixRepository;
-import gr.grnet.pccapi.repository.ProviderRepository;
-import gr.grnet.pccapi.repository.ServiceRepository;
+import gr.grnet.pccapi.repository.*;
 import gr.grnet.pccapi.resources.ProviderResource;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -24,6 +21,7 @@ import jakarta.ws.rs.core.UriInfo;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import lombok.AllArgsConstructor;
 import org.grnet.endpoint.scanner.runtime.context.RoleEndpointHolder;
@@ -51,6 +49,9 @@ public class PrefixService {
 
   @Inject
   AccessControlService accessControlService;
+
+  @Inject
+  EpicStatsRepository epicStatsRepository;
 
   private static final Logger LOG = Logger.getLogger(PrefixService.class);
   /**
@@ -150,12 +151,9 @@ public class PrefixService {
    * @return The stored Prefix has been turned into a response body.
    */
   public PrefixResponseDto fetchById(Integer id) {
-
     LOG.infof("Fetching the Prefix with ID : %s", id);
 
-    var prefix =
-        prefixRepository
-            .findByIdOptional(id)
+    var prefix = prefixRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Prefix not found"));
 
     return PrefixMapper.INSTANCE.prefixToResponseDto(prefix);

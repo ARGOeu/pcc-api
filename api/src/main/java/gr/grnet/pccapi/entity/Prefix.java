@@ -61,4 +61,7 @@ public class Prefix extends PanacheEntityBase {
 
   @OneToMany(mappedBy = "prefix")
   public List<Account> accounts;
+
+  @OneToOne(mappedBy = "prefix", fetch = FetchType.LAZY)
+  public EpicStats epicStats;
 }
