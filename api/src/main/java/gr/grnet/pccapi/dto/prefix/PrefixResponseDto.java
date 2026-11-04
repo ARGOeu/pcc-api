@@ -2,6 +2,7 @@ package gr.grnet.pccapi.dto.prefix;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import lombok.Setter;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
@@ -55,4 +56,13 @@ public class PrefixResponseDto extends PrefixRequestDto {
           example = "CENTRAL")
   @JsonProperty("lookup_service_type_name")
   public String lookUpServiceName;
+
+  @Setter
+  @Schema(
+          type = SchemaType.OBJECT,
+          implementation = EpicStatsDto.class,
+          description = "Latest EPIC_STATS information for the prefix.",
+          nullable = true)
+  @JsonProperty("epic_stats")
+  public EpicStatsDto epicStats;
 }
