@@ -175,12 +175,23 @@ response=$(curl -s -w "\n%{http_code}" -X POST \
   -H "Authorization: Bearer $ACCTOK" \
   -H "Content-Type: application/json" \
   -H "Accept: application/json" \
-  -d "{\"name\": \"members\"}")
+  -d '{
+    "name": "members",
+    "attributes": {
+      "preferred_name": [
+        "members"
+      ],
+      "description": [
+        "Group containing users with membership access to the application."
+      ]
+    }
+  }')
 
 status=$(echo "$response" | tail -n1)
 
 if [ "$status" -lt 200 ] || [ "$status" -ge 300 ]; then
-  echo "❌ Request failed with HTTP $status"
+  echo "❌ Failed to create members group. HTTP $status"
+  echo "$response"
   exit 1
 fi
 

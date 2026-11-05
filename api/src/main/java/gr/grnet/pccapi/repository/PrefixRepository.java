@@ -7,6 +7,7 @@ import gr.grnet.pccapi.entity.PageQueryImpl;
 import gr.grnet.pccapi.entity.Prefix;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
@@ -196,5 +197,9 @@ public class PrefixRepository implements Repository<Prefix, Integer> {
         """, PrefixesPerProviderDto.class)
             .setParameter("providerNames", providerNames)
             .getResultList();
+  }
+
+  public void updateEpicHealthcheck(Integer prefixId, boolean exists) {
+    update("epicHealthcheck = ?1 where id = ?2", exists, prefixId);
   }
 }
