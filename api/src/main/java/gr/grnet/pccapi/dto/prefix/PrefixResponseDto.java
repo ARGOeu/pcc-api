@@ -65,4 +65,13 @@ public class PrefixResponseDto extends PrefixRequestDto {
           nullable = true)
   @JsonProperty("epic_stats")
   public EpicStatsDto epicStats;
+
+  @Schema(
+          type = SchemaType.STRING,
+          implementation = String.class,
+          description = "Whether the EPIC_HEALTHCHECK Handle exists.",
+          example = "true")
+  @JsonProperty("epic_healthcheck")
+  public Boolean epicHealthcheck;
+
 }

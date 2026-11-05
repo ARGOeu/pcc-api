@@ -90,14 +90,14 @@ public class PccAuthorizationInitializer {
 // Create  role if it does not already exist
             var memberRole = resourceAuthorizationService.getAllRoles()
                     .stream()
-                    .filter(role -> "member".equals(role.name))
+                    .filter(role -> "members".equals(role.name))
                     .findFirst()
                     .orElseGet(() -> {
 
                         var role = new CreateRoleRequest();
-                        role.name = "member";
+                        role.name = "members";
                         role.attributes = Map.of(
-                                "preferred_name", List.of("Member"),
+                                "preferred_name", List.of("members"),
                                 "description", List.of(
                                         "Role with member rights in service"
                                 )
@@ -108,7 +108,7 @@ public class PccAuthorizationInitializer {
                         return resourceAuthorizationService.getAllRoles()
                                 .stream()
                                 .filter(createdRole ->
-                                        "prefix_member".equals(createdRole.name))
+                                        "members".equals(createdRole.name))
                                 .findFirst()
                                 .orElseThrow();
                     });

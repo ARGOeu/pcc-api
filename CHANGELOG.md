@@ -80,6 +80,7 @@ According to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), the `Unre
 - [#120](https://github.com/ARGOeu/pcc-api/pull/120) PCC-230 [API] - Add Provider Logo Support
 - [#124](https://github.com/ARGOeu/pcc-api/pull/124) PCC-233 Add status as filter to prefix request lists
 - [#125](https://github.com/ARGOeu/pcc-api/pull/125) PCC-236: Add statistics value for each prefix
+- [#126](https://github.com/ARGOeu/pcc-api/pull/126) PCC-235: Add monitored true flag to a prefix
 
 ### Changed
 
