@@ -55,4 +55,13 @@ public class PrefixResponseDto extends PrefixRequestDto {
           example = "CENTRAL")
   @JsonProperty("lookup_service_type_name")
   public String lookUpServiceName;
+
+  @Schema(
+          type = SchemaType.STRING,
+          implementation = String.class,
+          description = "Whether the EPIC_HEALTHCHECK Handle exists.",
+          example = "true")
+  @JsonProperty("epic_healthcheck")
+  public Boolean epicHealthcheck;
+  
 }

@@ -61,4 +61,7 @@ public class Prefix extends PanacheEntityBase {
 
   @OneToMany(mappedBy = "prefix")
   public List<Account> accounts;
+
+  @Column(name = "epic_healthcheck")
+  public Boolean epicHealthcheck;
 }
