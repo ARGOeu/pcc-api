@@ -107,3 +107,4 @@ According to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), the `Unre
 - [#118](https://github.com/ARGOeu/pcc-api/pull/118) PCC-228 Fix status reason in prefix requests
 - [#119](https://github.com/ARGOeu/pcc-api/pull/119) PCC-229 Fix GET /prefix-requests/prefix-requests/by-provider path
 - [#123](https://github.com/ARGOeu/pcc-api/pull/123) PCC-232: [API] – Fix Provider Logo Serving and Removal
+- [#127](https://github.com/ARGOeu/pcc-api/pull/127) PCC-238: [API] Verify Compatibility with quarkus-auth MongoDB Changes
