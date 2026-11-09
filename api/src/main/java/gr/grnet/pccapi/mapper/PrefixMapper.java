@@ -1,5 +1,6 @@
 package gr.grnet.pccapi.mapper;
 
+import gr.grnet.pccapi.dto.prefix.EpicStatsDto;
 import gr.grnet.pccapi.dto.prefix.PartialPrefixDto;
 import gr.grnet.pccapi.dto.prefix.PrefixRequestDto;
 import gr.grnet.pccapi.dto.prefix.PrefixResponseDto;
@@ -13,6 +14,7 @@ import java.util.TimeZone;
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
+import gr.grnet.pccapi.entity.EpicStats;
 
 /** Mapper class for converting between {@link Prefix} and {@link PrefixResponseDto}. */
 @Mapper(imports = StringUtils.class)
@@ -40,6 +42,7 @@ public interface PrefixMapper {
   @Mapping(target = "contractTypeId", source = "contractType.id")
   @Mapping(target = "contractTypeName", source = "contractType.name")
   @Mapping(target = "contractEnd", expression = "java(prefix.contractEnd != null ? convertToString(prefix.contractEnd) : null)")
+  @Mapping(target = "epicStats", source = "epicStats")
   PrefixResponseDto prefixToResponseDto(Prefix prefix);
 
   List<PrefixResponseDto> prefixesToResponseDto(List<Prefix> prefixes);
@@ -69,6 +72,11 @@ public interface PrefixMapper {
 
   @Mapping(target = "contractEnd", expression = "java(prefixRequestDto.contractEnd != null && StringUtils.isNotEmpty(prefixRequestDto.contractEnd) ? convertToMillis(prefixRequestDto.contractEnd) : null)")
   void updateRequestToPrefix(PrefixRequestDto prefixRequestDto, @MappingTarget Prefix prefix);
+
+
+  @Mapping(target = "stats", source = "statsValue")
+  EpicStatsDto epicStatsToDto(EpicStats epicStats);
+
 
   default Timestamp convertToMillis(String contractEnd) {
     try {
