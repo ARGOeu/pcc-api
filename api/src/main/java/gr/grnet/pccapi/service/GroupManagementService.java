@@ -14,6 +14,8 @@ import org.grnet.endpoint.scanner.runtime.clients.groupmanagement.response.Parti
 import org.grnet.endpoint.scanner.runtime.endpoints.PageResource;
 import org.grnet.endpoint.scanner.runtime.entities.pagination.Page;
 import org.grnet.endpoint.scanner.runtime.entities.pagination.PageQueryImpl;
+import org.grnet.endpoint.scanner.runtime.entitlements.qualifiers.ExternalSystemAuthorization;
+import org.grnet.endpoint.scanner.runtime.services.OidcResourceAuthorizationService;
 import org.grnet.endpoint.scanner.runtime.services.ResourceAuthorizationService;
 
 
@@ -37,7 +39,8 @@ public class GroupManagementService {
     ProviderRepository providerRepository;
 
     @Inject
-    ResourceAuthorizationService resourceAuthorizationService;
+    @ExternalSystemAuthorization
+    OidcResourceAuthorizationService oidcResourceAuthorizationService;
 
     @ConfigProperty(name = "api.auth.entitlements.parent-group")
     String parentGroup;
@@ -62,7 +65,7 @@ public class GroupManagementService {
      */
     public PageResource<GroupUserResponse> getAllMembers(String groupName, String search, int page, int size, UriInfo uriInfo) {
 
-        var authPage = resourceAuthorizationService.getAllMembersByPageAndSize(page, size, search, null, uriInfo);
+        var authPage = oidcResourceAuthorizationService.getAllMembersByPageAndSize(page, size, search, null, uriInfo);
 
         var content = authPage.getContent()
                 .stream()
@@ -225,7 +228,7 @@ public class GroupManagementService {
 
     public List<GroupUserResponse> getAllApplicationMembersRaw(String search) {
 
-        return resourceAuthorizationService.getApplicationMembers(
+        return oidcResourceAuthorizationService.getApplicationMembers(
                 groupManagement.getMembersGroupPath(),
                 search
         );
