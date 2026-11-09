@@ -64,4 +64,7 @@ public class Prefix extends PanacheEntityBase {
 
   @OneToOne(mappedBy = "prefix", fetch = FetchType.LAZY)
   public EpicStats epicStats;
+
+  @Column(name = "epic_healthcheck")
+  public Boolean epicHealthcheck;
 }
