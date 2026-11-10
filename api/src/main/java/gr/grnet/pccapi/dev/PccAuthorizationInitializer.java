@@ -1,6 +1,6 @@
 package gr.grnet.pccapi.dev;
 
-import gr.grnet.pccapi.resources.ProviderResource;
+import gr.grnet.pccapi.enums.resources.ProviderResource;
 import io.quarkus.arc.profile.IfBuildProfile;
 import io.quarkus.logging.Log;
 import io.quarkus.runtime.StartupEvent;
@@ -62,8 +62,34 @@ public class PccAuthorizationInitializer {
                     });
 
 
+            var prefixOwnerRole = resourceAuthorizationService.getAllRoles()
+                    .stream()
+                    .filter(role -> "prefix_owner".equals(role.name))
+                    .findFirst()
+                    .orElseGet(() -> {
+
+                        var role = new CreateRoleRequest();
+                        role.name = "prefix_owner";
+                        role.attributes = Map.of(
+                                "preferred_name", List.of("Prefix Owner"),
+                                "description", List.of(
+                                        "Role with member rights for a Prefix"
+                                )
+                        );
+
+                        resourceAuthorizationService.createNewRole(role);
+
+                        return resourceAuthorizationService.getAllRoles()
+                                .stream()
+                                .filter(createdRole ->
+                                        "prefix_owner".equals(createdRole.name))
+                                .findFirst()
+                                .orElseThrow();
+                    });
+
+
 // Create prefix_member role if it does not already exist
-            var providerMemberRole = resourceAuthorizationService.getAllRoles()
+            var prefixMemberRole = resourceAuthorizationService.getAllRoles()
                     .stream()
                     .filter(role -> "prefix_member".equals(role.name))
                     .findFirst()
@@ -112,8 +138,6 @@ public class PccAuthorizationInitializer {
                                 .findFirst()
                                 .orElseThrow();
                     });
-
-
 
             // Assign user1 as provider_admin for Provider 1
             var roleAssignment = new AssignRoleRequest();
@@ -251,27 +275,27 @@ public class PccAuthorizationInitializer {
                     // INVITATIONS
                     // ---------------------------------------------------------------------
 
-                    // POST /providers/{id}/prefixes/{prefix-id}/invitations
+                    // POST /invitations
                     endpoint(
-                            "94467f5fba1fb2253b382795e4f5f9210c521bdea2e1cb1b47c3bb53fa923f69",
+                            "05b8a79abdf0fbd6e3c69101bddb017a0702289f3ccde431d4f26b43a7c99b4d",
                             null
                     ),
 
-                    // GET /providers/{id}/prefixes/{prefix-id}/invitations
+                    // GET /invitations
                     endpoint(
-                            "d6ec54b20191b08c933df788b8f77d57f46ddefc8145bdf5a887cc91b7f3d10f",
+                            "2fc22883fa79feb02c715633b466e2660ebe108080595970b70bb47b8d043df0",
                             Scope.MINE
                     ),
 
-                    // GET /providers/{id}/prefixes/{prefix-id}/invitations/{invitation_id}
+                    // GET /invitations/{invitation_id}
                     endpoint(
-                            "dce3919e39697469c66c8edff3a83594e6ef570d861a675d32ee33bd624dcd19",
+                            "d0d357931c720f012a65f3cd3fb5e8db0fa57e2db1ffbc20587259c728064104",
                             Scope.MINE
                     ),
 
-                    // PATCH /providers/{id}/prefixes/{prefix-id}/invitations/{invitation_id}
+                    // PATCH /invitations/{invitation_id}
                     endpoint(
-                            "ca16310a30afdab69635736b05feb77012f6f79a7cc1aa538730dfdae00945b9",
+                            "5a311ee9b514d8f4f0fbdf78dae2718f1f26ff8798a85c79dfc19814871da5bd",
                             null
                     ),
 
@@ -326,8 +350,47 @@ public class PccAuthorizationInitializer {
                     endpointRequest
             );
 
-            Log.info("PCC authorization data initialized.");
+            // Assign Provider and Prefix endpoints to provider_admin
+            var endpointRequest1 = new SecuredEndpointPerRoleRequest();
 
+            endpointRequest1.setAssignments(List.of(
+
+                    // ---------------------------------------------------------------------
+                    // PROVIDER
+                    // ---------------------------------------------------------------------
+
+                    // PATCH /invitations/{invitation_id}
+                    endpoint(
+                            "202bffaf046cd1793d527191c8271cc38328ef56a297f92df90b82dca4c33e99",
+                            null
+                    ),
+
+                    // GET /invitations/{invitation_id}
+                    endpoint(
+                            "8307041bdce77906c528e8c57780c5eb9e7e2bb7d15d4509538a770ecb544452",
+                            null
+                    ),
+                    // GET /invitations
+
+                    endpoint(
+                            "c87a0a55b1681ed3dd006b5892cf0bc5b899bfb765b79abb31dd2bdda96ae825",
+                            Scope.MINE
+                    )));
+
+
+            roleEndpointService.assignRolesToEndpointsPerRole(
+                    memberRole.id,
+                    endpointRequest1
+            );
+                    Log.info("PCC authorization data initialized.");
+            Log.infof("Provider admin: id=%s, name=%s",
+                    providerAdminRole.id, providerAdminRole.name);
+
+            Log.infof("Members: id=%s, name=%s",
+                    memberRole.id, memberRole.name);
+
+            Log.infof("Prefix owner: id=%s, name=%s",
+                    prefixOwnerRole.id, prefixOwnerRole.name);
         } catch (Exception e) {
             Log.error("Failed to initialize PCC authorization data.", e);
         }
