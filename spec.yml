@@ -1,0 +1,306 @@
+
+openapi: 3.0.3
+
+info:
+  title: Handle Service HTTP JSON REST API
+  description: |
+    OpenAPI specification for retrieving Handle records through the
+    Handle.Net HTTP JSON REST API
+  version: 1.0.0
+servers:
+  - url: http://{host}:{port}
+    description: Local Handle Server
+    variables:
+      host:
+        default: localhost
+        description: Handle Server hostname
+      port:
+        default: "8000"
+        description: Handle Server HTTP port
+
+  - url: https://hdl.handle.net
+    description: Public Handle Proxy
+tags:
+  - name: Handles
+    description: Handle record resolution operations
+
+paths:
+  /api/handles/{handle}:
+    get:
+      tags:
+        - Handles
+      summary: Resolve a Handle
+      description: |
+        Retrieves the Handle record for the specified Handle identifier.
+
+        The handle identifier consists of a prefix and a suffix,
+        separated by a slash (for example, 12345/hdl1).
+
+        By default, unauthenticated requests resolve only publicly
+        readable Handle values.
+      operationId: getHandle
+
+      parameters:
+        - name: handle
+          in: path
+          required: true
+          description: The complete Handle identifier (prefix/suffix).
+          schema:
+            type: string
+          example: 12345/hdl1
+
+        - name: index
+          in: query
+          required: false
+          description: |
+            Restricts the resolution to Handle values with the specified
+            index. This parameter can be repeated to request multiple
+            indices.
+          style: form
+          explode: true
+          schema:
+            type: array
+            items:
+              type: integer
+          example:
+            - 1
+            - 2
+
+        - name: type
+          in: query
+          required: false
+          description: |
+            Restricts the resolution to Handle values with the specified
+            type. This parameter can be repeated.
+
+            If a type ends with a period, all period-delimited subtypes
+            are included. When both index and type parameters are used,
+            values matching either an index or a type are returned.
+          style: form
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+          example:
+            - URL
+            - EMAIL
+
+        - name: auth
+          in: query
+          required: false
+          description: |
+            If true, performs an authoritative resolution, bypassing
+            the cache and sending the request to a primary server.
+
+            This parameter is ignored when the request is sent directly
+            to an end server instead of a proxy.
+          schema:
+            type: boolean
+            default: false
+
+        - name: publicOnly
+          in: query
+          required: false
+          description: |
+            If true, resolves only publicly readable Handle values.
+
+            If false, resolves all values and may result in a
+            401 Unauthorized response if authentication is required.
+
+            Default: true for unauthenticated requests and false
+            for authenticated requests.
+          schema:
+            type: boolean
+
+        - name: pretty
+          in: query
+          required: false
+          description: If true, the response is pretty-printed.
+          schema:
+            type: boolean
+            default: false
+
+        - name: Authorization
+          in: header
+          required: false
+          description: |
+            Optional authentication header.
+
+            The Handle Service supports:
+            - Basic authentication using Handle identity and secret key.
+            - Handle authentication using the challenge-response mechanism.
+
+            Authentication details are described in Chapter 14.6
+            of the Handle.Net Technical Manual.
+          schema:
+            type: string
+          example: Basic dXNlcm5hbWU6cGFzc3dvcmQ=
+
+      responses:
+        "200":
+          description: Handle record successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HandleResponse"
+              example:
+                responseCode: 1
+                handle: 12345/hdl1
+                values:
+                  - index: 1
+                    type: URL
+                    data:
+                      format: string
+                      value: https://example.org/resource
+                    ttl: 86400
+                    timestamp: "2026-10-17T13:33:28Z"
+
+        "400":
+          description: |
+            Bad Request. The request is incorrectly formatted or invalid,
+            or the server is not responsible for the requested Handle.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HandleResponse"
+
+        "401":
+          description: |
+            Unauthorized. The requested operation requires an
+            authenticated caller, but the request is not authenticated.
+          headers:
+            WWW-Authenticate:
+              description: Handle authentication challenge.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HandleResponse"
+
+        "403":
+          description: |
+            Forbidden. The caller is authenticated but is not authorized
+            to perform the requested operation.
+          content:
+            application/json:
+              schhdlema:
+                $ref: "#/components/schemas/HandleResponse"
+
+        "404":
+          description: The requested Handle does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HandleResponse"
+
+        "500":
+          description: Unexpected server error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HandleResponse"
+
+components:
+  schemas:
+    HandleResponse:
+      type: object
+      description: Response returned by the Handle Service.
+      properties:
+        responseCode:
+          type: integer
+          description: Handle protocol response code.
+          example: 1
+        handle:
+          type: string
+          description: Handle identifier specified in the request.
+          example: 12345/hdl1
+        message:
+          type: string
+          description: Error message, present in error responses.
+        values:
+          type: array
+          description: Array of resolved Handle values.
+          items:
+            $ref: "#/components/schemas/HandleValue"
+
+    HandleValue:
+      type: object
+      description: JSON representation of a Handle value.
+      required:
+        - index
+        - type
+        - data
+        - ttl
+        - timestamp
+      properties:
+        index:
+          type: integer
+          description: Unique index of the value within the Handle.
+          example: 1
+        type:
+          type: string
+          description: Handle value type.
+          example: URL
+        data:
+          $ref: "#/components/schemas/HandleValueData"
+        ttl:
+          description: |
+            Time-to-live in seconds, or an ISO 8601 formatted
+            expiration time in the case of an absolute expiration.
+          oneOf:
+            - type: integer
+            - type: string
+              format: date-time
+          example: 86400
+        timestamp:
+          type: string
+          format: date-time
+          description: Date and time when the value was last modified.
+          example: "2026-10-17T13:33:28Z"
+        permissions:
+          type: string
+          description: |
+            Optional permission bitmask. Usually omitted when the
+            default permissions are used.
+          example: "1110"
+        references:
+          type: array
+          description: Optional references to other Handle values.
+          items:
+            $ref: "#/components/schemas/HandleValueReference"
+
+    HandleValueData:
+      description: |
+        Handle value data. It can be a string or an object containing
+        a format and a value.
+      oneOf:
+        - type: string
+        - type: object
+          required:
+            - format
+            - value
+          properties:
+            format:
+              type: string
+              enum:
+                - string
+                - base64
+                - hex
+            value:
+              type: string
+
+    HandleValueReference:
+      type: object
+      required:
+        - index
+        - handle
+      properties:
+        index:
+          type: integer
+          example: 300
+        handle:
+          type: string
+          example: 0.NA/12345
+
