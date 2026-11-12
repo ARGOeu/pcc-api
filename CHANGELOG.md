@@ -81,7 +81,7 @@ According to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), the `Unre
 - [#124](https://github.com/ARGOeu/pcc-api/pull/124) PCC-233 Add status as filter to prefix request lists
 - [#125](https://github.com/ARGOeu/pcc-api/pull/125) PCC-236: Add statistics value for each prefix
 - [#126](https://github.com/ARGOeu/pcc-api/pull/126) PCC-235: Add monitored true flag to a prefix
-
+- [#130](https://github.com/ARGOeu/pcc-api/pull/130) PCC-242 Create OpenAPI specification for PID Get Handle operation
 ### Changed
 
 - [#14](https://github.com/ARGOeu/pcc-api/pull/14) PCC-16 Update Swagger properties
