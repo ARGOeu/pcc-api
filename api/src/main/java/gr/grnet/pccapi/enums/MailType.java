@@ -6,11 +6,9 @@ import java.util.HashMap;
 
 public enum MailType {
 
-    PREFIX_INVITATION_CREATED {
+    INVITATION_CREATED {
         @Override
-        public MailTemplate execute(
-                Template emailTemplate,
-                HashMap<String, Object> templateParams) {
+        public MailTemplate execute(Template emailTemplate, HashMap<String, Object> templateParams) {
 
             var body = emailTemplate
                     .data("logoUrl", templateParams.get("logoUrl"))
@@ -18,28 +16,27 @@ public enum MailType {
                     .data("sendFrom", templateParams.get("sendFrom"))
                     .data("replyTo", templateParams.get("replyTo"))
 
-                    .data("recipientName", templateParams.get("recipientName"))
-                    .data("providerName", templateParams.get("providerName"))
-                    .data("prefixName", templateParams.get("prefixName"))
+                    .data("targetType", templateParams.get("targetType"))
+                    .data("targetName", templateParams.get("targetName"))
+                    .data("parentType", templateParams.get("parentType"))
+                    .data("parentName", templateParams.get("parentName"))
                     .data("role", templateParams.get("role"))
                     .data("invitationUrl", templateParams.get("invitationUrl"))
                     .render();
 
             var subject = "[" + templateParams.get("title")
-                    + "] Invitation to join prefix "
-                    + templateParams.get("prefixName")
-                    + " – "
-                    + templateParams.get("providerName");
+                    + "] Invitation to join "
+                    + templateParams.get("targetType")
+                    + " "
+                    + templateParams.get("targetName");
 
             return new MailTemplate(subject, body);
         }
     },
 
-    PREFIX_INVITATION_RESPONSE_NOTIFY_USER {
+    INVITATION_RESPONSE_NOTIFY_USER {
         @Override
-        public MailTemplate execute(
-                Template emailTemplate,
-                HashMap<String, Object> templateParams) {
+        public MailTemplate execute(Template emailTemplate, HashMap<String, Object> templateParams) {
 
             var body = emailTemplate
                     .data("logoUrl", templateParams.get("logoUrl"))
@@ -47,25 +44,25 @@ public enum MailType {
                     .data("sendFrom", templateParams.get("sendFrom"))
                     .data("replyTo", templateParams.get("replyTo"))
 
-                    .data("providerName", templateParams.get("providerName"))
-                    .data("prefixName", templateParams.get("prefixName"))
+                    .data("targetType", templateParams.get("targetType"))
+                    .data("targetName", templateParams.get("targetName"))
+                    .data("parentType", templateParams.get("parentType"))
+                    .data("parentName", templateParams.get("parentName"))
                     .data("role", templateParams.get("role"))
-                    .data("prefixDetailsUrl", templateParams.get("prefixDetailsUrl"))
+                    .data("targetDetailsUrl", templateParams.get("targetDetailsUrl"))
                     .render();
 
             var subject = "[" + templateParams.get("title")
                     + "] Invitation accepted – access granted to "
-                    + templateParams.get("prefixName");
+                    + templateParams.get("targetName");
 
             return new MailTemplate(subject, body);
         }
     },
 
-    PREFIX_INVITATION_RESPONSE_NOTIFY_ADMIN {
+    INVITATION_RESPONSE_NOTIFY_ADMIN {
         @Override
-        public MailTemplate execute(
-                Template emailTemplate,
-                HashMap<String, Object> templateParams) {
+        public MailTemplate execute(Template emailTemplate, HashMap<String, Object> templateParams) {
 
             var body = emailTemplate
                     .data("logoUrl", templateParams.get("logoUrl"))
@@ -73,19 +70,21 @@ public enum MailType {
                     .data("sendFrom", templateParams.get("sendFrom"))
                     .data("replyTo", templateParams.get("replyTo"))
 
-                    .data("providerName", templateParams.get("providerName"))
-                    .data("prefixName", templateParams.get("prefixName"))
+                    .data("targetType", templateParams.get("targetType"))
+                    .data("targetName", templateParams.get("targetName"))
+                    .data("parentType", templateParams.get("parentType"))
+                    .data("parentName", templateParams.get("parentName"))
                     .data("inviteeEmail", templateParams.get("inviteeEmail"))
                     .data("role", templateParams.get("role"))
                     .data("status", templateParams.get("status"))
-                    .data("prefixDetailsUrl", templateParams.get("prefixDetailsUrl"))
+                    .data("targetMembersUrl", templateParams.get("targetMembersUrl"))
                     .render();
 
             var subject = "[" + templateParams.get("title")
                     + "] Invitation "
                     + templateParams.get("status")
                     + " – "
-                    + templateParams.get("prefixName");
+                    + templateParams.get("targetName");
 
             return new MailTemplate(subject, body);
         }
@@ -93,9 +92,7 @@ public enum MailType {
 
     PREFIX_ACCESS_GRANTED_USER {
         @Override
-        public MailTemplate execute(
-                Template emailTemplate,
-                HashMap<String, Object> templateParams) {
+        public MailTemplate execute(Template emailTemplate, HashMap<String, Object> templateParams) {
 
             var body = emailTemplate
                     .data("logoUrl", templateParams.get("logoUrl"))
@@ -118,9 +115,7 @@ public enum MailType {
 
     INCIDENT_CREATED {
         @Override
-        public MailTemplate execute(
-                Template emailTemplate,
-                HashMap<String, Object> templateParams) {
+        public MailTemplate execute(Template emailTemplate, HashMap<String, Object> templateParams) {
 
             var body = emailTemplate
                     .data("logoUrl", templateParams.get("logoUrl"))
@@ -145,10 +140,7 @@ public enum MailType {
         }
     };
 
-    public abstract MailTemplate execute(
-            Template mailTemplate,
-            HashMap<String, Object> templateParams
-    );
+    public abstract MailTemplate execute(Template mailTemplate, HashMap<String, Object> templateParams);
 
     public static class MailTemplate {
 

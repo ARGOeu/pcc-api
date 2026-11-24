@@ -5,26 +5,38 @@ import gr.grnet.pccapi.dto.provider.ProviderRequestDto;
 import gr.grnet.pccapi.dto.provider.ProviderResponseDTO;
 import gr.grnet.pccapi.entity.Provider;
 import gr.grnet.pccapi.enums.ContactType;
+import gr.grnet.pccapi.enums.resources.PrefixResource;
 import gr.grnet.pccapi.exception.ConflictException;
 import gr.grnet.pccapi.mapper.ProviderMapper;
 import gr.grnet.pccapi.repository.ContactRepository;
 import gr.grnet.pccapi.repository.PrefixRepository;
 import gr.grnet.pccapi.repository.ProviderRepository;
-import gr.grnet.pccapi.resources.ProviderResource;
+import gr.grnet.pccapi.enums.resources.ProviderResource;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.NotFoundException;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import lombok.AllArgsConstructor;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.grnet.endpoint.scanner.runtime.Scope;
 import org.grnet.endpoint.scanner.runtime.context.RoleEndpointHolder;
+import org.grnet.endpoint.scanner.runtime.entities.RoleEndpoint;
+import org.grnet.endpoint.scanner.runtime.entitlements.Entitlement;
+import org.grnet.endpoint.scanner.runtime.entitlements.EntitlementProvider;
 import org.jboss.logging.Logger;
 import gr.grnet.pccapi.utils.ImageUploadUtil;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
+//@AllArgsConstructor
 public class ProviderService {
     private static final org.jboss.logging.Logger LOG = Logger.getLogger(ProviderService.class);
 
@@ -47,6 +59,11 @@ public class ProviderService {
 
     @ConfigProperty(name = "api.server.url")
     String apiServerUrl;
+    @ConfigProperty(name = "api.auth.entitlements.parent-group")
+    String parentGroup;
+
+    @Inject
+    EntitlementProvider entitlementProvider;
 
 
     /**
@@ -69,6 +86,24 @@ public class ProviderService {
      *
      * @return A list of ProviderResponseDTO representations of all available providers
      */
+//    public List<ProviderResponseDTO> fetchAll() {
+//
+//        if (accessControlService.isSuperAdmin()) {
+//            var providers = providerRepository.findAll().list();
+//            return ProviderMapper.INSTANCE.providersToResponse(providers);
+//        }
+//
+//        var providerIds = RoleEndpointHolder.get().stream()
+//                .flatMap(role -> accessControlService
+//                        .resolveAccessibleGroupsByName(role.getRoleName(), ProviderResource.PROVIDER.resourceName())
+//                        .stream())
+//                .map(Integer::valueOf)
+//                .collect(Collectors.toSet());
+//
+//        var providers = providerRepository.fetchProvidersByIds(providerIds);
+//
+//        return ProviderMapper.INSTANCE.providersToResponse(providers);
+//    }
     public List<ProviderResponseDTO> fetchAll() {
 
         if (accessControlService.isSuperAdmin()) {
@@ -76,18 +111,74 @@ public class ProviderService {
             return ProviderMapper.INSTANCE.providersToResponse(providers);
         }
 
-        var providerIds = RoleEndpointHolder.get().stream()
-                .flatMap(role -> accessControlService
-                        .resolveAccessibleGroupsByName(role.getRoleName(), ProviderResource.PROVIDER.resourceName())
-                        .stream())
+        var userRoles = getRolesFromEntitlements(
+                entitlementProvider.fetchEntitlements()
+                        .stream()
+                        .map(Entitlement::getRaw)
+                        .collect(Collectors.toList())
+        );
+
+        var matchingRoles = RoleEndpointHolder.get().stream()
+                .filter(role -> userRoles.contains(role.getRoleName()))
+                .toList();
+
+        var scope = matchingRoles.stream()
+                .map(RoleEndpoint::getScope)
+                .filter(Objects::nonNull)
+                .max(Comparator.comparing(
+                        s -> s.equalsIgnoreCase("ALL") ? 1 : 0
+                ))
+                .orElse(null);
+
+        if (scope == null) {
+            throw new ForbiddenException(
+                    "Scope must be defined for this endpoint!"
+            );
+        }
+
+        var resolvedScope = Scope.valueOf(scope.toUpperCase());
+
+        // ALL scope: retrieve every provider.
+        if (resolvedScope == Scope.ALL) {
+            var providers = providerRepository.findAll().list();
+            return ProviderMapper.INSTANCE.providersToResponse(providers);
+        }
+
+        // MINE scope: resolve accessible resources.
+        var mineRoles = matchingRoles.stream()
+                .filter(role -> Scope.MINE.name().equalsIgnoreCase(role.getScope()))
+                .toList();
+
+        // Providers directly accessible through entitlements.
+        Set<Integer> providerIds = mineRoles.stream()
+                .flatMap(role ->
+                        accessControlService.resolveAccessibleGroupsByName(
+                                role.getRoleName(),
+                                ProviderResource.PROVIDER.resourceName()
+                        ).stream()
+                )
                 .map(Integer::valueOf)
                 .collect(Collectors.toSet());
 
-        var providers = providerRepository.fetchProvidersByIds(providerIds);
+        // Prefixes accessible through entitlements.
+        Set<Integer> prefixIds = mineRoles.stream()
+                .flatMap(role ->
+                        accessControlService.resolveAccessibleGroupsByName(
+                                role.getRoleName(),
+                                PrefixResource.PREFIX.resourceName()
+                        ).stream()
+                )
+                .map(Integer::valueOf)
+                .collect(Collectors.toSet());
+
+        // Retrieve providers either directly accessible or owning accessible prefixes.
+        var providers = providerRepository.fetchProvidersByAccessibleResources(
+                providerIds,
+                prefixIds
+        );
 
         return ProviderMapper.INSTANCE.providersToResponse(providers);
     }
-
     /**
      * Creates the provider with the requested fields into the database.
      *
@@ -234,4 +325,27 @@ public class ProviderService {
     public void deleteByName(String name) {
         providerRepository.deleteByName(name);
     }
+
+
+
+    private List<String> getRolesFromEntitlements(List<String> rawEntitlements) {
+
+        return rawEntitlements.stream()
+                .map(ent -> {
+
+                    int idx = ent.indexOf(parentGroup);
+
+                    if (idx == -1) {
+                        return null;
+                    }
+
+                    String remaining =
+                            ent.substring(idx + parentGroup.length() + 1);
+
+                    return remaining.split(":")[0];
+                })
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
 }

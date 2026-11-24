@@ -7,8 +7,8 @@ import gr.grnet.pccapi.dto.prefix.PrefixRequestDto;
 import gr.grnet.pccapi.dto.prefix.PrefixResponseDto;
 import gr.grnet.pccapi.dto.statistic.StatisticsDto;
 import gr.grnet.pccapi.dto.statistic.StatisticsRequestDto;
-import gr.grnet.pccapi.resources.PrefixResource;
-import gr.grnet.pccapi.resources.ProviderResource;
+import gr.grnet.pccapi.enums.resources.PrefixResource;
+import gr.grnet.pccapi.enums.resources.ProviderResource;
 import gr.grnet.pccapi.service.PrefixService;
 import gr.grnet.pccapi.service.StatisticsService;
 import io.quarkus.security.Authenticated;
@@ -164,7 +164,7 @@ public class PrefixEndpoint {
             @PathParam("prefix-id") int prefixId,
             @Valid PrefixRequestDto prefixRequestDto) {
 
-        return Response.ok(prefixService.update(prefixRequestDto, prefixId)).build();
+        return Response.ok(prefixService.update(prefixRequestDto, id,prefixId)).build();
     }
 
     @Operation(summary = "Get prefixes",
@@ -198,11 +198,6 @@ public class PrefixEndpoint {
                             param = "id",
                             type = ParamType.PATH,
                             referTo = ProviderResource.class
-                    ),
-                    @ParamRef(
-                            param = "prefix-id",
-                            type = ParamType.PATH,
-                            referTo = PrefixResource.class
                     )
             },
             scope = {Scope.ALL, Scope.MINE
@@ -245,7 +240,7 @@ public class PrefixEndpoint {
             int size,
             @Context UriInfo uriInfo) {
 
-        var prefixes = prefixService.fetchByProviderByPageAndSize(search, provider, domain, contractType,page - 1, size, uriInfo);
+        var prefixes = prefixService.fetchByProviderByPageAndSize(id,search, provider, domain, contractType,page - 1, size, uriInfo);
 
         return Response.ok(prefixes).build();
     }
@@ -300,7 +295,7 @@ public class PrefixEndpoint {
             @PathParam("prefix-id") int prefixId,
             @Valid PartialPrefixDto prefixDto) {
 
-        var prefix = prefixService.patchById(prefixId, prefixDto);
+        var prefix = prefixService.patchById(id,prefixId, prefixDto);
 
         return Response.ok(prefix).build();
     }
@@ -355,7 +350,7 @@ public class PrefixEndpoint {
             @PathParam("id") int id,
             @PathParam("prefix-id") Integer prefixId) {
 
-        prefixService.deleteById(prefixId);
+        prefixService.deleteById(id,prefixId);
 
         var informativeResponse = new InformativeResponse();
         informativeResponse.code = 200;
@@ -415,7 +410,7 @@ public class PrefixEndpoint {
             @PathParam("id") int id,
             @PathParam("prefix-id") Integer prefixId) {
 
-        return Response.ok(prefixService.fetchById(prefixId)).build();
+        return Response.ok(prefixService.fetchById(id, prefixId)).build();
     }
 
     @Operation(summary = "Get PID count",
@@ -463,9 +458,9 @@ public class PrefixEndpoint {
     )
     public Response getPIDCountByPrefix(
             @PathParam("id") int id,
-            @PathParam("prefix-id") String prefixId) {
+            @PathParam("prefix-id") int prefixId) {
 
-        return Response.ok(statisticsService.getPIDCountByPrefixID(prefixId)).build();
+        return Response.ok(statisticsService.getPIDCountByPrefixID(id,prefixId)).build();
     }
 
     @Operation(summary = "Get resolvable PID count",
@@ -513,9 +508,9 @@ public class PrefixEndpoint {
     )
     public Response getResolvablePIDCountByPrefix(
             @PathParam("id") int id,
-            @PathParam("prefix-id") String prefixId) {
+            @PathParam("prefix-id") int prefixId) {
 
-        return Response.ok(statisticsService.getResolvablePIDCountByPrefixID(prefixId)).build();
+        return Response.ok(statisticsService.getResolvablePIDCountByPrefixID(id,prefixId)).build();
     }
 
     @Operation(summary = "Get prefix statistic",
@@ -567,9 +562,9 @@ public class PrefixEndpoint {
     )
     public Response getStatisticsByPrefix(
             @PathParam("id") int id,
-            @PathParam("prefix-id") String prefixId) {
+            @PathParam("prefix-id") int prefixId) {
 
-    return Response.ok(statisticsService.getPrefixStatisticsByID(prefixId)).build();
+    return Response.ok(statisticsService.getPrefixStatisticsByID(id,prefixId)).build();
   }
 
     @Operation(summary = "Set prefix statistic",
@@ -620,10 +615,10 @@ public class PrefixEndpoint {
     )
     public Response setStatisticsByPrefix(
             @PathParam("id") int id,
-            @PathParam("prefix-id") String prefixId,
+            @PathParam("prefix-id") int prefixId,
             StatisticsRequestDto statisticsRequestDto) {
 
-    return Response.ok(statisticsService.setPrefixStatistics(prefixId, statisticsRequestDto)).build();
+    return Response.ok(statisticsService.setPrefixStatistics(id,prefixId, statisticsRequestDto)).build();
   }
 
     public static class PageableObjects extends PageResource<PrefixResponseDto> {

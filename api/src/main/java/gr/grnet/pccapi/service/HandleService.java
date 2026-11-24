@@ -45,11 +45,15 @@ public class HandleService {
      * @throws NotFoundException if the Prefix does not exist
      * @throws HandleServiceException if the Handle service request fails
      */
-    public HandleResponseDto create(Integer prefixId, String serviceUrl, String handleUsername, String token, HandleRequestDto request) {
+    public HandleResponseDto create(int providerId, int prefixId, String serviceUrl, String handleUsername, String token, HandleRequestDto request) {
 
         LOG.infof("Creating Handle under Prefix with ID: %s", prefixId);
 
-        var prefix = prefixRepository.findById(prefixId);
+       // var prefix = prefixRepository.findById(prefixId);
+        var prefix = prefixRepository
+                .findByIdAndProviderId(prefixId, providerId)
+                .orElseThrow(() -> new NotFoundException("Prefix not found to this provider"));
+
         var prefixName = prefix.name;
 
         var suffix = request.getSuffix();
@@ -96,9 +100,13 @@ public class HandleService {
      * @throws NotFoundException if the Prefix does not exist
      * @throws HandleServiceException if the Handle service request fails
      */
-    public PageResource<String> fetchAllHandlesByPrefixId(Integer prefixId, String serviceUrl, String handleUsername, String token, String search, int page, int size, UriInfo uriInfo) {
+    public PageResource<String> fetchAllHandlesByPrefixId(int providerId, int prefixId, String serviceUrl, String handleUsername, String token, String search, int page, int size, UriInfo uriInfo) {
 
-        var prefix = prefixRepository.findById(prefixId);
+     //   var prefix = prefixRepository.findById(prefixId);
+        var prefix = prefixRepository
+                .findByIdAndProviderId(prefixId, providerId)
+                .orElseThrow(() -> new NotFoundException("Prefix not found to this provider"));
+
 
         try {
             var handleClient = buildHandleClient(serviceUrl);
@@ -131,11 +139,15 @@ public class HandleService {
         }
     }
 
-    public HandleResponseDto getHandle(Integer prefixId, String suffixName, String serviceUrl, String handleUsername, String token) {
+    public HandleResponseDto getHandle(int providerId,int prefixId, String suffixName, String serviceUrl, String handleUsername, String token) {
 
         LOG.infof("Retrieving Handle under Prefix with ID: %s", prefixId);
 
-        var prefix = prefixRepository.findById(prefixId);
+        //var prefix = prefixRepository.findById(prefixId);
+        var prefix = prefixRepository
+                .findByIdAndProviderId(prefixId, providerId)
+                .orElseThrow(() -> new NotFoundException("Prefix not found to this provider"));
+
         var prefixName = prefix.name;
 
         LOG.infof("Getting Handle: %s/%s", prefixName, suffixName);
@@ -165,11 +177,15 @@ public class HandleService {
         }
     }
 
-    public HandleResponseDto updateHandle(Integer prefixId, String suffix, String serviceUrl, String handleUsername, String token, HandleUpdateRequestDto request) {
+    public HandleResponseDto updateHandle(int providerId, int prefixId, String suffix, String serviceUrl, String handleUsername, String token, HandleUpdateRequestDto request) {
 
         LOG.infof("Retrieving Handle under Prefix with ID: %s", prefixId);
 
-        var prefix = prefixRepository.findById(prefixId);
+      //  var prefix = prefixRepository.findById(prefixId);
+        var prefix = prefixRepository
+                .findByIdAndProviderId(prefixId, providerId)
+                .orElseThrow(() -> new NotFoundException("Prefix not found to this provider"));
+
         var prefixName = prefix.name;
 
         LOG.infof("Updating Handle: %s/%s", prefixName, suffix);
@@ -201,11 +217,15 @@ public class HandleService {
         }
     }
 
-    public void deleteHandle(Integer prefixId, String suffix, String serviceUrl, String handleUsername, String token) {
+    public void deleteHandle(int providerId, int prefixId, String suffix, String serviceUrl, String handleUsername, String token) {
 
         LOG.infof("Retrieving Handle under Prefix with ID: %s", prefixId);
 
-        var prefix = prefixRepository.findById(prefixId);
+       // var prefix = prefixRepository.findById(prefixId);
+        var prefix = prefixRepository
+                .findByIdAndProviderId(prefixId, providerId)
+                .orElseThrow(() -> new NotFoundException("Prefix not found to this provider"));
+
         var prefixName = prefix.name;
 
         var adminHandle = prefixName + "/" + handleUsername;
