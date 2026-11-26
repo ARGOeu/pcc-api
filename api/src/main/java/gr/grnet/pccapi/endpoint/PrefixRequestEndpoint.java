@@ -66,7 +66,10 @@ public class PrefixRequestEndpoint {
     @Inject
     Utility utility;
 
-    @Operation(summary = "Get all prefix requests by creator")
+    @Operation(
+            summary = "Get all prefix requests by creator",
+            description = "Retrieves a paginated list of prefix requests created by the authenticated user, with optional search and status filters."
+    )
     @APIResponse(
             responseCode = "200",
             description = "Prefix Requests by creator retrieved.",
@@ -125,7 +128,55 @@ public class PrefixRequestEndpoint {
         return Response.ok(prefixRequestService.fetchAll(utility.getUserUniqueIdentifier(), search, status, page - 1, size, uriInfo)).build();
     }
 
-    @Operation(summary = "Get all assigned prefix requests to provider")
+    @Operation(
+            summary = "Get prefix request by id",
+            description = "Retrieves the details of a specific prefix request identified by its unique ID."
+    )
+    @APIResponse(
+            responseCode = "200",
+            description = "Prefix Request retrieved.",
+            content =
+            @Content(
+                    schema =
+                    @Schema(type = SchemaType.OBJECT, implementation = PrefixRequestResponse.class)))
+    @APIResponse(
+            responseCode = "401",
+            description = "User has not been authenticated.",
+            content = @Content(schema = @Schema(
+                    type = SchemaType.OBJECT,
+                    implementation = APIResponseMsg.class)))
+    @APIResponse(
+            responseCode = "403",
+            description = "Not permitted.",
+            content = @Content(schema = @Schema(
+                    type = SchemaType.OBJECT,
+                    implementation = APIResponseMsg.class)))
+    @APIResponse(
+            responseCode = "404",
+            description = "PrefixRequest not found.",
+            content =
+            @Content(
+                    schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class)))
+    @APIResponse(
+            responseCode = "500",
+            description = "Internal Server Error.",
+            content =
+            @Content(schema = @Schema(
+                    type = SchemaType.OBJECT,
+                    implementation = APIResponseMsg.class)))
+    @GET
+    @Path("/{id}")
+    @SecuredEndpoint
+    public Response getById(@PathParam("id") Integer id) {
+
+        return Response.ok(prefixRequestService.fetchById(id, utility.getUid())).build();
+    }
+
+
+    @Operation(
+            summary = "Get all assigned prefix requests to provider",
+            description = "Retrieves a paginated list of prefix requests assigned to providers, with optional search and status filters."
+    )
     @APIResponse(
             responseCode = "200",
             description = "Prefix Requests assigned to a specific provider retrieved.",
@@ -155,38 +206,40 @@ public class PrefixRequestEndpoint {
     @GET
     @Path("/by-provider")
     @SecuredEndpoint
-    public Response getAllAssigned(@Parameter(name = "search", in = QUERY,
-                                           description = "Search prefix requests by text on Contact Name, Surname, Contact Email, Contact Phone, Project Name, Project Description,Provider Name.",
-                                           example = "GRNET")
-                                   @QueryParam("search")
-                                   String search,
-                                   @Parameter(name = "status", in = QUERY,
-                                           description = "Search prefix requests by status",
-                                           example = "ACCEPTED")
-                                   @ValidPrefixRequestStatus
-                                   @QueryParam("status")
-                                   String status,
-                                   @Parameter(name = "page", in = QUERY,
-                                           description = "Page number. Must be >= 1.")
-                                   @DefaultValue("1")
-                                   @Min(value = 1, message = "Page number must be >= 1.")
-                                   @QueryParam("page")
-                                   int page,
-                                   @Parameter(name = "size", in = QUERY,
-                                           description = "Page size.")
-                                   @DefaultValue("10")
-                                   @Min(value = 1, message = "Page size must be between 1 and 100.")
-                                   @Max(value = 100, message = "Page size must be between 1 and 100.")
-                                   @QueryParam("size")
-                                   int size,
-                                   @Context UriInfo uriInfo
-
-    ) {
+    public Response getAllAssigned(
+            @Parameter(name = "search", in = QUERY,
+                    description = "Search prefix requests by text on Contact Name, Surname, Contact Email, Contact Phone, Project Name, Project Description,Provider Name.",
+                    example = "GRNET")
+            @QueryParam("search")
+            String search,
+            @Parameter(name = "status", in = QUERY,
+                    description = "Search prefix requests by status",
+                    example = "ACCEPTED")
+            @ValidPrefixRequestStatus
+            @QueryParam("status")
+            String status,
+            @Parameter(name = "page", in = QUERY,
+                    description = "Page number. Must be >= 1.")
+            @DefaultValue("1")
+            @Min(value = 1, message = "Page number must be >= 1.")
+            @QueryParam("page")
+            int page,
+            @Parameter(name = "size", in = QUERY,
+                    description = "Page size.")
+            @DefaultValue("10")
+            @Min(value = 1, message = "Page size must be between 1 and 100.")
+            @Max(value = 100, message = "Page size must be between 1 and 100.")
+            @QueryParam("size")
+            int size,
+            @Context UriInfo uriInfo) {
 
         return Response.ok(prefixRequestService.fetchAssigned(search, status, page - 1, size, uriInfo)).build();
     }
 
-    @Operation(summary = "Create Prefix Request")
+    @Operation(
+            summary = "Create Prefix Request",
+            description = "Submits a new request for the creation of a prefix."
+    )
     @APIResponse(
             responseCode = "201",
             description = "Prefix Request created",
@@ -229,49 +282,10 @@ public class PrefixRequestEndpoint {
         return Response.status(Response.Status.CREATED).entity(response).build();
     }
 
-    @Operation(summary = "Get Prefix Request By Id")
-    @APIResponse(
-            responseCode = "201",
-            description = "Retrieve prefix Request with specific id",
-            content = @Content(schema = @Schema(
-                    implementation = PrefixRequestResponse.class)))
-    @APIResponse(
-            responseCode = "401",
-            description = "User has not been authenticated.",
-            content = @Content(schema = @Schema(
-                    type = SchemaType.OBJECT,
-                    implementation = InformativeResponse.class)))
-    @APIResponse(
-            responseCode = "403",
-            description = "Not permitted.",
-            content = @Content(schema = @Schema(
-                    type = SchemaType.OBJECT,
-                    implementation = InformativeResponse.class)))
-    @APIResponse(
-            responseCode = "404",
-            description = "Prefix request not found.",
-            content = @Content(schema = @Schema(
-                    type = SchemaType.OBJECT,
-                    implementation = InformativeResponse.class)))
-    @APIResponse(
-            responseCode = "409",
-            description = "Prefix request already exists",
-            content = @Content(schema = @Schema(
-                    implementation = InformativeResponse.class)))
-    @APIResponse(
-            responseCode = "500",
-            description = "Internal Server Error",
-            content = @Content(schema = @Schema(
-                    implementation = InformativeResponse.class)))
-
-    @GET
-    @Path("/{id}")
-    @SecuredEndpoint()
-    public Response getById(@PathParam("id") Integer id) {
-
-        return Response.ok(prefixRequestService.fetchById(id, utility.getUserUniqueIdentifier())).build();
-    }
-    @Operation(summary = "Update Prefix Request")
+    @Operation(
+            summary = "Update Prefix Request",
+            description = "Updates the details of an existing prefix request identified by its unique ID."
+    )
     @APIResponse(
             responseCode = "201",
             description = "Prefix Request updated",
@@ -315,7 +329,10 @@ public class PrefixRequestEndpoint {
         return Response.status(Response.Status.CREATED).entity(response).build();
     }
 
-    @Operation(summary = "Delete prefix request")
+    @Operation(
+            summary = "Delete prefix request",
+            description = "Deletes an existing prefix request identified by its unique ID."
+    )
     @APIResponse(
             responseCode = "200",
             description = "Prefix request deleted",
@@ -358,7 +375,10 @@ public class PrefixRequestEndpoint {
         return Response.ok().entity(informativeResponse).build();
     }
 
-    @Operation(summary = "Get prefix request by id assigned to provider")
+    @Operation(
+            summary = "Get prefix request by id assigned to provider",
+            description = "Retrieves the details of a specific prefix request assigned to a provider, identified by its unique ID."
+    )
     @APIResponse(
             responseCode = "200",
             description = "Prefix Request assigned to provider retrieved.",

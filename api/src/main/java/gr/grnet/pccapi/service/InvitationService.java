@@ -66,7 +66,7 @@ public class InvitationService {
 
             sendInvitationEmail(existing);
 
-            return InvitationMapper.INSTANCE.invitationToDto(existing);
+            return InvitationMapper.INSTANCE.invitationToDto(existing, groupManagementService);
         }
 
         var invitation = InvitationMapper.INSTANCE.invitationToEntity(request);
@@ -78,14 +78,14 @@ public class InvitationService {
 
         sendInvitationEmail(invitation);
 
-        return InvitationMapper.INSTANCE.invitationToDto(invitation);
+        return InvitationMapper.INSTANCE.invitationToDto(invitation, groupManagementService);
     }
 
     public PageResource<InvitationResponse> getAllInvitationsByUser(String userEmail, int page, int size, UriInfo uriInfo) {
 
         var invitations = invitationRepository.findAllByEmail(userEmail, page, size);
 
-        return new PageResource<>(invitations, InvitationMapper.INSTANCE.listToDtos(invitations.list()), uriInfo);
+        return new PageResource<>(invitations, InvitationMapper.INSTANCE.listToDtos(invitations.list(), groupManagementService), uriInfo);
     }
 
     public InvitationResponse getInvitationById(String invitationId, String userEmail) {
@@ -94,21 +94,21 @@ public class InvitationService {
 
         enforceInvitationOwnership(invitation.email, userEmail);
 
-        return InvitationMapper.INSTANCE.invitationToDto(invitation);
+        return InvitationMapper.INSTANCE.invitationToDto(invitation, groupManagementService);
     }
 
     public InvitationResponse getInvitationById(String invitationId) {
 
         var invitation = invitationRepository.findById(invitationId);
 
-        return InvitationMapper.INSTANCE.invitationToDto(invitation);
+        return InvitationMapper.INSTANCE.invitationToDto(invitation, groupManagementService);
     }
 
     public PageResource<InvitationResponse> getInvitationsByPageAndSize(String apiResource, String resourceId, String search, String sort, String order, int page, int size, UriInfo uriInfo) {
 
         var invitations = invitationRepository.fetchInvitationsByPageAndSize(apiResource, resourceId, search, sort, order, page, size);
 
-        return new PageResource<>(invitations, InvitationMapper.INSTANCE.listToDtos(invitations.list()), uriInfo);
+        return new PageResource<>(invitations, InvitationMapper.INSTANCE.listToDtos(invitations.list(), groupManagementService), uriInfo);
     }
 
     public InvitationResponse respondToInvitation(String invitationId, InvitationActionResponse request, String userEmail, String userUniqueId, String username) {
@@ -177,7 +177,7 @@ public class InvitationService {
         invitation.respondedAt = Instant.now();
         invitation.respondedBy = userUniqueId;
 
-        return InvitationMapper.INSTANCE.invitationToDto(invitation);
+        return InvitationMapper.INSTANCE.invitationToDto(invitation, groupManagementService);
     }
 
     public InvitationResponse revokeInvitation(String invitationId, String userUniqueId) {
@@ -196,7 +196,7 @@ public class InvitationService {
         invitation.respondedAt = Instant.now();
         invitation.respondedBy = userUniqueId;
 
-        return InvitationMapper.INSTANCE.invitationToDto(invitation);
+        return InvitationMapper.INSTANCE.invitationToDto(invitation, groupManagementService);
     }
 
     @Transactional
@@ -271,7 +271,7 @@ public class InvitationService {
                 target.targetName,
                 target.parentType,
                 target.parentName,
-                getRoleDisplayName(invitation.role),
+                groupManagementService.resolveRoleDisplayName(invitation.role),
                 invitationUrl
         );
     }
@@ -283,6 +283,8 @@ public class InvitationService {
                 response.resourceId
         );
 
+        var roleDisplayName = groupManagementService.resolveRoleDisplayName(response.role);
+
         if (response.status == InvitationStatus.ACCEPTED) {
 
             try {
@@ -293,7 +295,7 @@ public class InvitationService {
                         target.targetName,
                         target.parentType,
                         target.parentName,
-                        getRoleDisplayName(response.role),
+                        roleDisplayName,
                         target.detailsUrl
                 );
 
@@ -356,7 +358,7 @@ public class InvitationService {
                         target.parentType,
                         target.parentName,
                         response.email,
-                        getRoleDisplayName(response.role),
+                        roleDisplayName,
                         response.status,
                         providerMembersUrl
                 );
@@ -475,33 +477,6 @@ public class InvitationService {
             case REJECT -> InvitationStatus.REJECTED;
             case REVOKE -> InvitationStatus.REVOKED;
         };
-    }
-
-    private String getRoleDisplayName(String roleName) {
-
-        return resourceAuthorizationService.getAllRoles()
-                .stream()
-                .filter(role -> roleName.equals(role.name))
-                .findFirst()
-                .map(role -> {
-
-                    if (role.attributes == null) {
-                        return role.name;
-                    }
-
-                    var preferredNames = role.attributes.get("preferred_name");
-
-                    if (preferredNames == null
-                            || preferredNames.isEmpty()
-                            || preferredNames.get(0) == null
-                            || preferredNames.get(0).isBlank()) {
-
-                        return role.name;
-                    }
-
-                    return preferredNames.get(0);
-                })
-                .orElse(roleName);
     }
 
     private static class InvitationTarget {

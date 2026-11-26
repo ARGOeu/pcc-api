@@ -36,6 +36,14 @@ public class InvitationResponse {
     @JsonProperty("resource_id")
     public String resourceId;
 
+    @JsonProperty("resource_name")
+    @Schema(
+            type = SchemaType.STRING,
+            implementation = String.class,
+            description = "The name of the resource associated with the invitation.",
+            example = "Resource")
+    public String resourceName;
+
     @Schema(
             type = SchemaType.STRING,
             description = "Recipient's email",

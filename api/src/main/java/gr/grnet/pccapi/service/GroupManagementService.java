@@ -1,6 +1,7 @@
 package gr.grnet.pccapi.service;
 
 import gr.grnet.pccapi.entity.Provider;
+import gr.grnet.pccapi.repository.PrefixRepository;
 import gr.grnet.pccapi.repository.ProviderRepository;
 import gr.grnet.pccapi.enums.resources.ProviderResource;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -37,6 +38,9 @@ public class GroupManagementService {
 
     @Inject
     ProviderRepository providerRepository;
+
+    @Inject
+    PrefixRepository prefixRepository;
 
     @Inject
     @ExternalSystemAuthorization
@@ -91,7 +95,7 @@ public class GroupManagementService {
      * @param resourceId resource identifier
      * @return resolved resource name or the original identifier
      */
-    String resolveResourceName(String resource, String resourceId) {
+    public String resolveResourceName(String resource, String resourceId) {
 
         switch (resource) {
 
@@ -100,8 +104,13 @@ public class GroupManagementService {
                         .map(Provider::getName)
                         .orElse(resourceId);
 
-            // Project
-            // Invitation
+            case "Prefix":
+                return prefixRepository
+                        .findByIdOptional(Integer.valueOf(resourceId))
+                        .map(prefix -> prefix.name)
+                        .orElse(resourceId);
+
+                // Invitation
             // More resources to come
 
             default:
@@ -251,6 +260,39 @@ public class GroupManagementService {
         });
 
         return user;
+    }
+
+    /**
+     * Resolves a role identifier to its preferred display name.
+     *
+     * @param role internal role identifier
+     * @return preferred role name or the original role identifier
+     */
+    public String resolveRoleDisplayName(String role) {
+
+        if (role == null || role.isBlank()) {
+            return role;
+        }
+
+        var groupPath = normalizePath(parentGroup) + "/" + role;
+
+        var group = groupManagement.flattenGroups().get(groupPath);
+
+        if (group == null || group.attributes == null) {
+            return role;
+        }
+
+        var preferredNames = group.attributes.get("preferred_name");
+
+        if (preferredNames == null || preferredNames.isEmpty()) {
+            return role;
+        }
+
+        var preferredName = preferredNames.get(0);
+
+        return preferredName != null && !preferredName.isBlank()
+                ? preferredName
+                : role;
     }
 
 }
