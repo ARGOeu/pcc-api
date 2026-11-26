@@ -125,48 +125,6 @@ public class PrefixRequestEndpoint {
         return Response.ok(prefixRequestService.fetchAll(utility.getUserUniqueIdentifier(), search, status, page - 1, size, uriInfo)).build();
     }
 
-    @Operation(summary = "Get prefix request by id")
-    @APIResponse(
-            responseCode = "200",
-            description = "Prefix Request retrieved.",
-            content =
-            @Content(
-                    schema =
-                    @Schema(type = SchemaType.OBJECT, implementation = PrefixRequestResponse.class)))
-    @APIResponse(
-            responseCode = "401",
-            description = "User has not been authenticated.",
-            content = @Content(schema = @Schema(
-                    type = SchemaType.OBJECT,
-                    implementation = APIResponseMsg.class)))
-    @APIResponse(
-            responseCode = "403",
-            description = "Not permitted.",
-            content = @Content(schema = @Schema(
-                    type = SchemaType.OBJECT,
-                    implementation = APIResponseMsg.class)))
-    @APIResponse(
-            responseCode = "404",
-            description = "PrefixRequest not found.",
-            content =
-            @Content(
-                    schema = @Schema(type = SchemaType.OBJECT, implementation = APIResponseMsg.class)))
-    @APIResponse(
-            responseCode = "500",
-            description = "Internal Server Error.",
-            content =
-            @Content(schema = @Schema(
-                    type = SchemaType.OBJECT,
-                    implementation = APIResponseMsg.class)))
-    @GET
-    @Path("/{id}")
-    @SecuredEndpoint
-    public Response getById(@PathParam("id") Integer id) {
-
-        return Response.ok(prefixRequestService.fetchById(id, utility.getUid())).build();
-    }
-
-
     @Operation(summary = "Get all assigned prefix requests to provider")
     @APIResponse(
             responseCode = "200",
@@ -271,6 +229,48 @@ public class PrefixRequestEndpoint {
         return Response.status(Response.Status.CREATED).entity(response).build();
     }
 
+    @Operation(summary = "Get Prefix Request By Id")
+    @APIResponse(
+            responseCode = "201",
+            description = "Retrieve prefix Request with specific id",
+            content = @Content(schema = @Schema(
+                    implementation = PrefixRequestResponse.class)))
+    @APIResponse(
+            responseCode = "401",
+            description = "User has not been authenticated.",
+            content = @Content(schema = @Schema(
+                    type = SchemaType.OBJECT,
+                    implementation = InformativeResponse.class)))
+    @APIResponse(
+            responseCode = "403",
+            description = "Not permitted.",
+            content = @Content(schema = @Schema(
+                    type = SchemaType.OBJECT,
+                    implementation = InformativeResponse.class)))
+    @APIResponse(
+            responseCode = "404",
+            description = "Prefix request not found.",
+            content = @Content(schema = @Schema(
+                    type = SchemaType.OBJECT,
+                    implementation = InformativeResponse.class)))
+    @APIResponse(
+            responseCode = "409",
+            description = "Prefix request already exists",
+            content = @Content(schema = @Schema(
+                    implementation = InformativeResponse.class)))
+    @APIResponse(
+            responseCode = "500",
+            description = "Internal Server Error",
+            content = @Content(schema = @Schema(
+                    implementation = InformativeResponse.class)))
+
+    @GET
+    @Path("/{id}")
+    @SecuredEndpoint()
+    public Response getById(@PathParam("id") Integer id) {
+
+        return Response.ok(prefixRequestService.fetchById(id, utility.getUserUniqueIdentifier())).build();
+    }
     @Operation(summary = "Update Prefix Request")
     @APIResponse(
             responseCode = "201",
@@ -393,7 +393,7 @@ public class PrefixRequestEndpoint {
                     implementation = APIResponseMsg.class)))
     @GET
     @Path("/{id}/by-provider")
-    @SecuredEndpoint
+    @SecuredEndpoint()
     public Response assignedById(@PathParam("id") Integer id) {
 
         return Response.ok(prefixRequestService.fetchAssignedById(id)).build();
