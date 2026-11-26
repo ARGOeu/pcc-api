@@ -96,10 +96,10 @@ public class PrefixRequestEndpoint {
     @GET
     @SecuredEndpoint
     public Response getAll(@Parameter(name = "search", in = QUERY,
-                                       description = "Search prefix requests by text on Contact Name, Surname, Contact Email, Contact Phone, Project Name, Project Description,Provider Name.",
-                                       example = "GRNET")
-                               @QueryParam("search")
-                               String search,
+                                   description = "Search prefix requests by text on Contact Name, Surname, Contact Email, Contact Phone, Project Name, Project Description,Provider Name.",
+                                   example = "GRNET")
+                           @QueryParam("search")
+                           String search,
                            @Parameter(name = "status", in = QUERY,
                                    description = "Search prefix requests by status",
                                    example = "ACCEPTED")
@@ -109,20 +109,20 @@ public class PrefixRequestEndpoint {
 
                            @Parameter(name = "page", in = QUERY,
                                    description = "Page number. Must be >= 1.")
-                               @DefaultValue("1")
-                               @Min(value = 1, message = "Page number must be >= 1.")
-                               @QueryParam("page")
-                               int page,
+                           @DefaultValue("1")
+                           @Min(value = 1, message = "Page number must be >= 1.")
+                           @QueryParam("page")
+                           int page,
                            @Parameter(name = "size", in = QUERY,
                                    description = "Page size.")
-                               @DefaultValue("10")
-                               @Min(value = 1, message = "Page size must be between 1 and 100.")
-                               @Max(value = 100, message = "Page size must be between 1 and 100.")
-                               @QueryParam("size")
-                               int size,
+                           @DefaultValue("10")
+                           @Min(value = 1, message = "Page size must be between 1 and 100.")
+                           @Max(value = 100, message = "Page size must be between 1 and 100.")
+                           @QueryParam("size")
+                           int size,
                            @Context UriInfo uriInfo) {
 
-        return Response.ok(prefixRequestService.fetchAll(utility.getUserUniqueIdentifier(),search,status,page-1,size, uriInfo)).build();
+        return Response.ok(prefixRequestService.fetchAll(utility.getUserUniqueIdentifier(), search, status, page - 1, size, uriInfo)).build();
     }
 
     @Operation(summary = "Get prefix request by id")
@@ -161,7 +161,7 @@ public class PrefixRequestEndpoint {
     @GET
     @Path("/{id}")
     @SecuredEndpoint
-    public Response getById(@PathParam("id") int id) {
+    public Response getById(@PathParam("id") Integer id) {
 
         return Response.ok(prefixRequestService.fetchById(id, utility.getUid())).build();
     }
@@ -198,10 +198,10 @@ public class PrefixRequestEndpoint {
     @Path("/by-provider")
     @SecuredEndpoint
     public Response getAllAssigned(@Parameter(name = "search", in = QUERY,
-                                               description = "Search prefix requests by text on Contact Name, Surname, Contact Email, Contact Phone, Project Name, Project Description,Provider Name.",
-                                               example = "GRNET")
-                                       @QueryParam("search")
-                                       String search,
+                                           description = "Search prefix requests by text on Contact Name, Surname, Contact Email, Contact Phone, Project Name, Project Description,Provider Name.",
+                                           example = "GRNET")
+                                   @QueryParam("search")
+                                   String search,
                                    @Parameter(name = "status", in = QUERY,
                                            description = "Search prefix requests by status",
                                            example = "ACCEPTED")
@@ -225,7 +225,7 @@ public class PrefixRequestEndpoint {
 
     ) {
 
-        return Response.ok(prefixRequestService.fetchAssigned(search,status, page-1, size,uriInfo)).build();
+        return Response.ok(prefixRequestService.fetchAssigned(search, status, page - 1, size, uriInfo)).build();
     }
 
     @Operation(summary = "Create Prefix Request")
@@ -307,8 +307,8 @@ public class PrefixRequestEndpoint {
                     implementation = InformativeResponse.class)))
     @PATCH
     @Path("/{id}")
-    @SecuredEndpoint()
-    public Response update(@PathParam("id") int id, @Valid PrefixRequestInitialDto prefixRequestInitialDto) {
+    @SecuredEndpoint
+    public Response update(@PathParam("id") Integer id, @Valid PrefixRequestInitialDto prefixRequestInitialDto) {
 
         var response = prefixRequestService.update(id, prefixRequestInitialDto, utility.getUserUniqueIdentifier());
 
@@ -394,10 +394,11 @@ public class PrefixRequestEndpoint {
     @GET
     @Path("/{id}/by-provider")
     @SecuredEndpoint
-    public Response assignedById(@PathParam("id") int id) {
+    public Response assignedById(@PathParam("id") Integer id) {
 
         return Response.ok(prefixRequestService.fetchAssignedById(id)).build();
     }
+
     public static class PageableObjects extends PageResource<PrefixRequestResponse> {
 
         private List<PrefixRequestResponse> content;
