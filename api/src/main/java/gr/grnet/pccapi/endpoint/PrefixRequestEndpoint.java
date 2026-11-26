@@ -37,6 +37,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.grnet.endpoint.scanner.runtime.SecuredEndpoint;
@@ -158,6 +159,7 @@ public class PrefixRequestEndpoint {
             @Content(schema = @Schema(
                     type = SchemaType.OBJECT,
                     implementation = APIResponseMsg.class)))
+    @SecurityRequirement(name = "Authentication")
     @GET
     @Path("/{id}")
     @SecuredEndpoint
@@ -193,7 +195,7 @@ public class PrefixRequestEndpoint {
             content = @Content(schema = @Schema(
                     type = SchemaType.OBJECT,
                     implementation = APIResponseMsg.class)))
-
+    @SecurityRequirement(name = "Authentication")
     @GET
     @Path("/by-provider")
     @SecuredEndpoint
@@ -262,6 +264,7 @@ public class PrefixRequestEndpoint {
             description = "Internal Server Error",
             content = @Content(schema = @Schema(
                     implementation = InformativeResponse.class)))
+    @SecurityRequirement(name = "Authentication")
     @POST
     @SecuredEndpoint
     public Response create(@Valid PrefixRequestInitialDto prefixRequestInitialDto) {
@@ -305,9 +308,10 @@ public class PrefixRequestEndpoint {
             description = "Internal Server Error",
             content = @Content(schema = @Schema(
                     implementation = InformativeResponse.class)))
+    @SecurityRequirement(name = "Authentication")
     @PATCH
     @Path("/{id}")
-    @SecuredEndpoint()
+    @SecuredEndpoint
     public Response update(@PathParam("id") int id, @Valid PrefixRequestInitialDto prefixRequestInitialDto) {
 
         var response = prefixRequestService.update(id, prefixRequestInitialDto, utility.getUserUniqueIdentifier());
@@ -344,9 +348,10 @@ public class PrefixRequestEndpoint {
             description = "Internal Server Error",
             content = @Content(schema = @Schema(
                     implementation = InformativeResponse.class)))
+    @SecurityRequirement(name = "Authentication")
     @DELETE
     @Path("/{id}")
-    @SecuredEndpoint()
+    @SecuredEndpoint
     public Response deleteById(@PathParam("id") Integer id) {
 
         prefixRequestService.deleteById(id, utility.getUserUniqueIdentifier());
@@ -391,6 +396,7 @@ public class PrefixRequestEndpoint {
             @Content(schema = @Schema(
                     type = SchemaType.OBJECT,
                     implementation = APIResponseMsg.class)))
+    @SecurityRequirement(name = "Authentication")
     @GET
     @Path("/{id}/by-provider")
     @SecuredEndpoint
