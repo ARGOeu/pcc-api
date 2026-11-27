@@ -111,3 +111,4 @@ According to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), the `Unre
 - [#123](https://github.com/ARGOeu/pcc-api/pull/123) PCC-232: [API] – Fix Provider Logo Serving and Removal
 - [#127](https://github.com/ARGOeu/pcc-api/pull/127) PCC-238: [API] Verify Compatibility with quarkus-auth MongoDB Changes
 - [#131](https://github.com/ARGOeu/pcc-api/pull/131) PCC-246 Check GET prefix-request/{id} authorization
+- [#132](https://github.com/ARGOeu/pcc-api/pull/132) PCC-245 [API] Improve invitation functionality, Prefix Request documentation and dev authorization initialization

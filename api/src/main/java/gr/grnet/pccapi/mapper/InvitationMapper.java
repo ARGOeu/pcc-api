@@ -3,6 +3,8 @@ package gr.grnet.pccapi.mapper;
 import gr.grnet.pccapi.dto.invitation.InvitationRequest;
 import gr.grnet.pccapi.dto.invitation.InvitationResponse;
 import gr.grnet.pccapi.entity.Invitation;
+import gr.grnet.pccapi.service.GroupManagementService;
+import org.mapstruct.Context;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -17,17 +19,18 @@ public interface InvitationMapper {
     InvitationMapper INSTANCE = Mappers.getMapper(InvitationMapper.class);
 
     @IterableMapping(qualifiedByName = "mapToResponse")
-    List<InvitationResponse> listToDtos(List<Invitation> invitations);
+    List<InvitationResponse> listToDtos(List<Invitation> invitations, @Context GroupManagementService groupManagementService);
 
     @Named("mapToResponse")
     @Mapping(target = "id", source = "id")
     @Mapping(target = "apiResource", source = "apiResource")
     @Mapping(target = "resourceId", source = "resourceId")
+    @Mapping(target = "resourceName", expression = "java(groupManagementService.resolveResourceName(invitation.apiResource, invitation.resourceId))")
     @Mapping(target = "email", source = "email")
     @Mapping(target = "role", source = "role")
     @Mapping(target = "status", source = "status")
     @Mapping(target = "createdAt", source = "createdAt")
-    InvitationResponse invitationToDto(Invitation invitation);
+    InvitationResponse invitationToDto(Invitation invitation, @Context GroupManagementService groupManagementService);
 
     @Named("mapToEntity")
     @Mapping(target = "id", ignore = true)
